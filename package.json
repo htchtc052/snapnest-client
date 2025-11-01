@@ -1,0 +1,31 @@
+{
+  "name": "snapnest-client",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "@fancyapps/ui": "^6.1.0",
+    "@nuxt/eslint": "^1.9.0",
+    "@nuxt/ui": "^4.1.0",
+    "escape-html": "^1.0.3",
+    "eslint": "^9.38.0",
+    "nuxt": "^4.2.0",
+    "nuxt-auth-sanctum": "^1.4.1",
+    "typescript": "^5.9.3",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3",
+    "yup": "^1.7.1"
+  },
+  "devDependencies": {
+    "@types/escape-html": "^1.0.4",
+    "@types/node": "^24.9.1"
+  }
+}
