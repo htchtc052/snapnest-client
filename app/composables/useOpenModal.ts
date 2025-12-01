@@ -1,18 +1,12 @@
 import type { Component } from 'vue'
 import type { ComponentProps } from 'vue-component-type-helpers'
 
-
-export function useOpenModal() {
+export function useOpenModal<C extends Component, R = unknown>(component: C) {
     const overlay = useOverlay()
 
-    return async function open<C extends Component>(
-        component: C,
-        props?: ComponentProps<C>
-    ): Promise<boolean> {
+    return async function open(props?: ComponentProps<C>): Promise<R> {
         const modal = overlay.create<C>(component)
-        const instance = modal.open(props)
-        const result = await instance.result
-
-        return Boolean(result)
+        const { result } = modal.open(props)
+        return await result as R
     }
 }

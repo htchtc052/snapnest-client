@@ -4,6 +4,8 @@ const route = useRoute();
 
 const links = [
   { label: 'Info', to: '/account' },
+  { label: 'Images', to: '/account/images' },
+  { label: 'Albums', to: '/account/albums' },
 ] as const
 
 const isActive = (to: string) => route.path === to

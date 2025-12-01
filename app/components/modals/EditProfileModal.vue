@@ -3,8 +3,8 @@ import type { Form, FormSubmitEvent } from '#ui/types'
 
 import { mapFormError } from '~/http/map-form-error'
 import type { User } from '~/models/user'
-import { updateAccount } from '~/api/account'
-import {profileEditSchema, type ProfileUpdateDto} from "~/contracts/profile-edit.contract";
+import {profileEditSchema, type ProfileUpdateDto} from "~/contracts/profile-update.contract";
+import {useAccountUpdate} from "~/composables/useAccountUpdate";
 
 const props = defineProps<{ user: User }>()
 const emit  = defineEmits<{ close: [boolean] }>()
@@ -23,7 +23,7 @@ async function onSubmit(e: FormSubmitEvent<ProfileUpdateDto>) {
   isLoading.value = true
   form.value?.clear()
   try {
-    await updateAccount(e.data)
+    await useAccountUpdate(e.data)
     emit('close', true)
   } catch (error: unknown) {
     const parsed = mapFormError(error)
