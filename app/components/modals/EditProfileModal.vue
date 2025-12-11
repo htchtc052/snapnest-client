@@ -5,6 +5,7 @@ import { mapFormError } from '~/http/map-form-error'
 import type { User } from '~/models/user'
 import {profileEditSchema, type ProfileUpdateDto} from "~/contracts/profile-update.contract";
 import {useAccountUpdate} from "~/composables/useAccountUpdate";
+import AppModal from "~/components/app/Modal.vue"
 
 const props = defineProps<{ user: User }>()
 const emit  = defineEmits<{ close: [boolean] }>()

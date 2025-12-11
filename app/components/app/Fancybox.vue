@@ -1,4 +1,4 @@
-<!-- app/components/app/AppFancybox.vue -->
+<!-- app/components/app/Fancybox.vue -->
 <script setup lang="ts">
 import { onMounted, onUpdated, onUnmounted, ref } from 'vue'
 import { Fancybox } from '@fancyapps/ui'

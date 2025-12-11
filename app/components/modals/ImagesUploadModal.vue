@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onBeforeUnmount } from 'vue'
-import type { User } from '~/models/user'
 import type { ImageUploadResponse } from '~/contracts/image-upload.contract'
+import AppModal from "~/components/app/Modal.vue"
 
 
 const emit = defineEmits<{ close: [boolean] }>()
@@ -61,7 +61,6 @@ async function handleUpload () {
 
   try {
     const res = await client<ImageUploadResponse>('/api/account/images', { method: 'POST', body: fd })
-
     if (res.failed.length) {
       console.debug('Upload failed:', res.failed)
       errorMessage.value = `${res.failed.length} image(s) failed to upload`

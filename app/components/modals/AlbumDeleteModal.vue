@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import {useAlbumDelete} from "~/composables/useAlbumDelete";
 import type {Album} from "~/models/Album";
+import AppModal from "~/components/app/Modal.vue"
 
 const props = defineProps<{ album: Album }>()
 const emit  = defineEmits<{ (e: 'close', value: boolean): void }>()

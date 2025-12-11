@@ -9,8 +9,8 @@ import {
   albumInfoSchema,
   type AlbumUpdateResult
 } from '~/contracts/album-manage.contract'
-import type {Album} from "~/models/Album";
 import {useAlbumCreate} from "~/composables/useAlbumCreate";
+import AppModal from "~/components/app/Modal.vue"
 
 const emit  = defineEmits<{ (e: 'close', value: AlbumUpdateResult): void }>()
 

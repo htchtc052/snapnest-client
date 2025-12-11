@@ -13,8 +13,6 @@ import AlbumUpdateModal from '~/components/modals/AlbumUpdateModal.vue'
 import { useAccountAlbums } from '~/composables/useAccountAlbums'
 import type { AlbumUpdateResult, AlbumCreateResult } from '~/contracts/album-manage.contract'
 
-const { user } = useSanctumAuth<User>()
-
 const {
   data: albums,
   pending: isLoading,

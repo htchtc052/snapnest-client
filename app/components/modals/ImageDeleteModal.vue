@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import type { Image } from '~/models/Image'
 import { useImageDelete } from '~/composables/useImageDelete'
+import AppModal from "~/components/app/Modal.vue"
 
 const props = defineProps<{ image: Image }>()
 const emit  = defineEmits<{ (e: 'close', value: boolean): void }>()
