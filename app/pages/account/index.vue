@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDateFormat } from '@vueuse/core'
 import { computed } from 'vue'
-import EditProfileModal from '~/components/modals/EditProfileModal.vue'
+import EditProfileModal from '~/components/modals/user/EditProfileModal.vue'
 import type { User } from '~/models/User'
 
 const { user, refreshIdentity } = useSanctumAuth<User>()

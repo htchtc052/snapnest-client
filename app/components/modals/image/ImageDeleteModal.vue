@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import AppModal from '~/components/app/Modal.vue'
-import { useImageDelete } from '~/http/composables/useImageDelete'
+import { computed, ref } from 'vue';
+import BaseModal from '~/components/modals/base/Modal.vue'
+import { useImageDelete } from '~/http/composables/useImageDelete';
 
 const props = defineProps<{ imageIds: number[] }>()
 const emit = defineEmits<{ (e: 'close', value: boolean): void }>()
@@ -33,7 +33,7 @@ async function onConfirm(): Promise<void> {
 </script>
 
 <template>
-  <AppModal @close="closeModal">
+  <BaseModal @close="closeModal">
     <template #title>Delete {{ count }} image{{ count === 1 ? '' : 's' }}?</template>
 
     Are you sure you want to delete
@@ -49,5 +49,5 @@ async function onConfirm(): Promise<void> {
         Delete
       </UButton>
     </div>
-  </AppModal>
+  </BaseModal>
 </template>

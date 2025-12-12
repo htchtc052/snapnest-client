@@ -3,8 +3,7 @@ import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
 
 import { mapFormError } from '~/http/utils/map-form-error'
-
-import AppModal from "~/components/app/Modal.vue"
+import BaseModal from '~/components/modals/base/Modal.vue'
 import {
   type AlbumCreateDto,
   albumInfoSchema,
@@ -51,7 +50,7 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
 </script>
 
 <template>
-  <AppModal @close="closeModal">
+  <BaseModal @close="closeModal">
     <template #title> Create new Album</template>
     <template #default>
       <div v-if="statusText" class="mb-2 flex items-center gap-2 text-sm text-gray-600">
@@ -74,5 +73,5 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
         </div>
       </UForm>
     </template>
-  </AppModal>
+  </BaseModal>
 </template>

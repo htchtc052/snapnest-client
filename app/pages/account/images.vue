@@ -2,17 +2,23 @@
 import { computed, ref } from 'vue'
 import type { Image } from '~/models/Image'
 
-import AlbumSelectForImages from '~/components/modals/AlbumSelectForImages.vue'
-import ImageDeleteModal from '~/components/modals/ImageDeleteModal.vue'
-import ImagesUploadModal from '~/components/modals/ImagesUploadModal.vue'
-import ImageUpdateModal from '~/components/modals/ImageUpdateModal.vue'
+import AlbumSelectForImages from '~/components/modals/album/AlbumSelectForImages.vue'
+import ImageDeleteModal from '~/components/modals/image/ImageDeleteModal.vue'
+import ImagesUploadModal from '~/components/modals/image/ImagesUploadModal.vue'
+import ImageUpdateModal from '~/components/modals/image/ImageUpdateModal.vue'
 
 import { useOpenModal } from '~/composables/useOpenModal'
 import type { ImageUpdateResult } from '~/contracts/image-update.contract'
 import { useImages } from '~/http/composables/useImages'
 
-import CardImage from '~/components/card/Image/ImageCard.vue'
-import ImagesActions from '~/components/section/actions/ImagesActions.vue'
+import ImageCard from '~/components/cards/image/ImageCard.vue'
+import ImageGroupActionsSection from '~/components/sections/image/ImageGroupActionsSection.vue'
+import BaseSection from '~/components/sections/base/Section.vue'
+import BaseSectionTitle from '~/components/sections/base/SectionTitle.vue'
+import Loader from '~/components/loaders/Loader.vue'
+import EmptyStateSection from '~/components/sections/blocks/EmptyStateSection.vue'
+import Fancybox from '~/components/integrations/fancybox/Fancybox.vue'
+import Grid from '~/components/grids/Grid.vue'
 import { useSelection } from '~/composables/useSelection'
 import type { PagingInfo } from '~/contracts/pagination-contract'
 import { getPaging } from '~/http/utils/get-paging'
@@ -114,11 +120,11 @@ async function addSelectedToAlbum() {
 
 <template>
   <div>
-    <AppSection>
+    <BaseSection>
       <div class="flex items-center justify-between">
-        <AppSectionTitle>
+        <BaseSectionTitle>
           Images
-        </AppSectionTitle>
+        </BaseSectionTitle>
 
         <div class="flex gap-2">
           <UButton color="primary" @click="openUploadModal">
@@ -127,24 +133,24 @@ async function addSelectedToAlbum() {
           </UButton>
         </div>
       </div>
-    </AppSection>
+    </BaseSection>
 
-    <ImagesActions :selected-count="selectedCount" :on-delete="deleteSelectedImages"
+    <ImageGroupActionsSection :selected-count="selectedCount" :on-delete="deleteSelectedImages"
       :on-add-to-album="addSelectedToAlbum" />
 
-    <AppLoader v-if="isInitialLoading" />
+    <Loader v-if="isInitialLoading" />
 
-    <AppEmptyState v-else-if="!images.length">
+    <EmptyStateSection v-else-if="!images.length">
       No images yet
-    </AppEmptyState>
+    </EmptyStateSection>
 
     <div v-else>
-      <AppFancybox>
-        <AppGrid>
-          <CardImage v-for="item in images" :key="item.id" :image="item" :selected="selection.isSelected(item.id)"
+      <Fancybox>
+        <Grid>
+          <ImageCard v-for="item in images" :key="item.id" :image="item" :selected="selection.isSelected(item.id)"
             @toggle-select="selection.toggle" @edit="openUpdateImageModal" @delete="openDeleteImageModal" />
-        </AppGrid>
-      </AppFancybox>
+        </Grid>
+      </Fancybox>
 
       <div v-if="paging.hasMore" class="mt-6 flex justify-center">
         <UButton :loading="isLoadingMore" @click="loadMore">

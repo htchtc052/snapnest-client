@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import AppEmptyState from '~/components/app/EmptyState.vue'
-import AppGrid from '~/components/app/Grid.vue'
-import AppLoader from '~/components/app/Loader.vue'
-import AppModal from '~/components/app/Modal.vue'
-import AppSection from '~/components/app/Section.vue'
-import AlbumSelectForImagesCard from '~/components/card/Album/AlbumSelectForImagesCard.vue'
-import AppCard from '~/components/card/BaseCard.vue'
-import AlbumCreateModal from '~/components/modals/AlbumCreateModal.vue'
+import AlbumSelectForImagesCard from '~/components/cards/album/AlbumSelectForImagesCard.vue'
+import BaseCard from '~/components/cards/base/Card.vue'
+import Grid from '~/components/grids/Grid.vue'
+import Loader from '~/components/loaders/Loader.vue'
+import AlbumCreateModal from '~/components/modals/album/AlbumCreateModal.vue'
+import BaseModal from '~/components/modals/base/Modal.vue'
+import BaseSection from '~/components/sections/base/Section.vue'
+import EmptyStateSection from '~/components/sections/blocks/EmptyStateSection.vue'
 import { useOpenModal } from '~/composables/useOpenModal'
 import { useAlbumAttachImages } from '~/http/composables/useAlbumAttachImages'
 import { useAlbums } from '~/http/composables/useAlbums'
@@ -91,33 +91,33 @@ onMounted(loadAlbums)
 </script>
 
 <template>
-  <AppModal @close="closeModal()">
+  <BaseModal @close="closeModal()">
     <template #title>Choose album for {{ props.imageIds.length }} image{{ props.imageIds.length === 1 ? '' : 's'
     }}</template>
-    <AppSection>
-      <AppLoader v-if="isLoading" />
+    <BaseSection>
+      <Loader v-if="isLoading" />
 
-      <AppEmptyState v-else-if="!albums.length">
+      <EmptyStateSection v-else-if="!albums.length">
         No albums yet
-      </AppEmptyState>
+      </EmptyStateSection>
 
       <div v-if="statusText" class="flex items-center gap-2 text-sm text-gray-600">
         <Icon name="i-heroicons-arrow-path-20-solid" class="h-4 w-4 animate-spin" />
         <span>{{ statusText }}</span>
       </div>
 
-      <AppGrid gap="gap-3">
-        <AppCard class="border-dashed">
+      <Grid gap="gap-3">
+        <BaseCard class="border-dashed">
           <UButton type="button" variant="ghost" class="w-full justify-center gap-2 text-sm" :loading="creating"
             @click="createAndAttach">
             <Icon name="i-heroicons-plus-20-solid" class="h-5 w-5" />
             New album
           </UButton>
-        </AppCard>
+        </BaseCard>
 
         <AlbumSelectForImagesCard v-for="album in albums" :key="album.id" :album="album"
           :disabled="attachingAlbumId === album.id" @select="attachToAlbum" />
-      </AppGrid>
-    </AppSection>
-  </AppModal>
+      </Grid>
+    </BaseSection>
+  </BaseModal>
 </template>

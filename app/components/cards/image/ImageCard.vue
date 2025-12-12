@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseCard from '~/components/card/BaseCard.vue'
+import BaseCard from '~/components/cards/base/Card.vue'
 import { formatYMD } from '~/helpers/formatYMD'
 import type { Image } from '~/models/Image'
 

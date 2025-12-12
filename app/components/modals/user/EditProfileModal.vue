@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { Form, FormSubmitEvent } from '#ui/types';
-
-import AppModal from "~/components/app/Modal.vue";
-import { profileEditSchema, type ProfileUpdateDto } from "~/contracts/profile-update.contract";
-import { useAccountUpdate } from '~/http/composables/useAccountUpdate';
-import { mapFormError } from '~/http/utils/map-form-error';
-import type { User } from '~/models/User';
+import type { Form, FormSubmitEvent } from '#ui/types'
+import BaseModal from '~/components/modals/base/Modal.vue'
+import { profileEditSchema, type ProfileUpdateDto } from '~/contracts/profile-update.contract'
+import { useAccountUpdate } from '~/http/composables/useAccountUpdate'
+import { mapFormError } from '~/http/utils/map-form-error'
+import type { User } from '~/models/User'
 
 const props = defineProps<{ user: User }>()
 const emit = defineEmits<{ close: [boolean] }>()
@@ -42,7 +41,7 @@ function closeModal() {
 
 
 <template>
-  <AppModal @close="closeModal">
+  <BaseModal @close="closeModal">
     <template #title> Edit account info</template>
     <template #default>
       <UForm ref="form" :state="state" :schema="profileEditSchema" class="space-y-4" @submit="onSubmit">
@@ -68,5 +67,5 @@ function closeModal() {
         </div>
       </UForm>
     </template>
-  </AppModal>
+  </BaseModal>
 </template>

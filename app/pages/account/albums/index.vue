@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { useOpenModal } from '~/composables/useOpenModal'
-
-import AlbumCreateModal from '~/components/modals/AlbumCreateModal.vue'
-import AlbumDeleteModal from '~/components/modals/AlbumDeleteModal.vue'
-import AlbumUpdateModal from '~/components/modals/AlbumUpdateModal.vue'
-import type { Album } from '~/models/Album'
-
-import AlbumGridCard from '~/components/card/Album/AlbumGridCard.vue'
-import AlbumsActions from '~/components/section/actions/AlbumsActions.vue'
-import { useSelection } from '~/composables/useSelection'
-
 import type { AlbumCreateResult, AlbumUpdateResult } from '~/contracts/album-manage.contract'
 import { useAlbums } from '~/http/composables/useAlbums'
+import { useOpenModal } from '~/composables/useOpenModal'
+import { useSelection } from '~/composables/useSelection'
+import AlbumCreateModal from '~/components/modals/album/AlbumCreateModal.vue'
+import AlbumDeleteModal from '~/components/modals/album/AlbumDeleteModal.vue'
+import AlbumUpdateModal from '~/components/modals/album/AlbumUpdateModal.vue'
+import type { Album } from '~/models/Album'
+import AlbumListCard from '~/components/cards/album/AlbumListCard.vue'
+import AlbumGroupActionsSection from '~/components/sections/album/AlbumGroupActionsSection.vue'
+import BaseSection from '~/components/sections/base/Section.vue'
+import BaseSectionTitle from '~/components/sections/base/SectionTitle.vue'
+import Loader from '~/components/loaders/Loader.vue'
+import EmptyStateSection from '~/components/sections/blocks/EmptyStateSection.vue'
+import Grid from '~/components/grids/Grid.vue'
 
 const {
   data: albums,
@@ -72,11 +74,11 @@ async function deleteSelectedAlbums() {
 
 <template>
   <div>
-    <AppSection>
+    <BaseSection>
       <div class="flex items-center justify-between">
-        <AppSectionTitle>
+        <BaseSectionTitle>
           Albums
-        </AppSectionTitle>
+        </BaseSectionTitle>
 
         <div class="flex gap-2">
           <UButton color="primary" @click="openCreateModal">
@@ -85,21 +87,21 @@ async function deleteSelectedAlbums() {
           </UButton>
         </div>
       </div>
-    </AppSection>
+    </BaseSection>
 
-    <AlbumsActions :selected-count="selectedCount" :on-delete="deleteSelectedAlbums" />
+    <AlbumGroupActionsSection :selected-count="selectedCount" :on-delete="deleteSelectedAlbums" />
 
-    <AppLoader v-if="isLoading" />
+    <Loader v-if="isLoading" />
 
-    <AppEmptyState v-else-if="albums.length === 0">
+    <EmptyStateSection v-else-if="albums.length === 0">
       No albums yet
-    </AppEmptyState>
+    </EmptyStateSection>
 
     <div v-else>
-      <AppGrid>
-        <AlbumGridCard v-for="item in albums" :key="item.id" :album="item" :selected="selection.isSelected(item.id)"
+      <Grid>
+        <AlbumListCard v-for="item in albums" :key="item.id" :album="item" :selected="selection.isSelected(item.id)"
           @toggle-select="selection.toggle" @edit="openUpdateAlbumModal" />
-      </AppGrid>
+      </Grid>
     </div>
   </div>
 </template>

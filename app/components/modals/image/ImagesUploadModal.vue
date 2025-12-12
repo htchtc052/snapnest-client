@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { ref, onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
+import BaseModal from '~/components/modals/base/Modal.vue'
 import type { ImageUploadResponse } from '~/contracts/image-upload.contract'
-import AppModal from "~/components/app/Modal.vue"
 
 
 const emit = defineEmits<{ close: [boolean] }>()
 
 const client = useSanctumClient()
 
-const fileInput     = ref<HTMLInputElement | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
 const selectedFiles = ref<File[]>([])
-const previews      = ref<{ name: string; url: string }[]>([])
-const errorMessage  = ref<string | null>(null)
-const isSubmitting  = ref(false)
+const previews = ref<{ name: string; url: string }[]>([])
+const errorMessage = ref<string | null>(null)
+const isSubmitting = ref(false)
 
-function safeRevokeObjectUrl (url?: string) {
+function safeRevokeObjectUrl(url?: string) {
   try { if (url) URL.revokeObjectURL(url) } catch { console.warn('Revoke url failed') }
 }
 
-function handleFileSelect (e: Event) {
+function handleFileSelect(e: Event) {
   const input = e.target as HTMLInputElement
   const files = Array.from(input.files ?? []).filter(f => f.type.startsWith('image/'))
 
@@ -38,7 +38,7 @@ function handleFileSelect (e: Event) {
   if (fileInput.value) fileInput.value.value = '' // разрешаем повторный выбор тех же файлов
 }
 
-function removeFile (index: number) {
+function removeFile(index: number) {
   const p = previews.value[index]
   if (!p) return
 
@@ -47,7 +47,7 @@ function removeFile (index: number) {
   previews.value.splice(index, 1)
 }
 
-async function handleUpload () {
+async function handleUpload() {
   if (!selectedFiles.value.length) {
     errorMessage.value = 'No files selected. Please choose files to upload.'
     return
@@ -77,16 +77,16 @@ async function handleUpload () {
   }
 }
 
-function handleCancel () {
+function handleCancel() {
   resetState()
   emit('close', false)
 }
 
-function resetState () {
+function resetState() {
   previews.value.forEach(p => safeRevokeObjectUrl(p.url))
   selectedFiles.value = []
-  previews.value      = []
-  errorMessage.value  = null
+  previews.value = []
+  errorMessage.value = null
   if (fileInput.value) fileInput.value.value = ''
 }
 
@@ -94,7 +94,7 @@ onBeforeUnmount(resetState)
 </script>
 
 <template>
-  <AppModal @close="handleCancel">
+  <BaseModal @close="handleCancel">
     <template #title>Upload images</template>
 
     <div class="space-y-5">
@@ -108,27 +108,16 @@ onBeforeUnmount(resetState)
         <NuxtLink to="#" class="underline">content policy</NuxtLink>.
       </p>
 
-      <input
-          ref="fileInput"
-          type="file"
-          multiple
-          accept="image/jpeg,image/png,image/webp"
-          class="hidden"
-          @change="handleFileSelect"
-      >
+      <input ref="fileInput" type="file" multiple accept="image/jpeg,image/png,image/webp" class="hidden"
+        @change="handleFileSelect">
 
       <div v-if="previews.length" class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[50vh] overflow-y-auto">
         <div v-for="(p, i) in previews" :key="p.url">
           <div class="aspect-square overflow-hidden rounded">
-            <img :src="p.url" :alt="p.name" class="w-full h-full object-contain" >
+            <img :src="p.url" :alt="p.name" class="w-full h-full object-contain">
           </div>
           <div class="mt-2 text-sm truncate">{{ p.name }}</div>
-          <UButton
-              color="error" variant="outline"
-              class="mt-2"
-              :disabled="isSubmitting"
-              @click="removeFile(i)"
-          >
+          <UButton color="error" variant="outline" class="mt-2" :disabled="isSubmitting" @click="removeFile(i)">
             <Icon name="i-heroicons-trash-20-solid" class="w-3 h-3" />
           </UButton>
         </div>
@@ -145,5 +134,5 @@ onBeforeUnmount(resetState)
         </UButton>
       </div>
     </div>
-  </AppModal>
+  </BaseModal>
 </template>

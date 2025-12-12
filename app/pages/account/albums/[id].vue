@@ -3,15 +3,15 @@ import { computed, ref } from 'vue'
 import type { Album } from '~/models/Album'
 import type { Image } from '~/models/Image'
 
-import AppEmptyState from '~/components/app/EmptyState.vue'
-import AppFancybox from '~/components/app/Fancybox.vue'
-import AppGrid from '~/components/app/Grid.vue'
-import AppLoader from '~/components/app/Loader.vue'
-import AppSection from '~/components/app/Section.vue'
-import AppSectionTitle from '~/components/app/SectionTitle.vue'
-import CardImage from '~/components/card/Image/ImageCard.vue'
-import ImageUpdateModal from '~/components/modals/ImageUpdateModal.vue'
-import AlbumImagesActions from '~/components/section/actions/AlbumImagesActions.vue'
+import Fancybox from '~/components/integrations/fancybox/Fancybox.vue'
+import Grid from '~/components/grids/Grid.vue'
+import Loader from '~/components/loaders/Loader.vue'
+import ImageUpdateModal from '~/components/modals/image/ImageUpdateModal.vue'
+import AlbumImagesGroupActionsSection from '~/components/sections/album/AlbumImagesGroupActionsSection.vue'
+import BaseSection from '~/components/sections/base/Section.vue'
+import BaseSectionTitle from '~/components/sections/base/SectionTitle.vue'
+import EmptyStateSection from '~/components/sections/blocks/EmptyStateSection.vue'
+import ImageCard from '~/components/cards/image/ImageCard.vue'
 import { useOpenModal } from '~/composables/useOpenModal'
 import { useSelection } from '~/composables/useSelection'
 import type { ImageUpdateResult } from '~/contracts/image-update.contract'
@@ -95,34 +95,34 @@ async function openUpdateImageModal(image: Image) {
 
 <template>
   <div>
-    <AppSection>
+    <BaseSection>
       <div class="flex items-center justify-between">
         <div>
-          <AppSectionTitle>
+          <BaseSectionTitle>
             {{ album?.name }}
-          </AppSectionTitle>
+          </BaseSectionTitle>
           <p class="text-sm text-gray-600">
             {{ album?.imagesCount }} images
           </p>
         </div>
       </div>
-    </AppSection>
+    </BaseSection>
 
-    <AlbumImagesActions :selected-count="selectedCount" :on-remove="removeSelected" />
+    <AlbumImagesGroupActionsSection :selected-count="selectedCount" :on-remove="removeSelected" />
 
-    <AppLoader v-if="isInitialLoading" />
+    <Loader v-if="isInitialLoading" />
 
-    <AppEmptyState v-else-if="!images.length">
+    <EmptyStateSection v-else-if="!images.length">
       No images yet
-    </AppEmptyState>
+    </EmptyStateSection>
 
     <div v-else>
-      <AppFancybox>
-        <AppGrid>
-          <CardImage v-for="item in images" :key="item.id" :image="item" :selected="selection.isSelected(item.id)"
+      <Fancybox>
+        <Grid>
+          <ImageCard v-for="item in images" :key="item.id" :image="item" :selected="selection.isSelected(item.id)"
             @toggle-select="selection.toggle" @edit="openUpdateImageModal" />
-        </AppGrid>
-      </AppFancybox>
+        </Grid>
+      </Fancybox>
 
       <div v-if="paging.hasMore" class="mt-6 flex justify-center">
         <UButton :loading="isLoadingMore" @click="loadMore">
