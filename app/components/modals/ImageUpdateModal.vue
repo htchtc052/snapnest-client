@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { mapFormError } from '~/http/map-form-error'
-import type { Image } from '~/models/Image'
-import { imageUpdateSchema, type ImageUpdateDto, type ImageUpdateResult } from '~/contracts/image-update.contract'
-import {useImageUpdate} from "~/composables/useImageUpdate";
+import { computed, reactive, ref } from 'vue'
 import AppModal from "~/components/app/Modal.vue"
+import { imageUpdateSchema, type ImageUpdateDto, type ImageUpdateResult } from '~/contracts/image-update.contract'
+import { useImageUpdate } from '~/http/composables/useImageUpdate'
+import { mapFormError } from '~/http/utils/map-form-error'
+import type { Image } from '~/models/Image'
 
 const props = defineProps<{ image: Image }>()
-const emit  = defineEmits<{ (e: 'close', value: ImageUpdateResult): void }>()
+const emit = defineEmits<{ (e: 'close', value: ImageUpdateResult): void }>()
 
 const initial = computed<ImageUpdateDto>(() => ({
   name: props.image.name ?? '',
@@ -16,7 +16,7 @@ const initial = computed<ImageUpdateDto>(() => ({
 }))
 
 const state = reactive<ImageUpdateDto>({ ...initial.value })
-const form  = ref<Form<ImageUpdateDto>>()
+const form = ref<Form<ImageUpdateDto>>()
 const isLoading = ref(false)
 
 function closeModal() {
@@ -43,20 +43,13 @@ async function onSubmit(e: FormSubmitEvent<ImageUpdateDto>) {
   <AppModal @close="closeModal">
     <template #title> Edit image info</template>
     <template #default>
-      <UForm
-          ref="form"
-          :state="state"
-          :schema="imageUpdateSchema"
-          class="space-y-4"
-          @submit="onSubmit"
-      >
+      <UForm ref="form" :state="state" :schema="imageUpdateSchema" class="space-y-4" @submit="onSubmit">
         <UFormField name="name" label="Image name">
-          <UInput v-model="state.name"  class="w-full"
-          />
+          <UInput v-model="state.name" class="w-full" />
         </UFormField>
 
         <UFormField name="description" label="Image description">
-          <UTextarea v-model="state.description" :rows="4" class="w-full"/>
+          <UTextarea v-model="state.description" :rows="4" class="w-full" />
         </UFormField>
 
         <div class="flex gap-3 pt-2">
@@ -71,4 +64,3 @@ async function onSubmit(e: FormSubmitEvent<ImageUpdateDto>) {
     </template>
   </AppModal>
 </template>
-

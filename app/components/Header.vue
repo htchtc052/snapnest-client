@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User } from '~/models/user'
+import type { User } from '~/models/User'
 
 const { user, logout, isAuthenticated } = useSanctumAuth<User>()
 
@@ -27,13 +27,7 @@ const handleLogout = async () => {
             {{ user?.name }}
           </NuxtLink>
 
-          <UButton
-              variant="outline"
-              color="error"
-              :loading="pending"
-              :disabled="pending"
-              @click="handleLogout"
-          >
+          <UButton variant="outline" color="error" :loading="pending" :disabled="pending" @click="handleLogout">
             Logout
           </UButton>
         </template>

@@ -1,5 +1,5 @@
-import type { User } from '~/models/user'
-import type {RegistrationDto} from "~/contracts/registration.contract";
+import type { RegistrationDto } from "~/contracts/registration.contract";
+import type { User } from '~/models/User';
 
 
 
@@ -12,5 +12,5 @@ export async function useRegister(data: RegistrationDto): Promise<void> {
 
     await client<User>('/register', { method: 'POST', body: data })
     await refreshIdentity()
-    await router.push(config.redirect.onLogin  || '/account')
+    await router.push(config.redirect.onLogin || '/account')
 }

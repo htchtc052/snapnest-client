@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { Form, FormSubmitEvent } from '#ui/types'
+import type { Form, FormSubmitEvent } from '#ui/types';
 
-import { mapFormError } from '~/http/map-form-error'
-import type { User } from '~/models/user'
-import {profileEditSchema, type ProfileUpdateDto} from "~/contracts/profile-update.contract";
-import {useAccountUpdate} from "~/composables/useAccountUpdate";
-import AppModal from "~/components/app/Modal.vue"
+import AppModal from "~/components/app/Modal.vue";
+import { profileEditSchema, type ProfileUpdateDto } from "~/contracts/profile-update.contract";
+import { useAccountUpdate } from '~/http/composables/useAccountUpdate';
+import { mapFormError } from '~/http/utils/map-form-error';
+import type { User } from '~/models/User';
 
 const props = defineProps<{ user: User }>()
-const emit  = defineEmits<{ close: [boolean] }>()
+const emit = defineEmits<{ close: [boolean] }>()
 
 const initial = computed<ProfileUpdateDto>(() => ({
   name: props.user.name ?? '',
@@ -17,7 +17,7 @@ const initial = computed<ProfileUpdateDto>(() => ({
 }))
 
 const state = reactive<ProfileUpdateDto>({ ...initial.value })
-const form  = ref<Form<ProfileUpdateDto>>()
+const form = ref<Form<ProfileUpdateDto>>()
 const isLoading = ref(false)
 
 async function onSubmit(e: FormSubmitEvent<ProfileUpdateDto>) {
@@ -45,24 +45,17 @@ function closeModal() {
   <AppModal @close="closeModal">
     <template #title> Edit account info</template>
     <template #default>
-      <UForm
-          ref="form"
-          :state="state"
-          :schema="profileEditSchema"
-          class="space-y-4"
-          @submit="onSubmit"
-      >
+      <UForm ref="form" :state="state" :schema="profileEditSchema" class="space-y-4" @submit="onSubmit">
         <UFormField name="name" label="Your name">
-          <UInput v-model="state.name" class="w-full"
-          />
+          <UInput v-model="state.name" class="w-full" />
         </UFormField>
 
         <UFormField name="birth_date" label="Birth date">
-          <UInput v-model="state.birth_date" type="date" class="w-full"/>
+          <UInput v-model="state.birth_date" type="date" class="w-full" />
         </UFormField>
 
         <UFormField name="bio" label="Bio">
-          <UTextarea v-model="state.bio" :rows="4" class="w-full"/>
+          <UTextarea v-model="state.bio" :rows="4" class="w-full" />
         </UFormField>
 
         <div class="flex gap-3 pt-2">

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import AppModal from '~/components/app/Modal.vue'
-import { useAlbumDelete } from '~/composables/useAlbumDelete'
+import { useAlbumDelete } from '~/http/composables/useAlbumDelete'
 
 const props = defineProps<{ albumIds: number[] }>()
 const emit = defineEmits<{ (e: 'close', value: boolean): void }>()

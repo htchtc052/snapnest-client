@@ -7,15 +7,15 @@ import ImageDeleteModal from '~/components/modals/ImageDeleteModal.vue'
 import ImagesUploadModal from '~/components/modals/ImagesUploadModal.vue'
 import ImageUpdateModal from '~/components/modals/ImageUpdateModal.vue'
 
-import { useImages } from '~/composables/useImages'
 import { useOpenModal } from '~/composables/useOpenModal'
 import type { ImageUpdateResult } from '~/contracts/image-update.contract'
+import { useImages } from '~/http/composables/useImages'
 
-import CardImage from '~/components/card/Image.vue'
+import CardImage from '~/components/card/Image/ImageCard.vue'
 import ImagesActions from '~/components/section/actions/ImagesActions.vue'
 import { useSelection } from '~/composables/useSelection'
 import type { PagingInfo } from '~/contracts/pagination-contract'
-import { getPaging } from '~/http/get-paging'
+import { getPaging } from '~/http/utils/get-paging'
 
 const fetchImages = useImages()
 

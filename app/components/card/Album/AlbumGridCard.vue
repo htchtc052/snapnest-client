@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import AppCard from '~/components/app/Card.vue';
-import AlbumCard from '~/components/card/AlbumCard.vue';
-import type { Album } from '~/models/Album';
+import AlbumCard from '~/components/card/Album/AlbumCard.vue'
+import BaseCard from '~/components/card/BaseCard.vue'
+import type { Album } from '~/models/Album'
 
 const props = defineProps<{
   album: Album
@@ -15,7 +15,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <AppCard>
+  <BaseCard>
     <div class="flex gap-2 items-start">
       <UCheckbox :model-value="props.selected" size="lg" class="mt-1"
         @update:model-value="() => emit('toggle-select', props.album.id)" />
@@ -33,5 +33,5 @@ const emit = defineEmits<{
       </UButton>
 
     </div>
-  </AppCard>
+  </BaseCard>
 </template>

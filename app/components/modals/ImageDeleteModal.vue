@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import AppModal from '~/components/app/Modal.vue'
-import { useImageDelete } from '~/composables/useImageDelete'
+import { useImageDelete } from '~/http/composables/useImageDelete'
 
 const props = defineProps<{ imageIds: number[] }>()
 const emit = defineEmits<{ (e: 'close', value: boolean): void }>()

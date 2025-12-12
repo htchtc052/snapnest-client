@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { Form, FormSubmitEvent } from '#ui/types'
 import { registrationSchema, type RegistrationDto } from '~/contracts/registration.contract'
-import { mapFormError } from '~/http/map-form-error'
-import type { FormSubmitEvent, Form } from '#ui/types'
-import {useRegister} from "~/composables/useRegister";
+import { useRegister } from '~/http/composables/useRegister'
+import { mapFormError } from '~/http/utils/map-form-error'
 
 definePageMeta({ sanctum: { guestOnly: true } })
 
@@ -43,15 +43,7 @@ async function onSubmit(e: FormSubmitEvent<RegistrationDto>) {
         <template #header>
           <h1 class="text-center text-xl font-semibold">Sign up</h1>
         </template>
-        <UForm
-            ref="form"
-            :schema="registrationSchema"
-            :state="state"
-            class="space-y-4"
-            novalidate
-            @submit="onSubmit"
-
-        >
+        <UForm ref="form" :schema="registrationSchema" :state="state" class="space-y-4" novalidate @submit="onSubmit">
           <UFormField name="name" label="Name">
             <UInput v-model="state.name" class="w-full" />
           </UFormField>
@@ -64,15 +56,8 @@ async function onSubmit(e: FormSubmitEvent<RegistrationDto>) {
             <UInput v-model="state.password" type="password" class="w-full" />
           </UFormField>
 
-          <UFormField
-              name="password_confirmation"
-              label="Confirm password"
-          >
-            <UInput
-                v-model="state.password_confirmation"
-                type="password"
-                class="w-full"
-            />
+          <UFormField name="password_confirmation" label="Confirm password">
+            <UInput v-model="state.password_confirmation" type="password" class="w-full" />
           </UFormField>
 
           <UButton type="submit" block :loading="isLoading">

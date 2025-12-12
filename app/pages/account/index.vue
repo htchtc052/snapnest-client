@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useDateFormat } from '@vueuse/core'
-import type { User } from '~/models/user'
+import { computed } from 'vue'
 import EditProfileModal from '~/components/modals/EditProfileModal.vue'
+import type { User } from '~/models/User'
 
 const { user, refreshIdentity } = useSanctumAuth<User>()
 
@@ -12,7 +12,7 @@ type Row = { label: string; value: string }
 
 const rows = computed<Row[]>(() => {
   const items: Row[] = [
-    { label: 'Name',  value: u.value.name },
+    { label: 'Name', value: u.value.name },
     { label: 'Email', value: u.value.email },
     { label: 'Created at', value: useDateFormat(u.value.created_at, 'YYYY.MM.DD').value },
   ]

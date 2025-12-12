@@ -8,12 +8,12 @@ import AlbumDeleteModal from '~/components/modals/AlbumDeleteModal.vue'
 import AlbumUpdateModal from '~/components/modals/AlbumUpdateModal.vue'
 import type { Album } from '~/models/Album'
 
-import AlbumGridCard from '~/components/card/AlbumGridCard.vue'
+import AlbumGridCard from '~/components/card/Album/AlbumGridCard.vue'
 import AlbumsActions from '~/components/section/actions/AlbumsActions.vue'
 import { useSelection } from '~/composables/useSelection'
 
-import { useAlbums } from '~/composables/useAlbums'
 import type { AlbumCreateResult, AlbumUpdateResult } from '~/contracts/album-manage.contract'
+import { useAlbums } from '~/http/composables/useAlbums'
 
 const {
   data: albums,

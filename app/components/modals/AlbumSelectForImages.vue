@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import AppCard from '~/components/app/Card.vue'
 import AppEmptyState from '~/components/app/EmptyState.vue'
 import AppGrid from '~/components/app/Grid.vue'
 import AppLoader from '~/components/app/Loader.vue'
 import AppModal from '~/components/app/Modal.vue'
 import AppSection from '~/components/app/Section.vue'
-import AlbumSelectForImagesCard from '~/components/card/AlbumSelectForImagesCard.vue'
+import AlbumSelectForImagesCard from '~/components/card/Album/AlbumSelectForImagesCard.vue'
+import AppCard from '~/components/card/BaseCard.vue'
 import AlbumCreateModal from '~/components/modals/AlbumCreateModal.vue'
-import { useAlbums } from '~/composables/useAlbums'
-import { useAlbumAttachImages } from '~/composables/useAlbumAttachImages'
 import { useOpenModal } from '~/composables/useOpenModal'
+import { useAlbumAttachImages } from '~/http/composables/useAlbumAttachImages'
+import { useAlbums } from '~/http/composables/useAlbums'
 import type { Album } from '~/models/Album'
 
 const props = defineProps<{ imageIds: number[] }>()

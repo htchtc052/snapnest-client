@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { loginSchema, type LoginDto } from '~/contracts/login.contract'
+import { loginSchema, type LoginDto } from '~/contracts/login.contract';
 
-import type { FormSubmitEvent, Form } from '#ui/types'
-import {mapFormError} from "~/http/map-form-error";
-import {useLogin} from "~/composables/useLogin";
+import type { Form, FormSubmitEvent } from '#ui/types';
+import { useLogin } from '~/http/composables/useLogin';
+import { mapFormError } from "~/http/utils/map-form-error";
 
 definePageMeta({ sanctum: { guestOnly: true } })
 
-const state     = reactive<LoginDto>({ email: "htchtc052@gmail.com", password: "12301230" })
+const state = reactive<LoginDto>({ email: "htchtc052@gmail.com", password: "12301230" })
 
 const isLoading = ref(false)
-const form      = ref<Form<LoginDto>>()
+const form = ref<Form<LoginDto>>()
 
 async function onSubmit(e: FormSubmitEvent<LoginDto>) {
   isLoading.value = true
@@ -41,14 +41,7 @@ async function onSubmit(e: FormSubmitEvent<LoginDto>) {
           <h1 class="text-center text-xl font-semibold">Sign in</h1>
         </template>
 
-        <UForm
-            ref="form"
-            :schema="loginSchema"
-            :state="state"
-            class="space-y-4"
-            novalidate
-            @submit="onSubmit"
-        >
+        <UForm ref="form" :schema="loginSchema" :state="state" class="space-y-4" novalidate @submit="onSubmit">
           <UFormField name="email" label="Email" type="email">
             <UInput v-model="state.email" type="string" placeholder="you@example.com" class="w-full" />
           </UFormField>

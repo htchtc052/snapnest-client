@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import AppCard from "~/components/app/Card.vue";
-import { formatYMD } from '~/helpers/formatYMD';
-import type { Image } from '~/models/Image';
+import BaseCard from '~/components/card/BaseCard.vue'
+import { formatYMD } from '~/helpers/formatYMD'
+import type { Image } from '~/models/Image'
 
 const props = defineProps<{
   image: Image
@@ -16,7 +16,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <AppCard>
+  <BaseCard>
     <div class="flex gap-2 items-start">
       <UCheckbox :model-value="props.selected" size="lg" class="mt-1"
         @update:model-value="() => emit('toggle-select', props.image.id)" />
@@ -45,5 +45,5 @@ const emit = defineEmits<{
         <Icon name="i-heroicons-pencil-square-20-solid" class="w-4 h-4" />
       </UButton>
     </div>
-  </AppCard>
+  </BaseCard>
 </template>

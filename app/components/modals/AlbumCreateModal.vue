@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
 import type { Form, FormSubmitEvent } from '#ui/types'
+import { computed, reactive, ref } from 'vue'
 
-import { mapFormError } from '~/http/map-form-error'
+import { mapFormError } from '~/http/utils/map-form-error'
 
+import AppModal from "~/components/app/Modal.vue"
 import {
   type AlbumCreateDto,
   albumInfoSchema,
   type AlbumUpdateResult
 } from '~/contracts/album-manage.contract'
-import {useAlbumCreate} from "~/composables/useAlbumCreate";
-import AppModal from "~/components/app/Modal.vue"
+import { useAlbumCreate } from '~/http/composables/useAlbumCreate'
 
 const props = defineProps<{ imageIds?: number[] }>()
-const emit  = defineEmits<{ (e: 'close', value: AlbumUpdateResult): void }>()
+const emit = defineEmits<{ (e: 'close', value: AlbumUpdateResult): void }>()
 
 const initial = computed<AlbumCreateDto>(() => ({
   name: '',
 }))
 
 const state = reactive<AlbumCreateDto>({ ...initial.value })
-const form  = ref<Form<AlbumCreateDto>>()
+const form = ref<Form<AlbumCreateDto>>()
 const isLoading = ref(false)
 const statusText = computed(() => {
   if (!isLoading.value) return ''
@@ -59,16 +59,9 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
         <span>{{ statusText }}</span>
       </div>
 
-      <UForm
-          ref="form"
-          :state="state"
-          :schema="albumInfoSchema"
-          class="space-y-4"
-          @submit="onSubmit"
-      >
+      <UForm ref="form" :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
         <UFormField name="name" label="Album name">
-          <UInput v-model="state.name"  class="w-full"
-          />
+          <UInput v-model="state.name" class="w-full" />
         </UFormField>
 
         <div class="flex gap-3 pt-2">
