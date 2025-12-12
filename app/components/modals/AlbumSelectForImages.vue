@@ -8,7 +8,7 @@ import AppModal from '~/components/app/Modal.vue'
 import AppSection from '~/components/app/Section.vue'
 import AlbumSelectForImagesCard from '~/components/card/AlbumSelectForImagesCard.vue'
 import AlbumCreateModal from '~/components/modals/AlbumCreateModal.vue'
-import { useAccountAlbums } from '~/composables/useAccountAlbums'
+import { useAlbums } from '~/composables/useAlbums'
 import { useAlbumAttachImages } from '~/composables/useAlbumAttachImages'
 import { useOpenModal } from '~/composables/useOpenModal'
 import type { Album } from '~/models/Album'
@@ -37,7 +37,7 @@ function closeModal(result = false) {
 async function loadAlbums() {
   isLoading.value = true
   try {
-    albums.value = await useAccountAlbums()
+    albums.value = await useAlbums()
   } catch (error) {
     console.error('[Albums] Failed to load albums', error)
     toast.add({ title: 'Failed to load albums', color: 'error' })

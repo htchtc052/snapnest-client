@@ -12,7 +12,7 @@ import AlbumGridCard from '~/components/card/AlbumGridCard.vue'
 import AlbumsActions from '~/components/section/actions/AlbumsActions.vue'
 import { useSelection } from '~/composables/useSelection'
 
-import { useAccountAlbums } from '~/composables/useAccountAlbums'
+import { useAlbums } from '~/composables/useAlbums'
 import type { AlbumCreateResult, AlbumUpdateResult } from '~/contracts/album-manage.contract'
 
 const {
@@ -22,7 +22,7 @@ const {
   refresh,
 } = await useAsyncData<Album[]>(
   'account-albums',
-  () => useAccountAlbums(),
+  () => useAlbums(),
   {
     default: () => [],
   },

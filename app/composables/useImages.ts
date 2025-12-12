@@ -1,7 +1,7 @@
 import type { Image } from '~/models/Image'
-import type {PaginationPage} from "~/contracts/pagination-contract";
+import type { PaginationPage } from '~/contracts/pagination-contract'
 
-export function useAccountImages() {
+export function useImages() {
     const client = useSanctumClient()
 
     return (page: number): Promise<PaginationPage<Image>> =>

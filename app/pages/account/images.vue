@@ -7,7 +7,7 @@ import ImagesUploadModal from '~/components/modals/ImagesUploadModal.vue'
 import ImageUpdateModal from '~/components/modals/ImageUpdateModal.vue'
 import AlbumSelectForImages from '~/components/modals/AlbumSelectForImages.vue'
 
-import { useAccountImages } from '~/composables/useAccountImages'
+import { useImages } from '~/composables/useImages'
 import { useOpenModal } from '~/composables/useOpenModal'
 import type { ImageUpdateResult } from '~/contracts/image-update.contract'
 
@@ -17,7 +17,7 @@ import { useSelection } from '~/composables/useSelection'
 import type { PagingInfo } from '~/contracts/pagination-contract'
 import { getPaging } from '~/http/get-paging'
 
-const fetchAccountImagesPage = useAccountImages()
+const fetchImagesPage = useImages()
 
 const {
   data: firstPage,
@@ -26,7 +26,7 @@ const {
   refresh,
 } = await useAsyncData(
   'account-images',
-  () => fetchAccountImagesPage(1),
+  () => fetchImagesPage(1),
 )
 
 if (error.value) {
@@ -50,7 +50,7 @@ async function loadMore() {
 
   isLoadingMore.value = true
   try {
-    const res = await fetchAccountImagesPage(nextPage.value)
+    const res = await fetchImagesPage(nextPage.value)
     images.value.push(...res.data)
     paging.value = getPaging(res.meta)
   } catch (e) {

@@ -15,19 +15,20 @@ import { useSelection } from '~/composables/useSelection'
 import { useOpenModal } from '~/composables/useOpenModal'
 import ImageUpdateModal from '~/components/modals/ImageUpdateModal.vue'
 import type { ImageUpdateResult } from '~/contracts/image-update.contract'
-import { useAlbumWithImages } from '~/composables/useAlbumWithImages'
-import { useAlbumImagesPage } from '~/composables/useAlbumImagesPage'
+import { useAlbum } from '~/composables/useAlbum'
 import { useAlbumDetachImages } from '~/composables/useAlbumDetachImages'
+import { getPaging } from '~/http/get-paging'
 
 const route = useRoute()
 const albumId = computed(() => Number(route.params.id))
+const fetchAlbum = useAlbum(albumId.value)
 
 const {
   data: firstLoad,
   pending: isInitialLoading,
   error,
 } = await useAsyncData(
-  () => useAlbumWithImages(albumId.value),
+  () => fetchAlbum(1),
 )
 
 if (error.value) {
@@ -35,8 +36,8 @@ if (error.value) {
 }
 
 const album = ref<Album | null>(firstLoad.value?.album ?? null)
-const images = ref<Image[]>(firstLoad.value?.images ?? [])
-const paging = ref(firstLoad.value?.paging)
+const images = ref<Image[]>(firstLoad.value?.data ?? [])
+const paging = ref(getPaging(firstLoad.value?.meta ?? null))
 
 const hasMore = computed(() => paging.value?.hasMore)
 const nextPage = computed(() => paging.value?.nextPage)
@@ -54,8 +55,9 @@ async function loadMore() {
   isLoadingMore.value = true
   try {
     const res = await useAlbumImagesPage(albumId.value, nextPage.value)
-    images.value.push(...res.images)
-    paging.value = res.paging
+    images.value.push(...res.data)
+    paging.value = getPaging(res.meta ?? null)
+    album.value = res.album
   } catch (e) {
     console.error('[Album] Failed to load more images', e)
   } finally {
