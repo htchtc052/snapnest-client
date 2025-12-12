@@ -11,7 +11,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   'toggle-select': [id: number]
   'edit': [image: Image]
-  'delete': [image: Image]
 }>()
 
 </script>
@@ -23,7 +22,7 @@ const emit = defineEmits<{
         @update:model-value="() => emit('toggle-select', props.image.id)" />
 
       <div class="flex-1">
-        <a :href="props.image.largeUrl" data-fancybox="images" :data-caption-title="props.image.name"
+        <a :href="props.image.largeUrl" data-fancybox="app" :data-caption-title="props.image.name"
           :data-caption-desc="props.image.description || ''" :data-caption-date="formatYMD(props.image.createdAt)"
           :data-original="`/api/images/${props.image.id}/original`"
           :data-download="`/api/images/${props.image.id}/download`" class="block">
@@ -44,10 +43,6 @@ const emit = defineEmits<{
     <div class="mt-2 flex gap-2">
       <UButton variant="outline" class="p-1.5" @click.stop="emit('edit', props.image)">
         <Icon name="i-heroicons-pencil-square-20-solid" class="w-4 h-4" />
-      </UButton>
-
-      <UButton variant="outline" color="error" class="p-1.5" @click.stop="emit('delete', props.image)">
-        <Icon name="i-heroicons-trash-20-solid" class="w-4 h-4" />
       </UButton>
     </div>
   </AppCard>

@@ -62,7 +62,7 @@ async function attachToAlbum(albumId: number) {
       color: 'success',
     })
     closeModal(true)
-    router.push(`/albums/${albumId}`)
+    router.push(`/account/albums/${albumId}`)
   } catch (error) {
     console.error('[Albums] Failed to attach images to album', error)
     toast.add({ title: 'Failed to add images to album', color: 'error' })
@@ -84,7 +84,7 @@ async function createAndAttach() {
     color: 'success',
   })
   closeModal(true)
-  router.push(`/albums/${created.id}`)
+  router.push(`/account/albums/${created.id}`)
 }
 
 onMounted(loadAlbums)

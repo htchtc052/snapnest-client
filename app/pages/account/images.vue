@@ -2,10 +2,10 @@
 import { computed, ref } from 'vue'
 import type { Image } from '~/models/Image'
 
+import AlbumSelectForImages from '~/components/modals/AlbumSelectForImages.vue'
 import ImageDeleteModal from '~/components/modals/ImageDeleteModal.vue'
 import ImagesUploadModal from '~/components/modals/ImagesUploadModal.vue'
 import ImageUpdateModal from '~/components/modals/ImageUpdateModal.vue'
-import AlbumSelectForImages from '~/components/modals/AlbumSelectForImages.vue'
 
 import { useImages } from '~/composables/useImages'
 import { useOpenModal } from '~/composables/useOpenModal'
@@ -17,7 +17,7 @@ import { useSelection } from '~/composables/useSelection'
 import type { PagingInfo } from '~/contracts/pagination-contract'
 import { getPaging } from '~/http/get-paging'
 
-const fetchImagesPage = useImages()
+const fetchImages = useImages()
 
 const {
   data: firstPage,
@@ -26,7 +26,7 @@ const {
   refresh,
 } = await useAsyncData(
   'account-images',
-  () => fetchImagesPage(1),
+  () => fetchImages(1),
 )
 
 if (error.value) {
@@ -36,21 +36,14 @@ if (error.value) {
 const images = ref<Image[]>(firstPage.value?.data ?? [])
 const paging = ref<PagingInfo>(getPaging(firstPage.value?.meta ?? null))
 
-const hasMore = computed(() => paging.value.hasMore)
-const nextPage = computed(() => paging.value.nextPage)
-
-const selection = useSelection()
-const selectedImageIds = selection.keys
-const selectedCount = computed(() => selectedImageIds.value.length)
 
 const isLoadingMore = ref(false)
 
 async function loadMore() {
-  if (!hasMore.value || isLoadingMore.value) return
-
+  if (isLoadingMore.value) return
   isLoadingMore.value = true
   try {
-    const res = await fetchImagesPage(nextPage.value)
+    const res = await fetchImages(paging.value.nextPage)
     images.value.push(...res.data)
     paging.value = getPaging(res.meta)
   } catch (e) {
@@ -64,6 +57,12 @@ const openUpload = useOpenModal<typeof ImagesUploadModal, boolean>(ImagesUploadM
 const openUpdate = useOpenModal<typeof ImageUpdateModal, ImageUpdateResult>(ImageUpdateModal)
 const openGroupDelete = useOpenModal<typeof ImageDeleteModal, boolean>(ImageDeleteModal)
 const openAlbumSelect = useOpenModal<typeof AlbumSelectForImages, boolean>(AlbumSelectForImages)
+
+
+
+const selection = useSelection()
+const selectedImageIds = selection.keys
+const selectedCount = computed(() => selectedImageIds.value.length)
 
 async function openUploadModal() {
   const ok = await openUpload()
@@ -130,11 +129,8 @@ async function addSelectedToAlbum() {
       </div>
     </AppSection>
 
-    <ImagesActions
-        :selected-count="selectedCount"
-        :on-delete="deleteSelectedImages"
-        :on-add-to-album="addSelectedToAlbum"
-    />
+    <ImagesActions :selected-count="selectedCount" :on-delete="deleteSelectedImages"
+      :on-add-to-album="addSelectedToAlbum" />
 
     <AppLoader v-if="isInitialLoading" />
 
@@ -150,7 +146,7 @@ async function addSelectedToAlbum() {
         </AppGrid>
       </AppFancybox>
 
-      <div v-if="hasMore" class="mt-6 flex justify-center">
+      <div v-if="paging.hasMore" class="mt-6 flex justify-center">
         <UButton :loading="isLoadingMore" @click="loadMore">
           Load more
         </UButton>

@@ -4,8 +4,8 @@ import { computed } from 'vue'
 import { useOpenModal } from '~/composables/useOpenModal'
 
 import AlbumCreateModal from '~/components/modals/AlbumCreateModal.vue'
-import AlbumUpdateModal from '~/components/modals/AlbumUpdateModal.vue'
 import AlbumDeleteModal from '~/components/modals/AlbumDeleteModal.vue'
+import AlbumUpdateModal from '~/components/modals/AlbumUpdateModal.vue'
 import type { Album } from '~/models/Album'
 
 import AlbumGridCard from '~/components/card/AlbumGridCard.vue'
@@ -55,12 +55,7 @@ async function openUpdateAlbumModal(album: Album) {
   }
 }
 
-async function openDeleteAlbumModal(album: Album) {
-  const ok = await openGroupDelete({ albumIds: [album.id] })
-  if (ok) {
-    albums.value = albums.value.filter(a => a.id !== album.id)
-  }
-}
+
 
 async function deleteSelectedAlbums() {
   if (!selectedAlbumIds.value.length) return
@@ -92,10 +87,7 @@ async function deleteSelectedAlbums() {
       </div>
     </AppSection>
 
-    <AlbumsActions
-        :selected-count="selectedCount"
-        :on-delete="deleteSelectedAlbums"
-    />
+    <AlbumsActions :selected-count="selectedCount" :on-delete="deleteSelectedAlbums" />
 
     <AppLoader v-if="isLoading" />
 
@@ -105,15 +97,8 @@ async function deleteSelectedAlbums() {
 
     <div v-else>
       <AppGrid>
-        <AlbumGridCard
-            v-for="item in albums"
-            :key="item.id"
-            :album="item"
-            :selected="selection.isSelected(item.id)"
-            @toggle-select="selection.toggle"
-            @edit="openUpdateAlbumModal"
-            @delete="openDeleteAlbumModal"
-        />
+        <AlbumGridCard v-for="item in albums" :key="item.id" :album="item" :selected="selection.isSelected(item.id)"
+          @toggle-select="selection.toggle" @edit="openUpdateAlbumModal" />
       </AppGrid>
     </div>
   </div>
