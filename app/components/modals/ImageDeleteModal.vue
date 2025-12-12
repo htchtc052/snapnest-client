@@ -1,25 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { Image } from '~/models/Image'
+import { computed, ref } from 'vue'
+import AppModal from '~/components/app/Modal.vue'
 import { useImageDelete } from '~/composables/useImageDelete'
-import AppModal from "~/components/app/Modal.vue"
 
-const props = defineProps<{ image: Image }>()
-const emit  = defineEmits<{ (e: 'close', value: boolean): void }>()
+const props = defineProps<{ imageIds: number[] }>()
+const emit = defineEmits<{ (e: 'close', value: boolean): void }>()
 
 const isLoading = ref(false)
+const count = computed(() => props.imageIds.length)
 
 function closeModal() {
   emit('close', false)
 }
 
 async function onConfirm(): Promise<void> {
+  if (!props.imageIds.length) {
+    emit('close', false)
+    return
+  }
+
   isLoading.value = true
   try {
-    await useImageDelete(props.image.id)
+    await Promise.all(props.imageIds.map(id => useImageDelete(id)))
     emit('close', true)
   } catch (error) {
-    console.error(error)
+    console.error('[Images] Failed to delete selected images', error)
     emit('close', false)
   } finally {
     isLoading.value = false
@@ -27,12 +32,13 @@ async function onConfirm(): Promise<void> {
 }
 </script>
 
-
 <template>
   <AppModal @close="closeModal">
-    <template #title>Delete image?</template>
+    <template #title>Delete {{ count }} image{{ count === 1 ? '' : 's' }}?</template>
 
-    Are you sure you want to delete this image?
+    Are you sure you want to delete
+    <strong>{{ count }}</strong>
+    image{{ count === 1 ? '' : 's' }}? This action cannot be undone.
 
     <div class="flex gap-3 pt-2">
       <UButton variant="outline" type="button" :disabled="isLoading" @click="closeModal">

@@ -1,25 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import {useAlbumDelete} from "~/composables/useAlbumDelete";
-import type {Album} from "~/models/Album";
-import AppModal from "~/components/app/Modal.vue"
+import { computed, ref } from 'vue'
+import AppModal from '~/components/app/Modal.vue'
+import { useAlbumDelete } from '~/composables/useAlbumDelete'
 
-const props = defineProps<{ album: Album }>()
-const emit  = defineEmits<{ (e: 'close', value: boolean): void }>()
+const props = defineProps<{ albumIds: number[] }>()
+const emit = defineEmits<{ (e: 'close', value: boolean): void }>()
 
 const isLoading = ref(false)
+const count = computed(() => props.albumIds.length)
 
 function closeModal() {
   emit('close', false)
 }
 
 async function onConfirm(): Promise<void> {
+  if (!props.albumIds.length) {
+    emit('close', false)
+    return
+  }
+
   isLoading.value = true
   try {
-    await useAlbumDelete(props.album.id)
+    await Promise.all(props.albumIds.map(id => useAlbumDelete(id)))
     emit('close', true)
   } catch (error) {
-    console.error(error)
+    console.error('[Albums] Failed to delete selected albums', error)
     emit('close', false)
   } finally {
     isLoading.value = false
@@ -27,12 +32,13 @@ async function onConfirm(): Promise<void> {
 }
 </script>
 
-
 <template>
   <AppModal @close="closeModal">
-    <template #title>Delete album?</template>
+    <template #title>Delete {{ count }} album{{ count === 1 ? '' : 's' }}?</template>
 
-    Are you sure you want to delete this album?
+    Are you sure you want to delete
+    <strong>{{ count }}</strong>
+    album{{ count === 1 ? '' : 's' }}?
 
     <div class="flex gap-3 pt-2">
       <UButton variant="outline" type="button" :disabled="isLoading" @click="closeModal">

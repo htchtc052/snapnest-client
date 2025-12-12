@@ -12,16 +12,20 @@ import {
 import {useAlbumCreate} from "~/composables/useAlbumCreate";
 import AppModal from "~/components/app/Modal.vue"
 
+const props = defineProps<{ imageIds?: number[] }>()
 const emit  = defineEmits<{ (e: 'close', value: AlbumUpdateResult): void }>()
 
 const initial = computed<AlbumCreateDto>(() => ({
   name: '',
-  description: '',
 }))
 
 const state = reactive<AlbumCreateDto>({ ...initial.value })
 const form  = ref<Form<AlbumCreateDto>>()
 const isLoading = ref(false)
+const statusText = computed(() => {
+  if (!isLoading.value) return ''
+  return props.imageIds?.length ? 'Creating album and adding images...' : 'Creating album...'
+})
 
 function closeModal() {
   emit('close', false)
@@ -31,7 +35,10 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
   isLoading.value = true
   form.value?.clear()
   try {
-    const updated = await useAlbumCreate(e.data)
+    const updated = await useAlbumCreate({
+      ...e.data,
+      image_ids: props.imageIds && props.imageIds.length > 0 ? props.imageIds : undefined,
+    })
     emit('close', updated)
   } catch (error: unknown) {
     const { isValidationError, bag } = mapFormError(error)
@@ -47,6 +54,11 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
   <AppModal @close="closeModal">
     <template #title> Create new Album</template>
     <template #default>
+      <div v-if="statusText" class="mb-2 flex items-center gap-2 text-sm text-gray-600">
+        <Icon name="i-heroicons-arrow-path-20-solid" class="h-4 w-4 animate-spin" />
+        <span>{{ statusText }}</span>
+      </div>
+
       <UForm
           ref="form"
           :state="state"
@@ -57,10 +69,6 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
         <UFormField name="name" label="Album name">
           <UInput v-model="state.name"  class="w-full"
           />
-        </UFormField>
-
-        <UFormField name="description" label="Album description">
-          <UTextarea v-model="state.description" :rows="4" class="w-full"/>
         </UFormField>
 
         <div class="flex gap-3 pt-2">
@@ -75,4 +83,3 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
     </template>
   </AppModal>
 </template>
-

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed, watch } from 'vue'
+
 type BulkActionValue = string
 
 interface BulkActionItem {
@@ -21,6 +23,12 @@ const value = computed<BulkActionValue | undefined>({
   get: () => props.modelValue,
   set: v => emit('update:modelValue', v),
 })
+
+watch(value, action => {
+  if (action && props.selectedCount > 0) {
+    emit('apply')
+  }
+})
 </script>
 
 <template>
@@ -37,11 +45,5 @@ const value = computed<BulkActionValue | undefined>({
         class="w-48"
     />
 
-    <UButton
-        size="xs"
-        @click="emit('apply')"
-    >
-      Apply
-    </UButton>
   </div>
 </template>

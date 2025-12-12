@@ -5,13 +5,14 @@ import type { Image } from '~/models/Image'
 import ImageDeleteModal from '~/components/modals/ImageDeleteModal.vue'
 import ImagesUploadModal from '~/components/modals/ImagesUploadModal.vue'
 import ImageUpdateModal from '~/components/modals/ImageUpdateModal.vue'
+import AlbumSelectForImages from '~/components/modals/AlbumSelectForImages.vue'
 
 import { useAccountImages } from '~/composables/useAccountImages'
 import { useOpenModal } from '~/composables/useOpenModal'
 import type { ImageUpdateResult } from '~/contracts/image-update.contract'
 
-import AppBulkActions from '~/components/app/BulkActions.vue'
 import CardImage from '~/components/card/Image.vue'
+import ImagesActions from '~/components/section/actions/ImagesActions.vue'
 import { useSelection } from '~/composables/useSelection'
 import type { PagingInfo } from '~/contracts/pagination-contract'
 import { getPaging } from '~/http/get-paging'
@@ -42,28 +43,6 @@ const selection = useSelection()
 const selectedImageIds = selection.keys
 const selectedCount = computed(() => selectedImageIds.value.length)
 
-type BulkAction = 'delete' | 'addToAlbum'
-
-const bulkActions: { value: BulkAction; label: string }[] = [
-  { value: 'delete', label: 'Delete' },
-  { value: 'addToAlbum', label: 'Add to album' },
-]
-
-const bulkAction = ref<BulkAction | undefined>(undefined)
-
-function applyBulkAction() {
-  if (!bulkAction.value || selectedImageIds.value.length === 0) {
-    console.log('No action or no image selected')
-    return
-  }
-
-  console.log('Bulk action:', bulkAction.value, 'image:', selectedImageIds.value)
-
-  // TODO: реальные действия
-  // selection.clear()
-  // bulkAction.value = undefined
-}
-
 const isLoadingMore = ref(false)
 
 async function loadMore() {
@@ -81,10 +60,10 @@ async function loadMore() {
   }
 }
 
-// --- модалки ---
 const openUpload = useOpenModal<typeof ImagesUploadModal, boolean>(ImagesUploadModal)
-const openDelete = useOpenModal<typeof ImageDeleteModal, boolean>(ImageDeleteModal)
 const openUpdate = useOpenModal<typeof ImageUpdateModal, ImageUpdateResult>(ImageUpdateModal)
+const openGroupDelete = useOpenModal<typeof ImageDeleteModal, boolean>(ImageDeleteModal)
+const openAlbumSelect = useOpenModal<typeof AlbumSelectForImages, boolean>(AlbumSelectForImages)
 
 async function openUploadModal() {
   const ok = await openUpload()
@@ -94,15 +73,7 @@ async function openUploadModal() {
       images.value = firstPage.value.data
       paging.value = getPaging(firstPage.value.meta)
       selection.clear()
-      bulkAction.value = undefined
     }
-  }
-}
-
-async function openDeleteImageModal(image: Image) {
-  const ok = await openDelete({ image })
-  if (ok) {
-    images.value = images.value.filter(i => i.id !== image.id)
   }
 }
 
@@ -110,6 +81,34 @@ async function openUpdateImageModal(image: Image) {
   const res = await openUpdate({ image })
   if (res) {
     images.value = images.value.map(i => (i.id === res.id ? res : i))
+  }
+}
+
+async function openDeleteImageModal(image: Image) {
+  const ok = await openGroupDelete({ imageIds: [image.id] })
+  if (ok) {
+    images.value = images.value.filter(i => i.id !== image.id)
+    selection.keys.value = selection.keys.value.filter(id => id !== image.id)
+  }
+}
+
+async function deleteSelectedImages() {
+  if (!selectedImageIds.value.length) return
+
+  const idsToDelete = [...selectedImageIds.value]
+  const ok = await openGroupDelete({ imageIds: idsToDelete })
+  if (ok) {
+    images.value = images.value.filter(image => !idsToDelete.includes(image.id))
+    selection.clear()
+  }
+}
+
+async function addSelectedToAlbum() {
+  if (!selectedImageIds.value.length) return
+
+  const ok = await openAlbumSelect({ imageIds: [...selectedImageIds.value] })
+  if (ok) {
+    selection.clear()
   }
 }
 </script>
@@ -131,8 +130,11 @@ async function openUpdateImageModal(image: Image) {
       </div>
     </AppSection>
 
-    <AppBulkActions v-model="bulkAction" :selected-count="selectedCount" :actions="bulkActions"
-      @apply="applyBulkAction" />
+    <ImagesActions
+        :selected-count="selectedCount"
+        :on-delete="deleteSelectedImages"
+        :on-add-to-album="addSelectedToAlbum"
+    />
 
     <AppLoader v-if="isInitialLoading" />
 
@@ -143,8 +145,7 @@ async function openUpdateImageModal(image: Image) {
     <div v-else>
       <AppFancybox>
         <AppGrid>
-          <CardImage
-v-for="item in images" :key="item.id" :image="item" :selected="selection.isSelected(item.id)"
+          <CardImage v-for="item in images" :key="item.id" :image="item" :selected="selection.isSelected(item.id)"
             @toggle-select="selection.toggle" @edit="openUpdateImageModal" @delete="openDeleteImageModal" />
         </AppGrid>
       </AppFancybox>
