@@ -3,7 +3,7 @@ import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
 import BaseModal from '~/components/modals/base/Modal.vue'
 
-import { mapFormError } from '~/http/utils/map-form-error'
+import { mapFormError } from '~/http/utils/handle-form-error'
 
 import { albumInfoSchema, type AlbumUpdateDto, type AlbumUpdateResult } from '~/contracts/album-manage.contract'
 import { useAlbumUpdate } from '~/http/composables/useAlbumUpdate'

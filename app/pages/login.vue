@@ -3,7 +3,7 @@ import { loginSchema, type LoginDto } from '~/contracts/login.contract';
 
 import type { Form, FormSubmitEvent } from '#ui/types';
 import { useLogin } from '~/http/composables/useLogin';
-import { mapFormError } from "~/http/utils/map-form-error";
+import { mapFormError } from "~/http/utils/handle-form-error";
 
 definePageMeta({ sanctum: { guestOnly: true } })
 

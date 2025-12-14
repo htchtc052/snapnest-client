@@ -2,7 +2,7 @@
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { registrationSchema, type RegistrationDto } from '~/contracts/registration.contract'
 import { useRegister } from '~/http/composables/useRegister'
-import { mapFormError } from '~/http/utils/map-form-error'
+import { mapFormError } from '~/http/utils/handle-form-error'
 
 definePageMeta({ sanctum: { guestOnly: true } })
 

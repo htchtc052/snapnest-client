@@ -3,7 +3,7 @@ import type { Form, FormSubmitEvent } from '#ui/types'
 import BaseModal from '~/components/modals/base/Modal.vue'
 import { profileEditSchema, type ProfileUpdateDto } from '~/contracts/profile-update.contract'
 import { useAccountUpdate } from '~/http/composables/useAccountUpdate'
-import { mapFormError } from '~/http/utils/map-form-error'
+import { mapFormError } from '~/http/utils/handle-form-error'
 import type { User } from '~/models/User'
 
 const props = defineProps<{ user: User }>()

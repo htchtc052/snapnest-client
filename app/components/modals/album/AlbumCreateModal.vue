@@ -2,7 +2,6 @@
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
 
-import { mapFormError } from '~/http/utils/map-form-error'
 import BaseModal from '~/components/modals/base/Modal.vue'
 import {
   type AlbumCreateDto,
@@ -10,6 +9,7 @@ import {
   type AlbumUpdateResult
 } from '~/contracts/album-manage.contract'
 import { useAlbumCreate } from '~/http/composables/useAlbumCreate'
+import { mapFormError } from '~/http/utils/handle-form-error'
 
 const props = defineProps<{ imageIds?: number[] }>()
 const emit = defineEmits<{ (e: 'close', value: AlbumUpdateResult): void }>()

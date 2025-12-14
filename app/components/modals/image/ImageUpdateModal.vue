@@ -4,7 +4,7 @@ import { computed, reactive, ref } from 'vue'
 import BaseModal from '~/components/modals/base/Modal.vue'
 import { imageUpdateSchema, type ImageUpdateDto, type ImageUpdateResult } from '~/contracts/image-update.contract'
 import { useImageUpdate } from '~/http/composables/useImageUpdate'
-import { mapFormError } from '~/http/utils/map-form-error'
+import { mapFormError } from '~/http/utils/handle-form-error'
 import type { Image } from '~/models/Image'
 
 const props = defineProps<{ image: Image }>()
