@@ -5,6 +5,6 @@ export type Image = {
     name: string
     description: string | null
     ownerId: number
-    ownerMame: string
+    ownerName: string
     createdAt: string
 }

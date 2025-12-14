@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import BaseCard from '~/components/cards/base/Card.vue'
-import { formatYMD } from '~/helpers/formatYMD'
-import type { Image } from '~/models/Image'
+import BaseCard from '~/components/cards/base/Card.vue';
+import { formatYMD } from '~/utils/formatYMD';
+import type { Image } from '~/models/Image';
 
 const props = defineProps<{
   image: Image
@@ -18,8 +18,7 @@ const emit = defineEmits<{
 <template>
   <BaseCard>
     <div class="flex gap-2 items-start">
-      <UCheckbox :model-value="props.selected" size="lg" class="mt-1"
-        @update:model-value="() => emit('toggle-select', props.image.id)" />
+      //ToDo тот чекбокс выбора что реализуем..
 
       <div class="flex-1">
         <a :href="props.image.largeUrl" data-fancybox="app" :data-caption-title="props.image.name"
