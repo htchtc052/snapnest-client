@@ -8,3 +8,9 @@ export interface PaginationPage<T> {
     meta: PaginationMeta
 }
 
+export interface PagingInfo {
+    currentPage: number
+    lastPage: number
+    hasMore: boolean
+    nextPage: number
+}

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
-import BaseModal from '~/components/modals/base/Modal.vue'
+import BaseModal from '~/components/ui/containers/BaseModal.vue'
 import type { ImageUploadResponse } from '~/contracts/image-upload.contract'
 
 

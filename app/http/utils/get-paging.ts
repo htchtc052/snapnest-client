@@ -1,4 +1,4 @@
-import type { PaginationMeta, PagingInfo } from "~/contracts/pagination-contract";
+import type { PaginationMeta, PagingInfo } from '~/utils/types/pagination'
 
 export function getPaging(meta: PaginationMeta | null | undefined): PagingInfo {
     const currentPage = meta?.current_page ?? 1

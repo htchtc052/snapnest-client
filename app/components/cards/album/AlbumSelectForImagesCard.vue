@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AlbumCard from '~/components/cards/album/AlbumCard.vue'
-import BaseCard from '~/components/cards/base/Card.vue'
+import BaseCard from '~/components/ui/containers/BaseCard.vue'
 import type { Album } from '~/models/Album'
 
 const props = defineProps<{

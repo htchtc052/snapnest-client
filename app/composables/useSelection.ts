@@ -1,29 +1,142 @@
-import { ref, type Ref } from 'vue'
+import { computed, inject, provide, ref, type InjectionKey } from 'vue'
 
-export interface Selection {
-    keys: Ref<number[]>
-    isSelected(key: number): boolean
-    toggle(key: number): void
-    clear(): void
+export type SelectionId = number
+export type SelectionImage = {
+  id: SelectionId
+  name?: string
 }
 
-export function useSelection(): Selection {
-    const keys = ref<number[]>([])
+function createSelectionStore() {
+  const selectedImagesData = ref<Record<SelectionId, SelectionImage>>({})
+  const forceSelectionMode = ref(false)
 
-    const isSelected = (key: number): boolean =>
-        keys.value.includes(key)
+  const selectionMode = computed(
+    () => forceSelectionMode.value || Object.keys(selectedImagesData.value).length > 0,
+  )
+  const hasSelection = computed(() => Object.keys(selectedImagesData.value).length > 0)
+  const selectedIds = computed(() =>
+    Object.keys(selectedImagesData.value).map(id => Number(id)),
+  )
 
-    const toggle = (key: number): void => {
-        if (isSelected(key)) {
-            keys.value = keys.value.filter(k => k !== key)
-        } else {
-            keys.value = [...keys.value, key]
-        }
+  function upsertSelectedImage(image: SelectionImage) {
+    selectedImagesData.value = {
+      ...selectedImagesData.value,
+      [image.id]: { id: image.id, name: image.name },
+    }
+  }
+
+  function removeSelectedImage(id: SelectionId) {
+    if (!(id in selectedImagesData.value)) return
+    const { [id]: _removed, ...rest } = selectedImagesData.value
+    selectedImagesData.value = rest
+  }
+
+  function enableSelectionMode() {
+    forceSelectionMode.value = true
+  }
+
+  function cancelSelectionMode() {
+    forceSelectionMode.value = false
+  }
+
+  function clearSelection() {
+    selectedImagesData.value = {}
+    forceSelectionMode.value = false
+  }
+
+  function toggleSelection(image: SelectionImage) {
+    const isSelected = image.id in selectedImagesData.value
+    if (isSelected) {
+      removeSelectedImage(image.id)
+      return
     }
 
-    const clear = (): void => {
-        keys.value = []
-    }
+    upsertSelectedImage(image)
+  }
 
-    return { keys, isSelected, toggle, clear }
+  function selectImages(images: SelectionImage[]) {
+    if (images.length === 0) return
+    const updated = { ...selectedImagesData.value }
+    images.forEach((image) => {
+      updated[image.id] = { id: image.id, name: image.name }
+    })
+    selectedImagesData.value = updated
+  }
+
+  function deselectImages(images: SelectionImage[]) {
+    if (images.length === 0) return
+    const updated = { ...selectedImagesData.value }
+    images.forEach((image) => {
+      delete updated[image.id]
+    })
+    selectedImagesData.value = updated
+  }
+
+  function deselectIds(ids: SelectionId[]) {
+    if (ids.length === 0) return
+    const updated = { ...selectedImagesData.value }
+    ids.forEach((id) => {
+      delete updated[id]
+    })
+    selectedImagesData.value = updated
+  }
+
+  function groupSelectionValue(images: SelectionImage[]): boolean | 'indeterminate' {
+    const total = images.length
+    if (total === 0) return false
+    const selectedCount = images.reduce(
+      (count, image) => count + (selectedImagesData.value[image.id] ? 1 : 0),
+      0,
+    )
+    if (selectedCount === 0) return false
+    if (selectedCount === total) return true
+    return 'indeterminate'
+  }
+
+  function toggleGroupSelection(images: SelectionImage[]) {
+    const state = groupSelectionValue(images)
+    if (state === true) {
+      deselectImages(images)
+      return
+    }
+    selectImages(images)
+  }
+
+  return {
+    selectedImagesData,
+    selectedIds,
+    selectionMode,
+    hasSelection,
+    enableSelectionMode,
+    cancelSelectionMode,
+    clearSelection,
+    toggleSelection,
+    selectImages,
+    deselectImages,
+    deselectIds,
+    groupSelectionValue,
+    toggleGroupSelection,
+  }
+}
+
+export type SelectionStore = ReturnType<typeof createSelectionStore>
+
+const SelectionKey: InjectionKey<SelectionStore> = Symbol('SelectionStore')
+let fallbackStore: SelectionStore | null = null
+
+function getSelectionStore(): SelectionStore {
+  if (!fallbackStore) {
+    fallbackStore = createSelectionStore()
+  }
+  return fallbackStore
+}
+
+export function provideSelectionStore() {
+  const store = getSelectionStore()
+  provide(SelectionKey, store)
+  return store
+}
+
+export function useSelectionStore() {
+  return inject(SelectionKey, null) ?? getSelectionStore()
 }

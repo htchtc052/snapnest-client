@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
-import BaseModal from '~/components/modals/base/Modal.vue'
+import BaseModal from '~/components/ui/containers/BaseModal.vue'
 import { imageUpdateSchema, type ImageUpdateDto, type ImageUpdateResult } from '~/contracts/image-update.contract'
 import { useImageUpdate } from '~/http/composables/useImageUpdate'
 import { mapFormError } from '~/http/utils/handle-form-error'

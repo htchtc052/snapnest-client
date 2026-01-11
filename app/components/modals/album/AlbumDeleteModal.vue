@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import BaseModal from '~/components/modals/base/Modal.vue'
+import BaseModal from '~/components/ui/containers/BaseModal.vue'
 import { useAlbumDelete } from '~/http/composables/useAlbumDelete';
 
 const props = defineProps<{ albumIds: number[] }>()

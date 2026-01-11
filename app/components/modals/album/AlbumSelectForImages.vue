@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import AlbumSelectForImagesCard from '~/components/cards/album/AlbumSelectForImagesCard.vue'
-import BaseCard from '~/components/cards/base/Card.vue'
-import Grid from '~/components/grids/Grid.vue'
-import Loader from '~/components/loaders/Loader.vue'
 import AlbumCreateModal from '~/components/modals/album/AlbumCreateModal.vue'
-import BaseModal from '~/components/modals/base/Modal.vue'
-import BaseSection from '~/components/sections/base/Section.vue'
-import EmptyStateSection from '~/components/sections/blocks/EmptyStateSection.vue'
+import BaseCard from '~/components/ui/containers/BaseCard.vue'
+import Grid from '~/components/ui/containers/BaseGrid.vue'
+import BaseModal from '~/components/ui/containers/BaseModal.vue'
+import BaseSection from '~/components/ui/containers/sections/BaseSection.vue'
+import EmptyStateSection from '~/components/ui/feedback/EmptyState.vue'
+import Loader from '~/components/ui/feedback/Loader.vue'
 import { useOpenModal } from '~/composables/useOpenModal'
 import { useAlbumAttachImages } from '~/http/composables/useAlbumAttachImages'
 import { useAlbums } from '~/http/composables/useAlbums'
@@ -93,7 +93,7 @@ onMounted(loadAlbums)
 <template>
   <BaseModal @close="closeModal()">
     <template #title>Choose album for {{ props.imageIds.length }} image{{ props.imageIds.length === 1 ? '' : 's'
-    }}</template>
+      }}</template>
     <BaseSection>
       <Loader v-if="isLoading" />
 

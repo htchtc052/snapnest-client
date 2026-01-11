@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import BaseModal from '~/components/modals/base/Modal.vue'
+import BaseModal from '~/components/ui/containers/BaseModal.vue'
 import { profileEditSchema, type ProfileUpdateDto } from '~/contracts/profile-update.contract'
 import { useAccountUpdate } from '~/http/composables/useAccountUpdate'
 import { mapFormError } from '~/http/utils/handle-form-error'

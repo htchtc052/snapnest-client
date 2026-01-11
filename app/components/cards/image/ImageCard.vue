@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import BaseCard from '~/components/cards/base/Card.vue';
-import { formatYMD } from '~/utils/formatYMD';
-import type { Image } from '~/models/Image';
+import { computed, useAttrs } from 'vue'
+import BaseCard from '~/components/ui/containers/BaseCard.vue'
+import BaseSelectionButton from '~/components/ui/primitives/BaseSelectionButton.vue'
+import type { Image } from '~/models/Image'
+import { formatYMD } from '~/utils/formatYMD'
 
 const props = defineProps<{
   image: Image
-  selected: boolean
 }>()
 
+const selectedIds = defineModel<number[]>({ default: () => [] })
+
+const attrs = useAttrs()
+const hasDelete = computed(() => typeof attrs.onDelete === 'function')
+
 const emit = defineEmits<{
-  'toggle-select': [id: number]
   'edit': [image: Image]
+  'delete': [image: Image]
 }>()
 
 </script>
@@ -18,7 +24,7 @@ const emit = defineEmits<{
 <template>
   <BaseCard>
     <div class="flex gap-2 items-start">
-      //ToDo тот чекбокс выбора что реализуем..
+      <BaseSelectionButton v-model="selectedIds" :id="props.image.id" class="mt-1" />
 
       <div class="flex-1">
         <a :href="props.image.largeUrl" data-fancybox="app" :data-caption-title="props.image.name"
@@ -42,6 +48,9 @@ const emit = defineEmits<{
     <div class="mt-2 flex gap-2">
       <UButton variant="outline" class="p-1.5" @click.stop="emit('edit', props.image)">
         <Icon name="i-heroicons-pencil-square-20-solid" class="w-4 h-4" />
+      </UButton>
+      <UButton v-if="hasDelete" color="error" variant="outline" class="p-1.5" @click.stop="emit('delete', props.image)">
+        <Icon name="i-heroicons-trash-20-solid" class="w-4 h-4" />
       </UButton>
     </div>
   </BaseCard>

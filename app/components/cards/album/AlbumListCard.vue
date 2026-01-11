@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import AlbumCard from '~/components/cards/album/AlbumCard.vue'
-import BaseCard from '~/components/cards/base/Card.vue'
+import BaseCard from '~/components/ui/containers/BaseCard.vue'
+import BaseSelectionButton from '~/components/ui/primitives/BaseSelectionButton.vue'
 import type { Album } from '~/models/Album'
 
 const props = defineProps<{
   album: Album
-  selected: boolean
 }>()
 
+const selectedIds = defineModel<number[]>({ default: () => [] })
+
 const emit = defineEmits<{
-  'toggle-select': [id: number]
   'edit': [album: Album]
 }>()
 </script>
@@ -17,8 +18,7 @@ const emit = defineEmits<{
 <template>
   <BaseCard>
     <div class="flex gap-2 items-start">
-      <UCheckbox :model-value="props.selected" size="lg" class="mt-1"
-        @update:model-value="() => emit('toggle-select', props.album.id)" />
+      <BaseSelectionButton v-model="selectedIds" :id="props.album.id" class="mt-1" />
 
       <div class="flex-1">
         <NuxtLink :to="`/account/albums/${props.album.id}`" class="block">

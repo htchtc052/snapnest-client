@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import GroupActionsSection from '~/components/sections/blocks/GroupActionsSection.vue'
+import GroupActionsSection from '~/components/widgets/Pagination/AppGroupActionBar.vue';
 
 const props = defineProps<{
   selectedCount: number
