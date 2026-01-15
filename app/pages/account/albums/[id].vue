@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { getAlbum } from '~/api/albums/getAlbum'
-import type { Album } from '~/models/Album'
+import { computed, ref, watch } from 'vue'
+import { albumGet } from '~/api/account/albumGet'
+import ImagePreview from '~/components/account/ImagePreview.vue'
+import ImagesSelectionBar from '~/components/account/ImagesSelectionBar.vue'
+import ImagesSelectionModeMobileToggle from '~/components/account/ImagesSelectionModeMobileToggle.vue'
+import { useAlbumDetachImages } from '~/composables/account/useAlbumDetachImages'
+import { useAlbumImagesGet } from '~/composables/account/useAlbumImagesGet'
+import { provideSelectionStore } from '~/composables/useSelection'
+import type { Album } from '~/types/album.model'
+import type { Image } from '~/types/image.model'
 import { formatYMD } from '~/utils/formatYMD'
 import { isNumericParam } from '~/utils/isNumericParam'
 
@@ -20,7 +27,7 @@ const {
   error,
 } = await useAsyncData(
   `album-${albumId.value}`,
-  () => getAlbum(client, albumId.value)
+  () => albumGet(client, albumId.value)
 )
 
 if (error.value) {
@@ -32,65 +39,97 @@ if (error.value) {
   throw error.value
 }
 
-const album = computed<Album>(() => albumData.value as Album)
+const album = ref<Album>(albumData.value as Album)
+watch(albumData, (value) => {
+  if (value) album.value = value as Album
+})
 
+const { images, isLoading: isImagesLoading, removeImages } = useAlbumImagesGet(albumId)
+const { detachImages, isDetaching } = useAlbumDetachImages()
 
-/* 
+const {
+  selectedImagesData,
+  selectionMode,
+  hasSelection,
+  toggleSelection,
+  clearSelection,
+} = provideSelectionStore()
 
-async function removeImages(imageIds: number[]) {
-  if (!imageIds.length) return
-  try {
-    await useAlbumDetachImages(albumId.value, imageIds)
-    images.value = images.value.filter(img => !imageIds.includes(img.id))
-    clear()
-    album.value = { ...album.value, imagesCount: album.value.imagesCount - imageIds.length }
-    toast.add({ title: 'Removed from album', color: 'success' })
-  } catch (e) {
-    console.error('[Album] Failed to detach images', e)
-    toast.add({ title: 'Failed to remove from album', color: 'error' })
-  }
+function handleImageSelection(image: Image) {
+  if (!selectionMode.value) return
+  toggleSelection(image)
 }
 
-async function removeSelected() {
-  await removeImages([...selectedIds.value])
+async function handleRemoveFromAlbum(ids: number[]) {
+  if (!ids.length || isDetaching.value) return
+  const ok = await detachImages(albumId.value, ids)
+  if (!ok) return
+  removeImages(ids)
+  clearSelection()
+  album.value = { ...album.value, imagesCount: Math.max(0, album.value.imagesCount - ids.length) }
 }
 
-const openUpdate = useOpenModal<typeof ImageUpdateModal, ImageUpdateResult>(ImageUpdateModal)
-const toast = useToast()
-
-async function openUpdateImageModal(image: Image) {
-  const res = await openUpdate({ image })
-  if (res) {
-    images.value = images.value.map(i => (i.id === res.id ? res : i))
-  }
-} */
+function handleDeleted(ids: number[]) {
+  if (!ids.length) return
+  removeImages(ids)
+  album.value = { ...album.value, imagesCount: Math.max(0, album.value.imagesCount - ids.length) }
+}
 </script>
 
 <template>
-  <div>
-    <div class="flex items-center gap-3 px-4 pt-5 pb-3">
-      <UButton
-        to="/account/albums"
-        color="neutral"
-        variant="ghost"
-        icon="i-lucide-arrow-left"
-        square
-      />
-      <h3 class="text-2xl font-semibold text-foreground">
-        {{ album.name }}
-      </h3>
-      <span class="text-sm text-muted-500">
-        {{ album.imagesCount }} images
-      </span>
+  <div class="relative h-full min-h-0">
+    <div v-if="hasSelection" class="pointer-events-none absolute left-4 right-4 top-3 z-20">
+      <div class="pointer-events-auto">
+        <ImagesSelectionBar mode="album" @removed="handleRemoveFromAlbum" @deleted="handleDeleted" />
+      </div>
     </div>
 
-    <div class="flex items-center gap-2 px-4 pb-4 text-sm text-muted-500">
-      <UIcon name="i-lucide-calendar" class="h-4 w-4" />
-      <span>{{ formatYMD(album.createdAt) }}</span>
-    </div>
+    <div class="flex h-full min-h-0 flex-col">
+      <div class="flex items-center gap-3 px-4 pt-5 pb-3">
+        <UButton to="/account/albums" color="neutral" variant="ghost" icon="i-lucide-arrow-left" square />
+        <h3 class="text-2xl font-semibold text-foreground">
+          {{ album.name }}
+        </h3>
+        <span class="text-sm text-muted-500">
+          {{ album.imagesCount }} images
+        </span>
+      </div>
 
-    <div class="px-4 text-sm text-muted-500">
-      TODO: Album images
+      <div class="flex items-center gap-2 px-4 pb-4 text-sm text-muted-500">
+        <UIcon name="i-lucide-calendar" class="h-4 w-4" />
+        <span>{{ formatYMD(album.createdAt) }}</span>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 px-4 pb-4">
+        <ImagesSelectionModeMobileToggle />
+      </div>
+
+      <div class="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
+        <template v-if="isImagesLoading">
+          <USkeleton class="h-40" />
+        </template>
+        <template v-else>
+          <div v-if="images.length === 0" class="py-8 text-center text-sm text-muted-500">
+            No images yet
+          </div>
+          <div v-else class="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
+            <div v-for="image in images" :key="image.id"
+              class="group relative aspect-square overflow-hidden rounded-lg bg-muted-100"
+              :class="selectedImagesData[image.id] ? 'ring-2 ring-primary/40' : ''"
+              @click="handleImageSelection(image)">
+              <div class="absolute inset-0 pointer-events-none">
+                <ImagePreview :image="image" />
+              </div>
+
+              <div class="absolute bottom-2 left-2 z-10 pointer-events-auto"
+                :class="selectionMode ? 'opacity-100' : 'hidden sm:block sm:opacity-0 sm:group-hover:opacity-100'">
+                <UCheckbox :model-value="Boolean(selectedImagesData[image.id])" color="primary" @click.stop
+                  @update:model-value="() => toggleSelection(image)" />
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>

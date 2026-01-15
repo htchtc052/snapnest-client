@@ -1,34 +1,22 @@
 <script setup lang="ts">
-import { loginSchema, type LoginDto } from '~/contracts/login.contract';
+import { loginSchema, type LoginDto } from '~/types/login.contract';
 
 import type { Form, FormSubmitEvent } from '#ui/types';
-import { useLogin } from '~/http/composables/useLogin';
-import { mapFormError } from "~/http/utils/handle-form-error";
+import { useLogin } from '~/composables/useLogin';
 
 definePageMeta({ layout: 'auth', sanctum: { guestOnly: true } })
 
 const state = reactive<LoginDto>({ email: "htchtc052@gmail.com", password: "12301230" })
 
-const isLoading = ref(false)
+const { login, isLoading } = useLogin()
 const form = ref<Form<LoginDto>>()
 
 async function onSubmit(e: FormSubmitEvent<LoginDto>) {
-  isLoading.value = true
   form.value?.clear()
 
-  try {
-    await useLogin(e.data)
-  }
-  catch (error: unknown) {
-    const parsed = mapFormError(error)
-
-    if (parsed.isValidationError)
-      form.value?.setErrors(parsed.bag)
-    else
-      console.error(error)
-  }
-  finally {
-    isLoading.value = false
+  const errors = await login(e.data)
+  if (errors) {
+    form.value?.setErrors(errors)
   }
 }
 </script>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { User } from '~/models/User'
-import EditProfileModal from '~/components/modals/user/EditProfileModal.vue'
-import { useOpenModal } from '~/composables/useOpenModal'
-import Logo from '~/components/shell/Logo.vue'
+import ProfileEditModal from '~/components/account/ProfileEditModal.vue'
+import UserAvatar from '~/components/account/UserAvatar.vue'
 import FooterNote from '~/components/shell/FooterNote.vue'
-import UserAvatar from '~/components/user/UserAvatar.vue'
+import Logo from '~/components/shell/Logo.vue'
+import { useOpenModal } from '~/composables/useOpenModal'
+import type { User } from '~/types/user.model'
 
 const route = useRoute()
 
@@ -49,7 +49,7 @@ const userMenuItems = [
     },
   ],
 ]
-const openEditProfileModal = useOpenModal<typeof EditProfileModal, boolean>(EditProfileModal)
+const openEditProfileModal = useOpenModal<typeof ProfileEditModal, boolean>(ProfileEditModal)
 
 async function openEditModal() {
   const ok = await openEditProfileModal({ user: user.value! })
@@ -73,14 +73,8 @@ async function handleLogout() {
     <Logo />
 
     <div class="flex flex-col gap-2">
-      <UButton
-        v-for="link in links"
-        :key="link.to"
-        :to="link.to"
-        :variant="isActive(link.to) ? 'solid' : 'ghost'"
-        color="primary"
-        block
-      >
+      <UButton v-for="link in links" :key="link.to" :to="link.to" :variant="isActive(link.to) ? 'solid' : 'ghost'"
+        color="primary" block>
         {{ link.label }}
       </UButton>
     </div>

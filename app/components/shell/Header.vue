@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User } from '~/models/User'
+import type { User } from '~/types/user.model'
 import Logo from './Logo.vue'
 
 const { user, logout, isAuthenticated } = useSanctumAuth<User>()

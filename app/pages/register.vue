@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { registrationSchema, type RegistrationDto } from '~/contracts/registration.contract'
-import { useRegister } from '~/http/composables/useRegister'
-import { mapFormError } from '~/http/utils/handle-form-error'
+import { useRegister } from '~/composables/useRegister'
+import { registrationSchema, type RegistrationDto } from '~/types/registration.contract'
 
 definePageMeta({ layout: 'auth', sanctum: { guestOnly: true } })
 
@@ -14,24 +13,15 @@ const state = reactive<RegistrationDto>({
   password_confirmation: ''
 })
 
+const { register, isLoading } = useRegister()
 const form = ref<Form<RegistrationDto>>()
-const isLoading = ref(false)
 
 async function onSubmit(e: FormSubmitEvent<RegistrationDto>) {
-  isLoading.value = true
   form.value?.clear()
 
-  try {
-    await useRegister(e.data)
-  } catch (error: unknown) {
-    const parsed = mapFormError(error)
-    if (parsed.isValidationError) {
-      form.value?.setErrors(parsed.bag)
-    } else {
-      console.error(error)
-    }
-  } finally {
-    isLoading.value = false
+  const errors = await register(e.data)
+  if (errors) {
+    form.value?.setErrors(errors)
   }
 }
 </script>

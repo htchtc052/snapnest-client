@@ -64,22 +64,19 @@ function createSelectionStore() {
   }
 
   function deselectImages(images: SelectionImage[]) {
-    if (images.length === 0) return
-    const updated = { ...selectedImagesData.value }
-    images.forEach((image) => {
-      delete updated[image.id]
-    })
-    selectedImagesData.value = updated
+    deselectIds(images.map(image => image.id))
   }
 
   function deselectIds(ids: SelectionId[]) {
     if (ids.length === 0) return
-    const updated = { ...selectedImagesData.value }
-    ids.forEach((id) => {
-      delete updated[id]
-    })
+    const idsSet = new Set(ids)
+    const updated = Object.fromEntries(
+      Object.entries(selectedImagesData.value).filter(([id]) => !idsSet.has(Number(id))),
+    ) as Record<SelectionId, SelectionImage>
     selectedImagesData.value = updated
   }
+
+
 
   function groupSelectionValue(images: SelectionImage[]): boolean | 'indeterminate' {
     const total = images.length
