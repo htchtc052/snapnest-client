@@ -4,7 +4,7 @@ import { loginSchema, type LoginDto } from '~/types/login.contract';
 import type { Form, FormSubmitEvent } from '#ui/types';
 import { useLogin } from '~/composables/useLogin';
 
-definePageMeta({ layout: 'auth', sanctum: { guestOnly: true } })
+definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
 const state = reactive<LoginDto>({ email: "htchtc052@gmail.com", password: "12301230" })
 

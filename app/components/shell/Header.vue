@@ -16,7 +16,9 @@ const handleLogout = async () => {
 </script>
 
 <template>
+
   <header class="border-b border-default bg-elevated sticky top-0 z-20">
+ <!--    шаблон устарел! оставлен для демонстрации условия авторизованности -->
     <UContainer class="h-16 flex items-center justify-between">
       <Logo />
 

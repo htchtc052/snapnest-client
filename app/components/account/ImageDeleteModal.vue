@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import BaseModal from '~/components/ui/containers/BaseModal.vue';
 import { useImagesDelete } from '~/composables/account/useImagesDelete';
 import type { DeleteImagesModalResult } from '~/types/image-delete.contract';
 
@@ -24,21 +23,23 @@ async function onConfirm(): Promise<void> {
 </script>
 
 <template>
-  <BaseModal @close="closeModal">
+  <UModal :close="{ onClick: closeModal }">
     <template #title>Delete {{ count }} image{{ count === 1 ? '' : 's' }}?</template>
 
-    Are you sure you want to delete
-    <strong>{{ count }}</strong>
+    <template #body>
+      Are you sure you want to delete
+      <strong>{{ count }}</strong>
 
-    <div class="flex gap-3 pt-2">
-      <UButton variant="outline" type="button" :disabled="isDeleting" @click="closeModal">
-        Cancel
-      </UButton>
-      <UButton type="button" color="error" :loading="isDeleting" @click="onConfirm">
-        <UIcon name="i-heroicons-trash-20-solid" class="mr-2 h-4 w-4" />
-        <span v-if="isDeleting">Deleting {{ count }} image{{ count === 1 ? '' : 's' }}...</span>
-        <span v-else>Delete</span>
-      </UButton>
-    </div>
-  </BaseModal>
+      <div class="flex gap-3 pt-2">
+        <UButton variant="outline" type="button" :disabled="isDeleting" @click="closeModal">
+          Cancel
+        </UButton>
+        <UButton type="button" color="error" :loading="isDeleting" @click="onConfirm">
+          <UIcon name="i-heroicons-trash-20-solid" class="mr-2 h-4 w-4" />
+          <span v-if="isDeleting">Deleting {{ count }} image{{ count === 1 ? '' : 's' }}...</span>
+          <span v-else>Delete</span>
+        </UButton>
+      </div>
+    </template>
+  </UModal>
 </template>

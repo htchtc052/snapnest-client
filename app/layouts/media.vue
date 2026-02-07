@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MediaSidebar from '~/components/layouts/MediaSidebar.vue'
+import UploadQueueBar from '~/components/upload/UploadQueueBar.vue'
 
 const isNavOpen = ref(false)
 </script>
@@ -24,11 +25,14 @@ const isNavOpen = ref(false)
     <UDrawer
       v-model:open="isNavOpen"
       direction="left"
+      :overlay="false"
       :ui="{ content: 'p-0 bg-elevated h-dvh', body: 'p-0 overflow-hidden' }"
     >
       <template #body>
         <MediaSidebar />
       </template>
     </UDrawer>
+
+    <UploadQueueBar />
   </div>
 </template>

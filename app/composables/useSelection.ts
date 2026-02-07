@@ -17,6 +17,16 @@ function createSelectionStore() {
   const selectedIds = computed(() =>
     Object.keys(selectedImagesData.value).map(id => Number(id)),
   )
+  const selectedCount = computed(() => selectedIds.value.length)
+  const showClearToggle = computed(() => selectedCount.value > 1)
+  const canRename = computed(() => selectedCount.value === 1)
+  const selectionLabel = computed(() => {
+    if (selectedCount.value === 1) {
+      const selectedId = selectedIds.value[0]
+      return selectedId ? selectedImagesData.value[selectedId]?.name ?? '1 selected' : '1 selected'
+    }
+    return `${selectedCount.value} selected`
+  })
 
   function upsertSelectedImage(image: SelectionImage) {
     selectedImagesData.value = {
@@ -63,6 +73,7 @@ function createSelectionStore() {
     selectedImagesData.value = updated
   }
 
+
   function deselectImages(images: SelectionImage[]) {
     deselectIds(images.map(image => image.id))
   }
@@ -102,6 +113,10 @@ function createSelectionStore() {
   return {
     selectedImagesData,
     selectedIds,
+    selectedCount,
+    selectionLabel,
+    showClearToggle,
+    canRename,
     selectionMode,
     hasSelection,
     enableSelectionMode,

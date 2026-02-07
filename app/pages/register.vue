@@ -3,7 +3,7 @@ import type { Form, FormSubmitEvent } from '#ui/types'
 import { useRegister } from '~/composables/useRegister'
 import { registrationSchema, type RegistrationDto } from '~/types/registration.contract'
 
-definePageMeta({ layout: 'auth', sanctum: { guestOnly: true } })
+definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
 
 const state = reactive<RegistrationDto>({

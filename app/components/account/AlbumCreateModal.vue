@@ -2,7 +2,6 @@
 import type { FormSubmitEvent } from '#ui/types';
 import { computed, reactive } from 'vue';
 
-import BaseModal from '~/components/ui/containers/BaseModal.vue';
 import { useAlbumCreate } from '~/composables/account/useAlbumCreate';
 import type { AlbumCreateDto, AlbumCreateModalResult } from '~/types/album-create.contracts';
 import { albumInfoSchema } from '~/types/album-info.contract';
@@ -35,9 +34,9 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
 </script>
 
 <template>
-  <BaseModal @close="closeModal">
+  <UModal :close="{ onClick: closeModal }">
     <template #title> Create new Album</template>
-    <template #default>
+    <template #body>
       <div v-if="statusText" class="mb-2 flex items-center gap-2 text-sm text-gray-600">
         <Icon name="i-heroicons-arrow-path-20-solid" class="h-4 w-4 animate-spin" />
         <span>{{ statusText }}</span>
@@ -58,5 +57,5 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
         </div>
       </UForm>
     </template>
-  </BaseModal>
+  </UModal>
 </template>

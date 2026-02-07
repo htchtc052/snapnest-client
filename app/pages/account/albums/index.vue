@@ -3,7 +3,6 @@ import { onMounted } from '#imports'
 import type { DropdownMenuItem } from '@nuxt/ui'
 import AlbumCreateModal from '~/components/account/AlbumCreateModal.vue'
 import AlbumDeleteModal from '~/components/account/AlbumDeleteModal.vue'
-import AlbumPreview from '~/components/account/AlbumPreview.vue'
 import AlbumUpdateModal from '~/components/account/AlbumUpdateModal.vue'
 import { useAlbumsGet } from '~/composables/account/useAlbumsGet'
 import { useOpenModal } from '~/composables/useOpenModal'
@@ -65,16 +64,12 @@ function albumMenuItems(album: Album): DropdownMenuItem[][] {
 
 <template>
   <div class="flex h-full min-h-0 flex-col">
-    <div class="flex items-center justify-end gap-2 py-5 px-4">
+    <UPageHeader title="Albums" class="border-0 px-4 pt-5" />
+
+    <div class="flex justify-end px-4 pb-4">
       <UButton color="primary" @click="openCreateAlbumModal">
         Create Album
       </UButton>
-    </div>
-
-    <div class="flex items-center justify-between gap-4 px-4 pb-4">
-      <h3 class="text-2xl font-semibold text-foreground">
-        Albums
-      </h3>
     </div>
 
     <div class="min-h-0 flex-1">
@@ -87,17 +82,41 @@ function albumMenuItems(album: Album): DropdownMenuItem[][] {
           No albums yet
         </div>
 
-        <div v-else class="grid grid-cols-2 gap-6 px-4 pb-8 md:grid-cols-3 lg:grid-cols-4">
-          <div v-for="album in albums" :key="album.id" class="group relative">
-            <AlbumPreview :album="album" />
-            <div class="absolute right-2 top-2 opacity-0 transition group-hover:opacity-100">
-              <UDropdownMenu :items="albumMenuItems(album)" :content="{ align: 'end' }">
-                <UButton icon="i-heroicons-ellipsis-vertical-20-solid" color="neutral" variant="ghost" size="xs" square
-                  class="bg-white/80 text-muted-700 hover:bg-white" @click.stop />
-              </UDropdownMenu>
-            </div>
-          </div>
-        </div>
+        <UPageGrid v-else class="grid-cols-2 gap-5 px-4 pb-8 md:grid-cols-3 lg:grid-cols-4">
+          <UPageCard
+            v-for="album in albums"
+            :key="album.id"
+            variant="outline"
+          >
+            <template #title>
+              <div class="flex items-center justify-between gap-2">
+                <NuxtLink :to="`/account/albums/${album.id}`" class="truncate">
+                  {{ album.name }}
+                </NuxtLink>
+                <UDropdownMenu :items="albumMenuItems(album)" :content="{ align: 'end' }">
+                  <UButton
+                    icon="i-heroicons-ellipsis-vertical-20-solid"
+                    color="neutral"
+                    variant="soft"
+                    size="xs"
+                    square
+                    @click.stop
+                  />
+                </UDropdownMenu>
+              </div>
+            </template>
+            <NuxtLink :to="`/account/albums/${album.id}`" class="block">
+              <div class="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+                <img
+                  v-if="album.coverPreviewUrl"
+                  :src="album.coverPreviewUrl"
+                  :alt="album.name"
+                  class="h-full w-full object-cover"
+                >
+              </div>
+            </NuxtLink>
+          </UPageCard>
+        </UPageGrid>
       </UScrollArea>
     </div>
   </div>

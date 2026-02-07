@@ -1,0 +1,12 @@
+import { defineVitestConfig } from '@nuxt/test-utils/config'
+
+export default defineVitestConfig({
+  test: {
+    environment: 'nuxt',
+    setupFiles: ['./tests/setup.ts'],
+    include: ['tests/**/*.spec.ts'],
+    coverage: {
+      reporter: ['text', 'html'],
+    },
+  },
+})

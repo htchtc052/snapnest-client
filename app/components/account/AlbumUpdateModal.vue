@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '#ui/types'
 import { reactive } from 'vue'
-import BaseModal from '~/components/ui/containers/BaseModal.vue'
 import { useAlbumUpdate } from '~/composables/account/useAlbumUpdate'
 import { albumInfoSchema, type AlbumUpdateDto } from '~/types/album-info.contract'
 import type { AlbumUpdateModalResult } from '~/types/album-update.contract'
@@ -26,9 +25,9 @@ async function onSubmit(e: FormSubmitEvent<AlbumUpdateDto>) {
 </script>
 
 <template>
-  <BaseModal @close="closeModal">
+  <UModal :close="{ onClick: closeModal }">
     <template #title> Edit album info</template>
-    <template #default>
+    <template #body>
       <UForm :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
         <UFormField name="name" label="Album name">
           <UInput v-model="state.name" class="w-full" />
@@ -44,5 +43,5 @@ async function onSubmit(e: FormSubmitEvent<AlbumUpdateDto>) {
         </div>
       </UForm>
     </template>
-  </BaseModal>
+  </UModal>
 </template>

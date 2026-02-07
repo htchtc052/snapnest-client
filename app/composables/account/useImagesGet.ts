@@ -18,8 +18,7 @@ export function useImagesGet() {
   const isLoading = ref(true)
   const isLoadingMore = ref(false)
   const grouping = ref<GroupBy>('day')
-
-  const scrollArea = useTemplateRef('scrollArea')
+  const scrollArea = useTemplateRef<{ $el?: HTMLElement }>('scrollArea')
 
   const dayFormatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
@@ -33,12 +32,17 @@ export function useImagesGet() {
   const yearFormatter = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
   })
-  const groups = computed<ImageGroup[]>(() => {
+  const imagesGrouped = computed<ImageGroup[]>(() => {
     const result: ImageGroup[] = []
+    const mode = grouping.value
     images.value.forEach((image) => {
-      const [datePart] = image.capturedAt.split(' ')
+      const sourceDate = image.capturedAt || image.createdAt
+      const datePart = sourceDate.split(' ')[0] ?? sourceDate
+      if (!datePart) return
       const [year, month, day] = datePart.split('-')
-      const mode = grouping.value
+      if (!year) return
+      if (mode === 'day' && (!month || !day)) return
+      if (mode === 'month' && !month) return
       const key =
         mode === 'day'
           ? `${year}-${month}-${day}`
@@ -108,7 +112,7 @@ export function useImagesGet() {
     loadImages(undefined, true)
 
     useInfiniteScroll(
-      () => scrollArea.value?.$el as HTMLElement | undefined,
+      () => scrollArea.value?.$el,
       () => {
         if (!nextCursor.value || isLoadingMore.value || isLoading.value) return
         return loadImages(nextCursor.value)
@@ -119,7 +123,7 @@ export function useImagesGet() {
 
   return {
     images,
-    groups,
+    imagesGrouped,
     grouping,
     nextCursor,
     isLoading,

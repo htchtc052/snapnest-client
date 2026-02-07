@@ -8,8 +8,15 @@ export function useAlbumsGet() {
 
   const albums = ref<Album[]>([])
   const isLoading = ref(true)
+  const isFetching = ref(false)
 
   async function loadAlbums(): Promise<void> {
+    if (isFetching.value) {
+      console.warn('[Albums] load already in progress')
+      return
+    }
+
+    isFetching.value = true
     isLoading.value = true
     try {
       albums.value = await albumsGet(client)
@@ -18,6 +25,7 @@ export function useAlbumsGet() {
         console.error('[Albums] Fetch albums failed', error)
       }
     } finally {
+      isFetching.value = false
       isLoading.value = false
     }
   }

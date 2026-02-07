@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
-import BaseModal from '~/components/ui/containers/BaseModal.vue'
 import { useImageUpdate } from '~/composables/account/useImageUpdate'
 import { imageUpdateSchema, type ImageUpdateDto, type ImageUpdateModalResult } from '~/types/image-update.contract'
 import type { Image } from '~/types/image.model'
@@ -36,9 +35,9 @@ async function onSubmit(e: FormSubmitEvent<ImageUpdateDto>) {
 </script>
 
 <template>
-  <BaseModal @close="closeModal">
+  <UModal :close="{ onClick: closeModal }">
     <template #title> Edit image info</template>
-    <template #default>
+    <template #body>
       <UForm ref="form" :state="state" :schema="imageUpdateSchema" class="space-y-4" @submit="onSubmit">
         <UFormField name="name" label="Image name">
           <UInput v-model="state.name" class="w-full" />
@@ -58,5 +57,5 @@ async function onSubmit(e: FormSubmitEvent<ImageUpdateDto>) {
         </div>
       </UForm>
     </template>
-  </BaseModal>
+  </UModal>
 </template>

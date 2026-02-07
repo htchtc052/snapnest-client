@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
-import BaseModal from '~/components/ui/containers/BaseModal.vue'
 import { useProfileUpdate } from '~/composables/account/useProfileUpdate'
 import { profileEditSchema, type ProfileUpdateDto } from '~/types/profile-update.contract'
 import type { User } from '~/types/user.model'
@@ -36,9 +35,9 @@ function closeModal() {
 
 
 <template>
-  <BaseModal @close="closeModal">
+  <UModal :close="{ onClick: closeModal }">
     <template #title> Edit account info</template>
-    <template #default>
+    <template #body>
       <UForm ref="form" :state="state" :schema="profileEditSchema" class="space-y-4" @submit="onSubmit">
         <UFormField name="name" label="Your name">
           <UInput v-model="state.name" class="w-full" />
@@ -62,5 +61,5 @@ function closeModal() {
         </div>
       </UForm>
     </template>
-  </BaseModal>
+  </UModal>
 </template>

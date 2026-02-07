@@ -4,6 +4,7 @@ import ProfileEditModal from '~/components/account/ProfileEditModal.vue'
 import UserAvatar from '~/components/account/UserAvatar.vue'
 import FooterNote from '~/components/shell/FooterNote.vue'
 import Logo from '~/components/shell/Logo.vue'
+import { useUploadsStore } from '~/stores/uploadsStore'
 import { useOpenModal } from '~/composables/useOpenModal'
 import type { User } from '~/types/user.model'
 
@@ -50,12 +51,26 @@ const userMenuItems = [
   ],
 ]
 const openEditProfileModal = useOpenModal<typeof ProfileEditModal, boolean>(ProfileEditModal)
+const uploadsStore = useUploadsStore()
+const fileInput = ref<HTMLInputElement | null>(null)
 
 async function openEditModal() {
   const ok = await openEditProfileModal({ user: user.value! })
   if (ok) {
     await refreshIdentity()
   }
+}
+
+function openUploadDialog() {
+  fileInput.value?.click()
+}
+
+function handleFileSelect(event: Event) {
+  const input = event.target as HTMLInputElement
+  const files = Array.from(input.files ?? [])
+  if (!files.length) return
+  uploadsStore.uploadFiles(files)
+  input.value = ''
 }
 
 async function handleLogout() {
@@ -73,21 +88,36 @@ async function handleLogout() {
     <Logo />
 
     <div class="flex flex-col gap-2">
-      <UButton v-for="link in links" :key="link.to" :to="link.to" :variant="isActive(link.to) ? 'solid' : 'ghost'"
+      <UButton
+v-for="link in links" :key="link.to" :to="link.to" :variant="isActive(link.to) ? 'solid' : 'ghost'"
         color="primary" block>
         {{ link.label }}
       </UButton>
     </div>
 
+    <input
+      ref="fileInput"
+      type="file"
+      multiple
+      accept="image/jpeg,image/png,image/webp"
+      class="hidden"
+      @change="handleFileSelect"
+    >
+    <UButton color="primary" variant="outline" size="sm" block @click="openUploadDialog">
+      <UIcon name="i-heroicons-arrow-up-tray-20-solid" class="mr-2 h-4 w-4" />
+      Upload images
+    </UButton>
+
     <USeparator class="my-2" />
 
     <template v-if="user">
-      <UDropdownMenu :items="userMenuItems" :content="{ class: 'w-64' }">
+      <UDropdownMenu :items="userMenuItems">
         <UButton variant="ghost" class="w-full justify-between gap-3 px-2 py-2">
-          <span class="flex min-w-0 items-center gap-3">
-            <UserAvatar />
-            <span class="truncate text-sm font-medium">{{ user.name }}</span>
-          </span>
+          <UUser :name="user.name" :description="user.email" size="sm" class="min-w-0">
+            <template #avatar>
+              <UserAvatar />
+            </template>
+          </UUser>
           <UIcon name="i-heroicons-chevron-down" class="h-4 w-4 text-muted" />
         </UButton>
         <template #content-top>

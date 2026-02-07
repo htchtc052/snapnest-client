@@ -1,8 +1,9 @@
 import type { SanctumClient } from '~/http/sanctum/sanctum-client.type'
-import type { ImageUploadResponse } from '~/types/image-upload.contract'
 
-export function imagesUpload(client: SanctumClient, data: FormData): Promise<ImageUploadResponse> {
-  return client<ImageUploadResponse>('/api/account/images', {
+export function imagesUpload(client: SanctumClient, file: File): Promise<unknown> {
+  const data = new FormData()
+  data.append('image', file)
+  return client('/api/account/images', {
     method: 'POST',
     body: data,
   })

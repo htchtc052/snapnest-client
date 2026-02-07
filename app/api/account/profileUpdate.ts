@@ -4,12 +4,8 @@ import type { User } from '~/types/user.model';
 
 
 export async function profileUpdate(client: SanctumClient, data: ProfileUpdateDto): Promise<User> {
-    const { birthDate, ...rest } = data
     return client<User>('/api/account', {
         method: 'PUT',
-        body: {
-            ...rest,
-            birth_date: birthDate,
-        },
+        body: data,
     })
 }
