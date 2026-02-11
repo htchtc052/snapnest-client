@@ -1,59 +1,94 @@
 # Snapnest Client
 
-Nuxt 3 client for Snapnest: private photo library with albums and public share links.
+Клиент Nuxt 4 для Snapnest: приватная фотобиблиотека с альбомами и публичными ссылками.
 
-## Stack
-- Nuxt 3 + Vue 3
-- @nuxt/ui for UI components
-- Pinia for state
-- nuxt-auth-sanctum for auth
+## Стек
+- Nuxt 4 + Vue 3
+- @nuxt/ui для UI
+- Pinia для состояния
+- nuxt-auth-sanctum для аутентификации
 
-## Environments
-- `NUXT_PUBLIC_API_BASE` — API base URL (default: `http://localhost:8000`)
-- `NUXT_PUBLIC_SITE_URL` — public site base URL for share links (default: `http://localhost:3000`)
+## Окружение
+- `NUXT_PUBLIC_API_BASE` — базовый URL API (по умолчанию: `http://localhost:8000`)
+- `NUXT_PUBLIC_SITE_URL` — базовый URL фронта для share‑ссылок (по умолчанию: `http://localhost:3000`)
 
-## Routes and Features
+## Роуты и функционал
+
+## Лэйауты
+- `guest` (`app/layouts/guest.vue`)
+  - Для гостевых страниц: центрированный контейнер, логотип в хедере, футер с ссылками.
+  - Используется на `/`, `/login`, `/register`.
+- `media` (`app/layouts/media.vue`)
+  - Основной layout для аккаунта: боковая навигация, верхняя моб‑панель, drawer на mobile.
+  - Включает очередь загрузок (UploadQueueBar).
+  - Используется на `/account`, `/account/albums`, `/account/albums/:id`.
+- `public` (`app/layouts/public.vue`)
+  - Публичные страницы шаринга: хедер с логотипом, опционально меню пользователя.
+  - Используется на `/albums/:token`.
 
 ### Public / Guest
 - `/`
-  - Guest landing page with CTA to sign up or sign in.
+  - Лендинг для гостей с CTA на регистрацию/вход.
 - `/login`
-  - Sign-in form (Nuxt UI form + validation).
+  - Форма входа (Nuxt UI form + валидация).
 - `/register`
-  - Sign-up form (Nuxt UI form + validation).
+  - Форма регистрации (Nuxt UI form + валидация).
 
-### Account (Authenticated)
+### Account (только для авторизованных)
 - `/account`
-  - Main photo timeline.
-  - Grouping by day/month/year.
-  - Infinite scroll on timeline using `useImagesGet()`.
-  - Virtualized scroll area for large grids.
-  - Multi-select with actions: add to album, share, rename, delete.
-  - Upload completion auto-refresh via uploads store.
+  - Основной таймлайн фото.
+  - Группировка по дням/месяцам/годам.
+  - Infinite scroll на таймлайне через `useImagesGet()`.
+  - Виртуализированный scroll area для больших сеток.
+  - Мультивыбор с действиями: добавить в альбом, поделиться, переименовать, удалить.
+  - Авто‑обновление после загрузки через uploads store.
 
 - `/account/albums`
-  - Albums list with create/rename/delete.
-  - Album cards with cover preview.
+  - Список альбомов с созданием/переименованием/удалением.
+  - Карточки альбомов с обложкой.
 
 - `/account/albums/:id`
-  - Album detail with images grid (virtualized scroll area).
-  - Multi-select images and remove from album.
+  - Страница альбома с сеткой изображений (virtualized scroll area).
+  - Мультивыбор изображений и удаление из альбома.
 
 ### Public Share
 - `/albums/:token`
-  - Public album page by share token.
-  - Read-only grid with virtualized scroll area.
-  - Uses public layout.
+  - Публичный альбом по токену.
+  - Режим только чтения, сетка с виртуализацией.
+  - Использует public layout.
 
 ### Utility / Dev
 - `/testPinia`
-  - Local test page for Pinia store.
+  - Локальная тестовая страница для Pinia.
 
-## Sharing
-- Share links are generated from the account timeline via the Share modal.
-- Share modal uses `NUXT_PUBLIC_SITE_URL` + `/albums/:token` to build public URL.
+## Ключевые модули
+- `app/api` — клиентские вызовы API.
+- `app/composables` — бизнес‑логика и загрузка данных.
+- `app/stores` — Pinia‑сторы (например, uploads очередь).
+- `app/layouts` — лэйауты страниц.
 
-## Notes for Agents
-- The account timeline (`/account`) is the only place that uses infinite scroll.
-- Album pages use a scroll area + virtualization, without infinite scroll.
-- Public share pages use the public layout.
+## Политика шаринга
+- Публичный доступ есть только у альбомов.
+- При шаринге создаётся/обновляется `publicToken` у альбома.
+- Публичный маршрут: `/albums/:token`.
+- В публичном режиме доступно только чтение (просмотр).
+
+## Ограничения и особенности
+- Infinite scroll используется только на `/account`.
+- Альбомы работают без infinite scroll.
+- Виртуализированный scroll area используется везде, где отображаются сетки изображений.
+
+## Тесты и линт
+- Юнит‑тесты: Vitest (`tests/unit`).
+- Команды:
+  - `npm run test` — запуск тестов.
+  - `npm run lint` — eslint.
+- Покрытие: выборка composables/сторов (useImagesGet, useSelection, uploadsStore).
+
+## Заметки для агентов
+- Таймлайн `/account` — единственное место с infinite scroll.
+- Альбомы используют scroll area + виртуализацию без infinite scroll.
+- Публичные страницы работают через public layout.
+
+## Известные долги
+- Шаринг отдельных картинок (сейчас шарится только альбом).

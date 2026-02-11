@@ -5,8 +5,6 @@ export default defineVitestConfig({
     environment: 'nuxt',
     setupFiles: ['./tests/setup.ts'],
     include: ['tests/**/*.spec.ts'],
-    coverage: {
-      reporter: ['text', 'html'],
-    },
+
   },
 })

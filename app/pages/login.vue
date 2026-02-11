@@ -6,7 +6,7 @@ import { useLogin } from '~/composables/useLogin';
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
-const state = reactive<LoginDto>({ email: "htchtc052@gmail.com", password: "12301230" })
+const state = reactive<LoginDto>({ email: "htchtc052@gmail.com", password: "1230" })
 
 const { login, isLoading } = useLogin()
 const form = ref<Form<LoginDto>>()
