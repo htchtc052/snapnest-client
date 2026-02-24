@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch } from '#imports'
+import { computed } from '#imports'
 import { useUploadsStore } from '~/stores/uploadsStore'
+import { UPLOAD_ERROR_CODE } from '~/types/upload-error-code'
 import { UPLOAD_STATUS, UPLOAD_STATUS_COLORS, UPLOAD_STATUS_LABELS } from '~/types/upload-status'
+import type { User } from '~/types/user.model'
 
 const uploadsStore = useUploadsStore()
+const { user } = useSanctumAuth<User>()
 
 const hasItems = computed(() => uploadsStore.items.length > 0)
 const isDone = computed(() => uploadsStore.isDone)
@@ -32,83 +35,71 @@ const uploadedLabel = computed(() => {
 
 const statusLabels = computed(() => UPLOAD_STATUS_LABELS)
 const statusColors = computed(() => UPLOAD_STATUS_COLORS)
-
-const previewUrls = new Map<File, string>()
-const allFiles = computed(() => uploadsStore.items.map(item => item.file))
-
-function previewFor(file: File) {
-  const existing = previewUrls.get(file)
-  if (existing) return existing
-  const url = URL.createObjectURL(file)
-  previewUrls.set(file, url)
-  return url
-}
-
-watch(allFiles, (files) => {
-  const active = new Set(files)
-  for (const [file, url] of previewUrls) {
-    if (!active.has(file)) {
-      URL.revokeObjectURL(url)
-      previewUrls.delete(file)
-    }
+const blockedMessage = computed(() => {
+  if (user.value?.uploadBlockedReason === UPLOAD_ERROR_CODE.quotaImagesReached) {
+    return 'Upload stopped: Image limit reached'
   }
-}, { immediate: true })
-
-onBeforeUnmount(() => {
-  for (const url of previewUrls.values()) {
-    URL.revokeObjectURL(url)
+  if (user.value?.uploadBlockedReason === UPLOAD_ERROR_CODE.quotaBytesReached) {
+    return 'Upload stopped: Storage limit reached'
   }
-  previewUrls.clear()
+  return ''
 })
-const userUi = { root: 'min-w-0', wrapper: 'min-w-0', name: 'truncate' }
 </script>
 
 <template>
   <UCard
     v-if="hasItems"
     variant="outline"
-    class="fixed bottom-4 inset-x-4 z-[70] bg-default shadow-lg sm:inset-x-auto sm:right-4 sm:w-[32rem]"
+    class="fixed inset-x-4 bottom-4 z-50 sm:left-auto sm:right-4 sm:max-w-lg"
   >
     <template #header>
-      <div class="flex items-center justify-between gap-3">
-        <p class="text-sm font-semibold text-foreground">{{ title }}</p>
-        <span v-if="remainingLabel" class="text-xs text-muted-500">{{ remainingLabel }}</span>
-        <span v-else-if="uploadedLabel" class="text-xs text-muted-500">{{ uploadedLabel }}</span>
-        <UButton
-          icon="i-heroicons-x-mark-20-solid"
-          color="neutral"
-          variant="ghost"
-          size="xs"
-          class="shrink-0"
-          aria-label="Close uploads"
-          @click="uploadsStore.clear"
-        />
+      <div class="space-y-1">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-sm font-semibold text-foreground">{{ title }}</p>
+          <span v-if="remainingLabel" class="text-xs text-muted-500">{{ remainingLabel }}</span>
+          <span v-else-if="uploadedLabel" class="text-xs text-muted-500">{{ uploadedLabel }}</span>
+          <UButton
+            icon="i-heroicons-x-mark-20-solid"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            class="shrink-0"
+            aria-label="Close uploads"
+            @click="uploadsStore.clear"
+          />
+        </div>
+        <p v-if="blockedMessage" class="text-xs text-error">
+          {{ blockedMessage }}
+        </p>
       </div>
     </template>
 
     <UScrollArea
       v-slot="{ item }"
       :items="uploadsStore.items"
-      :virtualize="{ estimateSize: 64, overscan: 120 }"
-      class="h-72 overflow-x-hidden sm:h-80"
-      :ui="{ viewport: 'flex flex-col overflow-x-hidden', item: 'min-w-0' }"
+      :virtualize="{ estimateSize: 64, overscan: 8 }"
+      class="h-80"
+      :ui="{ viewport: 'overflow-x-hidden' }"
     >
       <UPageCard
         :key="item.id"
         variant="ghost"
-        class="min-w-0"
-        :ui="{ container: 'p-2 gap-2', body: 'p-0' }"
       >
         <template #body>
-          <div class="flex min-w-0 items-center gap-3">
+          <div class="flex items-center gap-3">
             <UUser
               :name="item.file.name"
-              :avatar="{ src: previewFor(item.file), alt: item.file.name }"
+              :avatar="{ src: item.image?.previewUrl, alt: item.file.name }"
               size="lg"
-              class="min-w-0 flex-1"
-              :ui="userUi"
+              class="flex-1"
             />
-            <UBadge :color="statusColors[item.status]" variant="soft" size="xs" class="ml-auto shrink-0">
+            <p
+              v-if="item.status === UPLOAD_STATUS.failed"
+              class="truncate text-xs text-muted"
+            >
+              {{ item.errorMessage }}
+            </p>
+            <UBadge :color="statusColors[item.status]" variant="soft" size="xs" class="ml-auto">
               {{ statusLabels[item.status] }}
             </UBadge>
             <UButton
@@ -117,7 +108,6 @@ const userUi = { root: 'min-w-0', wrapper: 'min-w-0', name: 'truncate' }
               color="neutral"
               variant="ghost"
               size="xs"
-              class="shrink-0"
               aria-label="Remove from queue"
               @click="uploadsStore.removeWaiting(item.id)"
             />

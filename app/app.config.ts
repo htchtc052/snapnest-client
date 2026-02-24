@@ -21,6 +21,7 @@ export default defineAppConfig({
     },
   },
   upload: {
-    maxFiles: 500,
+    maxFilesPerSelection: 500,
+    maxQueueItems: 1000,
   },
 })

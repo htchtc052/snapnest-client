@@ -24,11 +24,11 @@ async function onConfirm(): Promise<void> {
 
 <template>
   <UModal :close="{ onClick: closeModal }">
-    <template #title>Delete {{ count }} image{{ count === 1 ? '' : 's' }}?</template>
+    <template #title>Delete {{ count }} image{{ count === 1 ? '' : 's' }} permanently?</template>
 
     <template #body>
-      Are you sure you want to delete
-      <strong>{{ count }}</strong>
+      This will permanently delete <strong>{{ count }}</strong>
+      image{{ count === 1 ? '' : 's' }}.
 
       <div class="flex gap-3 pt-2">
         <UButton variant="outline" type="button" :disabled="isDeleting" @click="closeModal">
@@ -36,8 +36,8 @@ async function onConfirm(): Promise<void> {
         </UButton>
         <UButton type="button" color="error" :loading="isDeleting" @click="onConfirm">
           <UIcon name="i-heroicons-trash-20-solid" class="mr-2 h-4 w-4" />
-          <span v-if="isDeleting">Deleting {{ count }} image{{ count === 1 ? '' : 's' }}...</span>
-          <span v-else>Delete</span>
+          <span v-if="isDeleting">Deleting permanently...</span>
+          <span v-else>Delete permanently</span>
         </UButton>
       </div>
     </template>

@@ -6,6 +6,7 @@ import type { DeleteImagesResult } from '~/types/image-delete.contract'
 export function useImagesDelete() {
   const client = useSanctumClient()
   const toast = useToast()
+  const { refreshIdentity } = useSanctumAuth()
 
   const isDeleting = ref(false)
 
@@ -16,30 +17,32 @@ export function useImagesDelete() {
       const { deletedIds, failedIds } = result
 
       if (deletedIds.length && !failedIds.length) {
-        toast.add({ title: `Deleted ${deletedIds.length} images.`, color: 'success' })
+        await refreshIdentity()
+        toast.add({ title: `Permanently deleted ${deletedIds.length} images.`, color: 'success' })
         return { deletedIds }
       }
 
       if (deletedIds.length && failedIds.length) {
+        await refreshIdentity()
         toast.add({
-          title: `Deleted ${deletedIds.length} images. Failed to delete ${failedIds.length}.`,
+          title: `Permanently deleted ${deletedIds.length} images. Failed for ${failedIds.length}.`,
           color: 'warning',
         })
         return { deletedIds }
       }
 
       if (failedIds.length) {
-        toast.add({ title: `Failed to delete ${failedIds.length} images.`, color: 'error' })
+        toast.add({ title: `Failed to permanently delete ${failedIds.length} images.`, color: 'error' })
         return
       }
 
-      toast.add({ title: 'Failed to delete images.', color: 'error' })
+      toast.add({ title: 'Failed to permanently delete images.', color: 'error' })
       return
     } catch (error: unknown) {
-      console.error('[Images] Failed to delete selected images', error)
+      console.error('[Images] Failed to permanently delete selected images', error)
       const parsed = mapGroupActionError(error)
       const title =
-        parsed.isGroupActionError && parsed.message ? parsed.message : 'Failed to delete images.'
+        parsed.isGroupActionError && parsed.message ? parsed.message : 'Failed to permanently delete images.'
       toast.add({ title, color: 'error' })
       return
     } finally {

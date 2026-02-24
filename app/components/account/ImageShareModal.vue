@@ -26,6 +26,7 @@ const fullUrl = computed(() => {
   return `${publicUrl.value}${publicPath.value}`
 })
 
+// TODO: after revoke, show access state (403/404) similar to app/pages/albums/[token].vue.
 const isUnpublished = computed(() => album.value?.isPublic === false)
 
 function closeModal() {

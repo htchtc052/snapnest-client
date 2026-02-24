@@ -1,20 +1,15 @@
 <script setup lang="ts">
-import { computed, onBeforeRouteLeave, ref, watch } from '#imports'
+import { computed, onBeforeRouteLeave } from '#imports'
 import { useEventListener } from '@vueuse/core'
-import AlbumSelectForImages from '~/components/account/AlbumSelectForImages.vue'
-import ImageTrashModal from '~/components/account/ImageTrashModal.vue'
-import ImageShareModal from '~/components/account/ImageShareModal.vue'
-import ImageUpdateModal from '~/components/account/ImageUpdateModal.vue'
-import { useImagesGet } from '~/composables/account/useImagesGet'
+import ImageDeleteModal from '~/components/account/ImageDeleteModal.vue'
+import { useImagesDelete } from '~/composables/account/useImagesDelete'
+import { useImagesRestore } from '~/composables/account/useImagesRestore'
+import { useImagesTrashGet } from '~/composables/account/useImagesTrashGet'
 import { useOpenModal } from '~/composables/useOpenModal'
 import { provideSelectionStore } from '~/composables/useSelection'
 import { useVirtualGridLanes } from '~/composables/useVirtualGridLanes'
-import { useUploadsStore } from '~/stores/uploadsStore'
 import { formatImageDate } from '~/utils/formatImageDate'
-import type { AttachImagesModalResult } from '~/types/image-attach.contract'
-import type { ImageShareModalResult } from '~/types/image-share.contract'
-import type { TrashImagesModalResult } from '~/types/image-trash.contract'
-import type { ImageUpdateModalResult } from '~/types/image-update.contract'
+import type { DeleteImagesModalResult } from '~/types/image-delete.contract'
 import type { Image } from '~/types/image.model'
 
 definePageMeta({
@@ -24,14 +19,9 @@ definePageMeta({
 const {
   images,
   isLoading,
-  isLoadingMore,
-  resetAndReload,
   removeImages,
-  updateImage,
   scrollArea,
-} = useImagesGet()
-const uploadsStore = useUploadsStore()
-const hasUploadRefresh = ref(false)
+} = useImagesTrashGet()
 
 const {
   selectedImagesData,
@@ -40,17 +30,15 @@ const {
   hasSelection,
   selectionLabel,
   showClearToggle,
-  canRename,
   toggleSelection,
   clearSelection,
   selectImages,
   deselectImages,
 } = provideSelectionStore()
 
-const openAttachModal = useOpenModal<typeof AlbumSelectForImages, AttachImagesModalResult>(AlbumSelectForImages)
-const openTrashModal = useOpenModal<typeof ImageTrashModal, TrashImagesModalResult>(ImageTrashModal)
-const openShareModal = useOpenModal<typeof ImageShareModal, ImageShareModalResult>(ImageShareModal)
-const openUpdateModal = useOpenModal<typeof ImageUpdateModal, ImageUpdateModalResult>(ImageUpdateModal)
+const openDeleteModal = useOpenModal<typeof ImageDeleteModal, DeleteImagesModalResult>(ImageDeleteModal)
+const { restoreImages, isRestoring } = useImagesRestore()
+const { isDeleting } = useImagesDelete()
 const { lanes: gridLanes } = useVirtualGridLanes(() => scrollArea.value?.$el, {
   min: 2,
   max: 6,
@@ -73,16 +61,6 @@ const isAllVisibleSelected = computed(() =>
 const isVisibleSelectionIndeterminate = computed(() =>
   selectedVisibleCount.value > 0 && !isAllVisibleSelected.value,
 )
-
-watch(() => uploadsStore.isDone, (done) => {
-  if (!done) {
-    hasUploadRefresh.value = false
-    return
-  }
-  if (hasUploadRefresh.value) return
-  hasUploadRefresh.value = true
-  resetAndReload()
-})
 
 onBeforeRouteLeave(() => {
   clearSelection()
@@ -111,41 +89,26 @@ function toggleAllVisibleSelection(value: boolean | 'indeterminate') {
   deselectImages(selectableImages.value.map(image => image.id))
 }
 
-async function confirmDelete() {
-  const ids = selectedIds.value
-  const modalResult = await openTrashModal({ ids })
-  if (modalResult.action === 'cancel') return
-  if (modalResult.trashedIds?.length) {
-    clearSelection()
-    removeImages(modalResult.trashedIds)
-  }
-}
-
-async function renameImage() {
-  const modalResult = await openUpdateModal({
-    image: selectedImagesData.value[selectedIds.value[0]!] as Image,
-  })
-  if (modalResult.action === 'cancel') return
-  clearSelection()
-  updateImage(modalResult.image)
-
-}
-
-async function addToAlbum() {
-  const ids = selectedIds.value
-  const modalResult = await openAttachModal({ imageIds: ids })
-  if (modalResult.action === 'cancel') return
-  clearSelection()
-}
-
-async function shareImages() {
+async function restoreSelected() {
   const ids = selectedIds.value
   if (!ids.length) return
-  const modalResult = await openShareModal({ imageIds: ids })
-  if (modalResult.action === 'cancel') return
+
+  const result = await restoreImages(ids)
+  if (!result?.restoredIds?.length) return
+
+  removeImages(result.restoredIds)
   clearSelection()
 }
 
+async function destroySelected() {
+  const ids = selectedIds.value
+  const modalResult = await openDeleteModal({ ids })
+  if (modalResult.action === 'cancel') return
+  if (!modalResult.deletedIds?.length) return
+
+  removeImages(modalResult.deletedIds)
+  clearSelection()
+}
 </script>
 
 <template>
@@ -172,41 +135,17 @@ async function shareImages() {
 
       <template #actions>
         <UButton
-          icon="i-heroicons-folder-plus-20-solid"
+          icon="i-heroicons-arrow-path-20-solid"
           color="neutral"
           variant="ghost"
           size="sm"
           square
           class="text-white"
-          title="Add to album"
-          @click="addToAlbum"
+          :loading="isRestoring"
+          title="Restore"
+          @click="restoreSelected"
         >
-          <span class="hidden sm:inline">Add to album</span>
-        </UButton>
-        <UButton
-          icon="i-heroicons-link-20-solid"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          square
-          class="text-white"
-          title="Share"
-          @click="shareImages"
-        >
-          <span class="hidden sm:inline">Share</span>
-        </UButton>
-        <UButton
-          v-if="canRename"
-          icon="i-heroicons-pencil-square-20-solid"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          square
-          class="text-white"
-          title="Rename"
-          @click="renameImage"
-        >
-          <span class="hidden sm:inline">Rename</span>
+          <span class="hidden sm:inline">Restore</span>
         </UButton>
         <UButton
           icon="i-heroicons-trash-20-solid"
@@ -215,10 +154,11 @@ async function shareImages() {
           size="sm"
           square
           class="text-white"
-          title="Move to trash"
-          @click="confirmDelete"
+          :loading="isDeleting"
+          title="Delete permanently"
+          @click="destroySelected"
         >
-          <span class="hidden sm:inline">Move to trash</span>
+          <span class="hidden sm:inline">Delete permanently</span>
         </UButton>
         <UButton
           icon="i-heroicons-x-mark-20-solid"
@@ -232,7 +172,7 @@ async function shareImages() {
       </template>
     </UAlert>
 
-    <UPageHeader title="Photos" class="pt-5 pb-4" />
+    <UPageHeader title="Trash" class="pt-5 pb-4" />
     <UCheckbox
       v-if="!isLoading && images.length > 0"
       :model-value="isAllVisibleSelected"
@@ -245,7 +185,7 @@ async function shareImages() {
     <USkeleton v-if="isLoading" class="h-40" />
 
     <template v-else>
-      <UEmpty v-if="images.length === 0" description="No images yet" size="md" variant="naked" class="py-8" />
+      <UEmpty v-if="images.length === 0" description="Trash is empty" size="md" variant="naked" class="py-8" />
 
       <UScrollArea
         v-else
@@ -281,8 +221,6 @@ async function shareImages() {
           />
         </UPageCard>
       </UScrollArea>
-
-      <UProgress v-if="isLoadingMore" indeterminate size="xs" class="py-2" />
     </template>
   </div>
 </template>

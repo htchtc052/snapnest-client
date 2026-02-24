@@ -10,7 +10,6 @@ const emit = defineEmits<{ (e: 'close', value: ImageUpdateModalResult): void }>(
 
 const initial = computed<ImageUpdateDto>(() => ({
   name: props.image.name ?? '',
-  description: props.image.description ?? '',
 }))
 
 const state = reactive<ImageUpdateDto>({ ...initial.value })
@@ -41,10 +40,6 @@ async function onSubmit(e: FormSubmitEvent<ImageUpdateDto>) {
       <UForm ref="form" :state="state" :schema="imageUpdateSchema" class="space-y-4" @submit="onSubmit">
         <UFormField name="name" label="Image name">
           <UInput v-model="state.name" class="w-full" />
-        </UFormField>
-
-        <UFormField name="description" label="Image description">
-          <UTextarea v-model="state.description" :rows="4" class="w-full" />
         </UFormField>
 
         <div class="flex gap-3 pt-2">

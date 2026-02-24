@@ -5,10 +5,6 @@ import type { Image } from "~/types/image.model";
 
 export const imageUpdateSchema = yup.object({
     name: yup.string().required('Image name is required'),
-    description: yup
-        .string()
-        .max(255, "Image description be at most 255 characters")
-        .notRequired()
 });
 
 

@@ -6,7 +6,7 @@ import { useLogin } from '~/composables/useLogin';
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
-const state = reactive<LoginDto>({ email: "htchtc052@gmail.com", password: "1230" })
+const state = reactive<LoginDto>({ email: "", password: "" })
 
 const { login, isLoading } = useLogin()
 const form = ref<Form<LoginDto>>()
@@ -27,13 +27,39 @@ async function onSubmit(e: FormSubmitEvent<LoginDto>) {
       <h1 class="text-center text-xl font-semibold">Sign in</h1>
     </template>
 
-    <UForm ref="form" :schema="loginSchema" :state="state" class="space-y-4" novalidate @submit="onSubmit">
+    <UForm
+      ref="form"
+      :schema="loginSchema"
+      :state="state"
+      class="space-y-4"
+      method="post"
+      autocomplete="on"
+      novalidate
+      @submit="onSubmit"
+    >
       <UFormField name="email" label="Email" type="email">
-        <UInput v-model="state.email" type="string" placeholder="you@example.com" class="w-full" />
+        <UInput
+          v-model="state.email"
+          type="email"
+          name="email"
+          autocomplete="username"
+          inputmode="email"
+          autocapitalize="none"
+          spellcheck="false"
+          placeholder="you@example.com"
+          class="w-full"
+        />
       </UFormField>
 
       <UFormField name="password" label="Password">
-        <UInput v-model="state.password" type="password" placeholder="Enter password" class="w-full" />
+        <UInput
+          v-model="state.password"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="Enter password"
+          class="w-full"
+        />
       </UFormField>
 
       <UButton type="submit" block :loading="isLoading">
@@ -49,6 +75,7 @@ async function onSubmit(e: FormSubmitEvent<LoginDto>) {
         </p>
         <p>
           Forgot password?
+          <!-- TODO: implement forgot-password feature end-to-end with layered structure (api/composables/pages). -->
           <NuxtLink to="/forgot-password" class="text-primary">Reset&nbsp;it</NuxtLink>
         </p>
       </div>

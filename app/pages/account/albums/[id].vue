@@ -144,7 +144,7 @@ useEventListener(
           <UCheckbox
             :model-value="Boolean(selectedImagesData[image.id])"
             color="primary"
-            class="absolute bottom-2 left-2 z-10"
+            class="absolute top-2 left-2 z-10"
             @click.stop
             @update:model-value="() => toggleSelection(image)"
           />

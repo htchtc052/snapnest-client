@@ -7,8 +7,8 @@ definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
 
 const state = reactive<RegistrationDto>({
-  name: 'Alonecat81+10',
-  email: 'htchtc052+10@gmail.com',
+  name: '',
+  email: '',
   password: '',
   password_confirmation: ''
 })

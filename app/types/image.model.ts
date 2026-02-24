@@ -4,7 +4,9 @@ export type Image = {
   largeUrl?: string
   name: string
   originalName?: string | null
-  description?: string | null
+  size: number
+  width: number | null
+  height: number | null
   capturedAt: string
   createdAt: string
   ownerId: number

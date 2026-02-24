@@ -1,55 +1,69 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useSelectionStore } from '~/composables/useSelection'
+import { describe, expect, it } from 'vitest'
+import { mount } from '@vue/test-utils'
+import { defineComponent } from 'vue'
+import { provideSelectionStore } from '~/composables/useSelection'
+
+function makeStore() {
+  const Host = defineComponent({
+    setup() {
+      const store = provideSelectionStore()
+      return { store }
+    },
+    template: '<div />',
+  })
+
+  const wrapper = mount(Host)
+  return wrapper.vm.store
+}
 
 describe('useSelection', () => {
-  let warnSpy: ReturnType<typeof vi.spyOn>
-
-  beforeEach(() => {
-    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const store = useSelectionStore()
-    store.clearSelection()
-  })
-
-  afterEach(() => {
-    warnSpy.mockRestore()
-  })
-
   it('computes selection label and actions for a single item', () => {
-    // Single selection should show the name and enable rename.
-    const store = useSelectionStore()
-    store.selectImages([{ id: 1, name: 'One' }])
+    const store = makeStore()
+
+    store.toggleSelection({ id: 1, name: 'One' })
 
     expect(store.selectionLabel.value).toBe('One')
     expect(store.canRename.value).toBe(true)
     expect(store.showClearToggle.value).toBe(false)
+    expect(store.selectionMode.value).toBe(true)
   })
 
   it('updates label and toggles for multiple items', () => {
-    // Multiple selections should switch to count label and disable rename.
-    const store = useSelectionStore()
-    store.selectImages([{ id: 1, name: 'One' }])
-    store.selectImages([{ id: 2, name: 'Two' }])
+    const store = makeStore()
+
+    store.toggleSelection({ id: 1, name: 'One' })
+    store.toggleSelection({ id: 2, name: 'Two' })
 
     expect(store.selectionLabel.value).toBe('2 selected')
     expect(store.canRename.value).toBe(false)
     expect(store.showClearToggle.value).toBe(true)
   })
 
-  it('reports indeterminate group selection and toggles as expected', () => {
-    // A partially selected group should be indeterminate.
-    const store = useSelectionStore()
-    const group = [
+  it('clears and toggles selected image ids', () => {
+    const store = makeStore()
+
+    store.toggleSelection({ id: 1, name: 'One' })
+    store.toggleSelection({ id: 1, name: 'One' })
+    expect(store.selectedIds.value).toEqual([])
+
+    store.toggleSelection({ id: 2, name: 'Two' })
+    store.clearSelection()
+    expect(store.selectedIds.value).toEqual([])
+    expect(store.selectionMode.value).toBe(false)
+  })
+
+  it('selects and deselects many images at once', () => {
+    const store = makeStore()
+
+    store.selectImages([
       { id: 1, name: 'One' },
       { id: 2, name: 'Two' },
-    ]
+      { id: 3, name: 'Three' },
+    ])
 
-    store.selectImages([{ id: 1, name: 'One' }])
-    expect(store.groupSelectionValue(group)).toBe('indeterminate')
+    expect(store.selectedIds.value).toEqual([1, 2, 3])
 
-    store.toggleGroupSelection(group)
-    expect(store.groupSelectionValue(group)).toBe(true)
-
-    store.toggleGroupSelection(group)
-    expect(store.groupSelectionValue(group)).toBe(false)
+    store.deselectImages([1, 3])
+    expect(store.selectedIds.value).toEqual([2])
   })
 })
