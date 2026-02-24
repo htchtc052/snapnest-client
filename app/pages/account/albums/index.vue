@@ -1,107 +1,123 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
-import type { AlbumCreateResult, AlbumUpdateResult } from '~/contracts/album-manage.contract'
-import { useAlbums } from '~/http/composables/useAlbums'
+import { onMounted } from '#imports'
+import type { DropdownMenuItem } from '@nuxt/ui'
+import AlbumCreateModal from '~/components/account/AlbumCreateModal.vue'
+import AlbumDeleteModal from '~/components/account/AlbumDeleteModal.vue'
+import AlbumUpdateModal from '~/components/account/AlbumUpdateModal.vue'
+import { useAlbumsGet } from '~/composables/account/useAlbumsGet'
 import { useOpenModal } from '~/composables/useOpenModal'
-import { useSelection } from '~/composables/useSelection'
-import AlbumCreateModal from '~/components/modals/album/AlbumCreateModal.vue'
-import AlbumDeleteModal from '~/components/modals/album/AlbumDeleteModal.vue'
-import AlbumUpdateModal from '~/components/modals/album/AlbumUpdateModal.vue'
-import type { Album } from '~/models/Album'
-import AlbumListCard from '~/components/cards/album/AlbumListCard.vue'
-import AlbumGroupActionsSection from '~/components/sections/album/AlbumGroupActionsSection.vue'
-import BaseSection from '~/components/sections/base/Section.vue'
-import BaseSectionTitle from '~/components/sections/base/SectionTitle.vue'
-import Loader from '~/components/loaders/Loader.vue'
-import EmptyStateSection from '~/components/sections/blocks/EmptyStateSection.vue'
-import Grid from '~/components/grids/Grid.vue'
+import type { AlbumCreateModalResult } from '~/types/album-create.contracts'
+import type { AlbumDeleteModalResult } from '~/types/album-delete.contract'
+import type { AlbumUpdateModalResult } from '~/types/album-update.contract'
+import type { Album } from '~/types/album.model'
 
-const {
-  data: albums,
-  pending: isLoading,
-  error,
-  refresh,
-} = await useAsyncData<Album[]>(
-  'account-albums',
-  () => useAlbums(),
-  {
-    default: () => [],
-  },
-)
+definePageMeta({
+  layout: 'media',
+})
 
-if (error.value) {
-  console.error('[Albums] Failed to load albums', error.value)
-  throw error.value
+const { albums, isLoading, loadAlbums } = useAlbumsGet()
+const openCreateAlbum = useOpenModal<typeof AlbumCreateModal, AlbumCreateModalResult>(AlbumCreateModal)
+const openUpdateAlbum = useOpenModal<typeof AlbumUpdateModal, AlbumUpdateModalResult>(AlbumUpdateModal)
+const openDeleteAlbum = useOpenModal<typeof AlbumDeleteModal, AlbumDeleteModalResult>(AlbumDeleteModal)
+
+onMounted(() => {
+  loadAlbums()
+})
+
+async function openCreateAlbumModal() {
+  const result = await openCreateAlbum()
+  if (result.action === 'cancel') return
+  albums.value.unshift(result.album)
 }
 
-const selection = useSelection()
-const selectedAlbumIds = selection.keys
-const selectedCount = computed(() => selectedAlbumIds.value.length)
-
-const openCreate = useOpenModal<typeof AlbumCreateModal, AlbumCreateResult>(AlbumCreateModal)
-const openGroupDelete = useOpenModal<typeof AlbumDeleteModal, boolean>(AlbumDeleteModal)
-const openUpdate = useOpenModal<typeof AlbumUpdateModal, AlbumUpdateResult>(AlbumUpdateModal)
-
-async function openCreateModal() {
-  const created = await openCreate()
-  if (created) {
-    await refresh()
-  }
+async function renameAlbum(album: Album) {
+  const result = await openUpdateAlbum({ album })
+  if (result.action === 'cancel') return
+  albums.value = albums.value.map((item) => (item.id === result.album.id ? result.album : item))
 }
 
-async function openUpdateAlbumModal(album: Album) {
-  const res = await openUpdate({ album })
-  if (res) {
-    albums.value = albums.value.map(a => (a.id === res.id ? res : a))
-  }
+async function deleteAlbum(album: Album) {
+  const result = await openDeleteAlbum({ album })
+  if (result.action === 'cancel') return
+  albums.value = albums.value.filter((item) => item.id !== album.id)
 }
 
-
-
-async function deleteSelectedAlbums() {
-  if (!selectedAlbumIds.value.length) return
-
-  const idsToDelete = [...selectedAlbumIds.value]
-  const ok = await openGroupDelete({ albumIds: idsToDelete })
-  if (ok) {
-    albums.value = albums.value.filter(album => !idsToDelete.includes(album.id))
-    selection.clear()
-  }
+function albumMenuItems(album: Album): DropdownMenuItem[][] {
+  return [
+    [
+      {
+        label: 'Rename',
+        icon: 'i-lucide-pencil',
+        onSelect: () => renameAlbum(album),
+      },
+      {
+        label: 'Delete',
+        icon: 'i-lucide-trash',
+        color: 'error',
+        onSelect: () => deleteAlbum(album),
+      },
+    ],
+  ]
 }
 </script>
 
 
 <template>
-  <div>
-    <BaseSection>
-      <div class="flex items-center justify-between">
-        <BaseSectionTitle>
-          Albums
-        </BaseSectionTitle>
+  <div class="flex h-full min-h-0 flex-col">
+    <UPageHeader title="Albums" class="border-0 px-4 pt-5" />
 
-        <div class="flex gap-2">
-          <UButton color="primary" @click="openCreateModal">
-            <Icon name="i-heroicons-arrow-up-tray-20-solid" class="mr-2" />
-            Add album
-          </UButton>
+    <div class="flex justify-end px-4 pb-4">
+      <UButton color="primary" @click="openCreateAlbumModal">
+        Create Album
+      </UButton>
+    </div>
+
+    <div class="min-h-0 flex-1">
+      <UScrollArea class="h-full min-h-0">
+        <template v-if="isLoading">
+          <USkeleton class="mx-4 h-40" />
+        </template>
+
+        <div v-else-if="albums.length === 0" class="px-4 py-8 text-center text-sm text-muted-500">
+          No albums yet
         </div>
-      </div>
-    </BaseSection>
 
-    <AlbumGroupActionsSection :selected-count="selectedCount" :on-delete="deleteSelectedAlbums" />
-
-    <Loader v-if="isLoading" />
-
-    <EmptyStateSection v-else-if="albums.length === 0">
-      No albums yet
-    </EmptyStateSection>
-
-    <div v-else>
-      <Grid>
-        <AlbumListCard v-for="item in albums" :key="item.id" :album="item" :selected="selection.isSelected(item.id)"
-          @toggle-select="selection.toggle" @edit="openUpdateAlbumModal" />
-      </Grid>
+        <UPageGrid v-else class="grid-cols-2 gap-5 px-4 pb-8 md:grid-cols-3 lg:grid-cols-4">
+          <UPageCard
+            v-for="album in albums"
+            :key="album.id"
+            variant="outline"
+          >
+            <template #title>
+              <div class="flex items-center justify-between gap-2">
+                <NuxtLink :to="`/account/albums/${album.id}`" class="truncate">
+                  {{ album.name }}
+                </NuxtLink>
+                <UDropdownMenu :items="albumMenuItems(album)" :content="{ align: 'end' }">
+                  <UButton
+                    icon="i-heroicons-ellipsis-vertical-20-solid"
+                    color="neutral"
+                    variant="soft"
+                    size="xs"
+                    square
+                    @click.stop
+                  />
+                </UDropdownMenu>
+              </div>
+            </template>
+            <NuxtLink :to="`/account/albums/${album.id}`" class="block">
+              <div class="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+                <img
+                  v-if="album.coverPreviewUrl"
+                  :src="album.coverPreviewUrl"
+                  :alt="album.name"
+                  class="h-full w-full object-cover"
+                >
+              </div>
+            </NuxtLink>
+          </UPageCard>
+        </UPageGrid>
+      </UScrollArea>
     </div>
   </div>
 </template>

@@ -1,134 +1,156 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { Album } from '~/models/Album'
-import type { Image } from '~/models/Image'
+import { computed, onBeforeRouteLeave, onMounted, useTemplateRef } from '#imports'
+import { useEventListener } from '@vueuse/core'
+import { useAccountAlbumWithImagesGet } from '~/composables/account/useAccountAlbumWithImagesGet'
+import { useAlbumDetachImages } from '~/composables/account/useAlbumDetachImages'
+import { provideSelectionStore } from '~/composables/useSelection'
+import { useVirtualGridLanes } from '~/composables/useVirtualGridLanes'
+import type { Image } from '~/types/image.model'
+import { isNumericParam } from '~/utils/isNumericParam'
 
-import Fancybox from '~/components/integrations/fancybox/Fancybox.vue'
-import Grid from '~/components/grids/Grid.vue'
-import Loader from '~/components/loaders/Loader.vue'
-import ImageUpdateModal from '~/components/modals/image/ImageUpdateModal.vue'
-import AlbumImagesGroupActionsSection from '~/components/sections/album/AlbumImagesGroupActionsSection.vue'
-import BaseSection from '~/components/sections/base/Section.vue'
-import BaseSectionTitle from '~/components/sections/base/SectionTitle.vue'
-import EmptyStateSection from '~/components/sections/blocks/EmptyStateSection.vue'
-import ImageCard from '~/components/cards/image/ImageCard.vue'
-import { useOpenModal } from '~/composables/useOpenModal'
-import { useSelection } from '~/composables/useSelection'
-import type { ImageUpdateResult } from '~/contracts/image-update.contract'
-import { useAlbum } from '~/http/composables/useAlbum'
-import { useAlbumDetachImages } from '~/http/composables/useAlbumDetachImages'
-import { getPaging } from '~/http/utils/get-paging'
+definePageMeta({
+  layout: 'media',
+  validate: route =>
+    isNumericParam(route.params.id),
+})
 
 const route = useRoute()
 const albumId = computed(() => Number(route.params.id))
-const fetchAlbum = useAlbum(albumId.value)
 
 const {
-  data: firstLoad,
-  pending: isInitialLoading,
-  error,
-} = await useAsyncData(
-  () => fetchAlbum(1),
+  album,
+  images,
+  isLoading,
+  loadAlbum,
+  removeImages,
+} = useAccountAlbumWithImagesGet(albumId.value)
+const { detachImages, isDetaching } = useAlbumDetachImages()
+
+const {
+  selectedIds,
+  selectedImagesData,
+  selectionLabel,
+  selectionMode,
+  hasSelection,
+  toggleSelection,
+  clearSelection,
+} = provideSelectionStore()
+
+const scrollArea = useTemplateRef('scrollArea')
+const { lanes: gridLanes } = useVirtualGridLanes(() => scrollArea.value?.$el, {
+  min: 2,
+  max: 6,
+  targetWidth: 200,
+})
+
+function handleImageSelection(image: Image) {
+  if (!selectionMode.value) return
+  toggleSelection(image)
+}
+
+async function removeSelectedFromAlbum() {
+  const ids = selectedIds.value
+  if (!ids.length || isDetaching.value) return
+  const ok = await detachImages(albumId.value, ids)
+  if (!ok) return
+  removeImages(ids)
+  clearSelection()
+}
+
+onMounted(async () => {
+  await loadAlbum()
+})
+
+onBeforeRouteLeave(() => {
+  clearSelection()
+})
+
+useEventListener(
+  () => window,
+  'keydown',
+  (event) => {
+    if (event.key !== 'Escape' || !hasSelection.value) return
+    clearSelection()
+  },
 )
-
-if (error.value) {
-  console.error('[Album] Failed to load album', error.value)
-}
-
-const album = ref<Album | null>(firstLoad.value?.album ?? null)
-const images = ref<Image[]>(firstLoad.value?.data ?? [])
-const paging = ref(getPaging(firstLoad.value?.meta ?? null))
-
-const isLoadingMore = ref(false)
-
-
-async function loadMore() {
-  if (isLoadingMore.value) return
-  isLoadingMore.value = true
-  try {
-    const res = await fetchAlbum(paging.value.nextPage)
-    images.value.push(...res.data)
-    paging.value = getPaging(res.meta)
-    album.value = res.album
-  } catch (e) {
-    console.error('[Album] Failed to load more images', e)
-  } finally {
-    isLoadingMore.value = false
-  }
-}
-
-const selection = useSelection()
-const selectedIds = selection.keys
-const selectedCount = computed(() => selectedIds.value.length)
-
-
-async function removeImages(imageIds: number[]) {
-  if (!imageIds.length) return
-  try {
-    await useAlbumDetachImages(albumId.value, imageIds)
-    images.value = images.value.filter(img => !imageIds.includes(img.id))
-    selection.clear()
-    if (album.value) {
-      album.value = { ...album.value, imagesCount: album.value.imagesCount - imageIds.length }
-    }
-    toast.add({ title: 'Removed from album', color: 'success' })
-  } catch (e) {
-    console.error('[Album] Failed to detach images', e)
-    toast.add({ title: 'Failed to remove from album', color: 'error' })
-  }
-}
-
-async function removeSelected() {
-  await removeImages([...selectedIds.value])
-}
-
-const openUpdate = useOpenModal<typeof ImageUpdateModal, ImageUpdateResult>(ImageUpdateModal)
-const toast = useToast()
-
-async function openUpdateImageModal(image: Image) {
-  const res = await openUpdate({ image })
-  if (res) {
-    images.value = images.value.map(i => (i.id === res.id ? res : i))
-  }
-}
 </script>
 
 <template>
-  <div>
-    <BaseSection>
-      <div class="flex items-center justify-between">
-        <div>
-          <BaseSectionTitle>
-            {{ album?.name }}
-          </BaseSectionTitle>
-          <p class="text-sm text-gray-600">
-            {{ album?.imagesCount }} images
-          </p>
-        </div>
-      </div>
-    </BaseSection>
-
-    <AlbumImagesGroupActionsSection :selected-count="selectedCount" :on-remove="removeSelected" />
-
-    <Loader v-if="isInitialLoading" />
-
-    <EmptyStateSection v-else-if="!images.length">
-      No images yet
-    </EmptyStateSection>
-
-    <div v-else>
-      <Fancybox>
-        <Grid>
-          <ImageCard v-for="item in images" :key="item.id" :image="item" :selected="selection.isSelected(item.id)"
-            @toggle-select="selection.toggle" @edit="openUpdateImageModal" />
-        </Grid>
-      </Fancybox>
-
-      <div v-if="paging.hasMore" class="mt-6 flex justify-center">
-        <UButton :loading="isLoadingMore" @click="loadMore">
-          Load more
+  <div class="flex h-full min-h-0 flex-col px-4">
+    <UAlert
+      v-if="hasSelection"
+      color="primary"
+      variant="solid"
+      orientation="horizontal"
+      :title="selectionLabel"
+      class="my-4"
+      :ui="{ title: 'truncate' }"
+    >
+      <template #actions>
+        <UButton
+          icon="i-heroicons-minus-circle-20-solid"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          square
+          class="text-white"
+          title="Remove from album"
+          @click="removeSelectedFromAlbum"
+        >
+          <span class="hidden sm:inline">Remove from album</span>
         </UButton>
-      </div>
+        <UButton
+          icon="i-heroicons-x-mark-20-solid"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          square
+          class="text-white"
+          title="Close"
+          @click="clearSelection"
+        />
+      </template>
+    </UAlert>
+
+    <div class="flex items-center gap-3 pt-5 pb-4">
+      <UButton to="/account/albums" color="neutral" variant="ghost" icon="i-lucide-arrow-left" square />
+      <USkeleton v-if="isLoading" class="h-7 w-48" />
+      <h3 v-else class="text-2xl font-semibold text-foreground">
+        {{ album?.name }}
+      </h3>
     </div>
+
+    <USkeleton v-if="isLoading" class="h-40" />
+
+    <template v-else>
+      <UEmpty v-if="images.length === 0" description="No images yet" size="md" variant="naked" class="py-8" />
+
+      <UScrollArea
+        v-else
+        ref="scrollArea"
+        v-slot="{ item: image }"
+        :items="images"
+        :virtualize="{ estimateSize: 220, gap: 12, lanes: gridLanes }"
+        class="min-h-0 flex-1"
+      >
+        <UPageCard
+          :key="image.id"
+          variant="naked"
+          class="relative w-full aspect-square overflow-hidden rounded-lg"
+          @click="handleImageSelection(image)"
+        >
+          <img :src="image.previewUrl" :alt="image.name" class="h-full w-full object-cover">
+
+          <UCheckbox
+            :model-value="Boolean(selectedImagesData[image.id])"
+            color="primary"
+            class="absolute top-2 left-2 z-10"
+            @click.stop
+            @update:model-value="() => toggleSelection(image)"
+          />
+        </UPageCard>
+      </UScrollArea>
+
+    </template>
   </div>
 </template>

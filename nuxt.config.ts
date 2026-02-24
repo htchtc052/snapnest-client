@@ -3,7 +3,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
     css: ['~/assets/css/main.css'],
-  modules: ['@nuxt/eslint', '@nuxt/ui',  ['nuxt-auth-sanctum', {
+  runtimeConfig: {
+    public: {
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
+    },
+  },
+  modules: ['@nuxt/eslint', '@nuxt/ui', '@pinia/nuxt', ['nuxt-auth-sanctum', {
       baseUrl: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8000',
       mode: 'cookie',
       endpoints: {
@@ -20,5 +25,5 @@ export default defineNuxtConfig({
       },
       globalMiddleware: { enabled: true, allow404WithoutAuth: true },
       client: { initialRequest: true },
-  }]]
+  }], '@nuxtjs/device']
 })
