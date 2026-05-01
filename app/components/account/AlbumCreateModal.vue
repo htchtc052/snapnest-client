@@ -1,48 +1,40 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from '#ui/types';
-import { computed, reactive } from 'vue';
+import type { Form, FormSubmitEvent } from '#ui/types'
+import { reactive, ref } from 'vue'
+import { usePrivateAlbumCreateOperation } from '~/composables/features/usePrivateAlbumCreateOperation'
+import { albumInfoSchema, type AlbumCreateModalResult, type AlbumInfoDto } from '~/types/album-info.contract'
 
-import { useAlbumCreate } from '~/composables/account/useAlbumCreate';
-import type { AlbumCreateDto, AlbumCreateModalResult } from '~/types/album-create.contracts';
-import { albumInfoSchema } from '~/types/album-info.contract';
-
-const props = defineProps<{ imageIds?: number[] }>()
 const emit = defineEmits<{ (e: 'close', value: AlbumCreateModalResult): void }>()
 
-const { createAlbum, isCreating } = useAlbumCreate()
-const state = reactive<AlbumCreateDto>({ name: '' })
-
-const statusText = computed(() => {
-  if (!isCreating.value) return ''
-  return props.imageIds?.length ? 'Creating album and adding images...' : 'Creating album...'
+const state = reactive<AlbumInfoDto>({
+  name: '',
 })
+const form = ref<Form<AlbumInfoDto>>()
+const { createPrivateAlbum, isCreating } = usePrivateAlbumCreateOperation()
 
 function closeModal() {
   emit('close', { action: 'cancel' })
 }
 
-async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
-  const album = await createAlbum({
-    ...e.data,
-    image_ids: props.imageIds?.length ? props.imageIds : undefined,
-  })
-
-  if (album) {
-    emit('close', { action: 'confirm', album })
+async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
+  form.value?.clear()
+  const result = await createPrivateAlbum(e.data)
+  if (Array.isArray(result)) {
+    form.value?.setErrors(result)
+    return
+  }
+  if (result) {
+    emit('close', { action: 'confirm', album: result })
   }
 }
 </script>
 
 <template>
   <UModal :close="{ onClick: closeModal }">
-    <template #title> Create new Album</template>
-    <template #body>
-      <div v-if="statusText" class="mb-2 flex items-center gap-2 text-sm text-gray-600">
-        <Icon name="i-heroicons-arrow-path-20-solid" class="h-4 w-4 animate-spin" />
-        <span>{{ statusText }}</span>
-      </div>
+    <template #title>Create album</template>
 
-      <UForm :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
+    <template #body>
+      <UForm ref="form" :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
         <UFormField name="name" label="Album name">
           <UInput v-model="state.name" class="w-full" />
         </UFormField>
@@ -52,7 +44,7 @@ async function onSubmit(e: FormSubmitEvent<AlbumCreateDto>) {
             Cancel
           </UButton>
           <UButton type="submit" :loading="isCreating">
-            Create album
+            Create
           </UButton>
         </div>
       </UForm>

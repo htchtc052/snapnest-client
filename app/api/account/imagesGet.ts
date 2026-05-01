@@ -1,23 +1,26 @@
 import type { SanctumClient } from '~/http/sanctum/sanctum-client.type'
 import type { Image } from '~/types/image.model'
 
-export type ImagesPagination = {
-  page: number
-  perPage: number
-  total: number
-  lastPage: number
-  hasMore: boolean
+export type ImagesPageApiResponse = {
+  images: Image[]
+  nextPage: number | null
 }
 
 export type ImagesFeedResponse = {
   images: Image[]
-  pagination: ImagesPagination
+  nextPage: number | null
 }
 
-export function imagesGet(
+export async function imagesGet(
   client: SanctumClient,
-  page = 1
+  page?: number | null,
 ): Promise<ImagesFeedResponse> {
-  const suffix = page > 1 ? `?page=${page}` : ''
-  return client<ImagesFeedResponse>(`/api/account/images${suffix}`)
+  const response = await client<ImagesPageApiResponse>('/api/account/images', {
+    query: page ? { page } : undefined,
+  })
+
+  return {
+    images: response.images,
+    nextPage: response.nextPage,
+  }
 }

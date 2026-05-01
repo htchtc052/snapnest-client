@@ -4,6 +4,7 @@ import type { Image } from '~/types/image.model'
 export function imagesUpload(client: SanctumClient, file: File): Promise<Image> {
   const data = new FormData()
   data.append('image', file)
+
   return client<Image>('/api/account/images', {
     method: 'POST',
     body: data,

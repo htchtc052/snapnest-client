@@ -1,10 +1,13 @@
 import type { SanctumClient } from '~/http/sanctum/sanctum-client.type'
-import type { Image } from '~/types/image.model'
+import type { ImagesFeedResponse, ImagesPageApiResponse } from '~/api/account/imagesGet'
 
-export type ImagesTrashResponse = {
-  images: Image[]
-}
+export async function imagesTrashGet(
+  client: SanctumClient,
+): Promise<ImagesFeedResponse> {
+  const response = await client<ImagesPageApiResponse>('/api/account/images/trash')
 
-export function imagesTrashGet(client: SanctumClient): Promise<ImagesTrashResponse> {
-  return client<ImagesTrashResponse>('/api/account/images/trash')
+  return {
+    images: response.images,
+    nextPage: response.nextPage,
+  }
 }

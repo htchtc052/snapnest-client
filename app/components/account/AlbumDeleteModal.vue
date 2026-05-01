@@ -1,24 +1,16 @@
 <script setup lang="ts">
-import { useAlbumDelete } from '~/composables/account/useAlbumDelete';
-import type { AlbumDeleteModalResult } from '~/types/album-delete.contract';
-import type { Album } from '~/types/album.model';
+import type { AlbumDeleteModalResult } from '~/types/album-delete.contract'
+import type { AccountAlbum } from '~/types/account-album.model'
 
-const props = defineProps<{ album: Album }>()
+const props = defineProps<{ album: AccountAlbum }>()
 const emit = defineEmits<{ (e: 'close', value: AlbumDeleteModalResult): void }>()
-
-const { deleteAlbum, isDeleting } = useAlbumDelete()
 
 function closeModal() {
   emit('close', { action: 'cancel' })
 }
 
-async function onConfirm(): Promise<void> {
-  const isSuccess = await deleteAlbum(props.album)
-  if (isSuccess) {
-    emit('close', { action: 'confirm' })
-    return
-  }
-  emit('close', { action: 'cancel' })
+function onConfirm(): void {
+  emit('close', { action: 'confirm' })
 }
 </script>
 
@@ -27,14 +19,19 @@ async function onConfirm(): Promise<void> {
     <template #title>Delete album?</template>
 
     <template #body>
-      Are you sure you want to delete
-      <strong>{{ props.album.name }}</strong>?
+      <template v-if="props.album.name">
+        Are you sure you want to delete
+        <strong>{{ props.album.name }}</strong>?
+      </template>
+      <template v-else>
+        Are you sure you want to delete this album?
+      </template>
 
       <div class="flex gap-3 pt-2">
-        <UButton variant="outline" type="button" :disabled="isDeleting" @click="closeModal">
+        <UButton variant="outline" type="button" @click="closeModal">
           Cancel
         </UButton>
-        <UButton type="button" color="error" :loading="isDeleting" @click="onConfirm">
+        <UButton type="button" color="error" @click="onConfirm">
           <Icon name="i-heroicons-trash-20-solid" class="mr-2 w-4 h-4" />
           Delete
         </UButton>

@@ -1,3 +1,3 @@
 export type ImageShareModalResult =
-  | { action: 'cancel' }
   | { action: 'confirm' }
+  | { action: 'open' }

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { loginSchema, type LoginDto } from '~/types/login.contract';
+import { loginSchema, type LoginDto } from '~/types/login.contract'
 
-import type { Form, FormSubmitEvent } from '#ui/types';
-import { useLogin } from '~/composables/useLogin';
+import type { Form, FormSubmitEvent } from '#ui/types'
+import { useLogin } from '~/composables/auth/useLogin'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
+const route = useRoute()
 const state = reactive<LoginDto>({ email: "", password: "" })
 
 const { login, isLoading } = useLogin()
@@ -37,6 +38,14 @@ async function onSubmit(e: FormSubmitEvent<LoginDto>) {
       novalidate
       @submit="onSubmit"
     >
+      <UAlert
+        v-if="route.query.reset === '1'"
+        color="success"
+        variant="soft"
+        title="Password updated"
+        description="Sign in with your new password."
+      />
+
       <UFormField name="email" label="Email" type="email">
         <UInput
           v-model="state.email"
@@ -75,7 +84,6 @@ async function onSubmit(e: FormSubmitEvent<LoginDto>) {
         </p>
         <p>
           Forgot password?
-          <!-- TODO: implement forgot-password feature end-to-end with layered structure (api/composables/pages). -->
           <NuxtLink to="/forgot-password" class="text-primary">Reset&nbsp;it</NuxtLink>
         </p>
       </div>

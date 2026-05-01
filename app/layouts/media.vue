@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from '#imports'
 import MediaSidebar from '~/components/layouts/MediaSidebar.vue'
-import UploadQueueBar from '~/components/upload/UploadQueueBar.vue'
-
 const isNavOpen = ref(false)
 </script>
 
 <template>
-  <div class="flex h-dvh bg-muted">
+  <div class="flex h-dvh overflow-hidden bg-muted">
     <aside class="hidden lg:block">
       <MediaSidebar />
     </aside>
@@ -17,7 +15,7 @@ const isNavOpen = ref(false)
         <UButton icon="i-heroicons-bars-3" variant="ghost" aria-label="Open menu" @click="isNavOpen = true" />
       </header>
 
-      <main class="min-h-0 flex-1">
+      <main class="min-h-0 flex-1 overflow-y-auto">
         <slot />
       </main>
     </div>
@@ -32,7 +30,5 @@ const isNavOpen = ref(false)
         <MediaSidebar />
       </template>
     </UDrawer>
-
-    <UploadQueueBar />
   </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { useRegister } from '~/composables/useRegister'
+import { useRegister } from '~/composables/auth/useRegister'
 import { registrationSchema, type RegistrationDto } from '~/types/registration.contract'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })

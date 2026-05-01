@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
-import { useImageUpdate } from '~/composables/account/useImageUpdate'
+import { useImageUpdateOperation } from '~/composables/features/useImageUpdateOperation'
 import { imageUpdateSchema, type ImageUpdateDto, type ImageUpdateModalResult } from '~/types/image-update.contract'
 import type { Image } from '~/types/image.model'
 
@@ -14,7 +14,7 @@ const initial = computed<ImageUpdateDto>(() => ({
 
 const state = reactive<ImageUpdateDto>({ ...initial.value })
 const form = ref<Form<ImageUpdateDto>>()
-const { updateImage, isUpdating } = useImageUpdate()
+const { updateImage, isUpdating } = useImageUpdateOperation()
 
 function closeModal() {
   emit('close', { action: 'cancel' })

@@ -1,7 +1,6 @@
 import type { SanctumClient } from '~/http/sanctum/sanctum-client.type'
-import type { Album } from '~/types/album.model'
+import type { AccountAlbum } from '~/types/account-album.model'
 
-
-export function albumsGet(client: SanctumClient): Promise<Album[]> {
-  return client<Album[]>(`/api/account/albums`)
+export function albumsGet(client: SanctumClient): Promise<AccountAlbum[]> {
+  return client<AccountAlbum[]>('/api/account/albums')
 }

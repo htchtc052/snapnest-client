@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
-import { useProfileUpdate } from '~/composables/account/useProfileUpdate'
+import { useProfileUpdateOperation } from '~/composables/features/useProfileUpdateOperation'
 import { profileEditSchema, type ProfileUpdateDto } from '~/types/profile-update.contract'
 import type { User } from '~/types/user.model'
 
@@ -10,13 +10,11 @@ const emit = defineEmits<{ close: [boolean] }>()
 
 const initial = computed<ProfileUpdateDto>(() => ({
   name: props.user.name ?? '',
-  bio: props.user.bio ?? null,
-  birthDate: props.user.birthDate ?? null
 }))
 
 const state = reactive<ProfileUpdateDto>({ ...initial.value })
 const form = ref<Form<ProfileUpdateDto>>()
-const { updateProfile, isUpdating } = useProfileUpdate()
+const { updateProfile, isUpdating } = useProfileUpdateOperation()
 
 async function onSubmit(e: FormSubmitEvent<ProfileUpdateDto>) {
   form.value?.clear()
@@ -36,19 +34,11 @@ function closeModal() {
 
 <template>
   <UModal :close="{ onClick: closeModal }">
-    <template #title> Edit account info</template>
+    <template #title>Edit account info</template>
     <template #body>
       <UForm ref="form" :state="state" :schema="profileEditSchema" class="space-y-4" @submit="onSubmit">
-        <UFormField name="name" label="Your name">
+        <UFormField name="name" label="Display name">
           <UInput v-model="state.name" class="w-full" />
-        </UFormField>
-
-        <UFormField name="birthDate" label="Birth date">
-          <UInput v-model="state.birthDate" type="date" class="w-full" />
-        </UFormField>
-
-        <UFormField name="bio" label="Bio">
-          <UTextarea v-model="state.bio" :rows="4" class="w-full" />
         </UFormField>
 
         <div class="flex gap-3 pt-2">

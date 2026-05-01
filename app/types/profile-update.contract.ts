@@ -1,10 +1,8 @@
 import * as yup from 'yup'
-import type {Asserts} from "yup";
+import type { Asserts } from 'yup'
 
 export const profileEditSchema = yup.object({
-    name: yup.string().required('Name is required'),
-    bio: yup.string().nullable().optional(),
-    birthDate: yup.string().nullable().optional(),
+  name: yup.string().required('Name is required'),
 })
 
 export type ProfileUpdateDto = Asserts<typeof profileEditSchema>

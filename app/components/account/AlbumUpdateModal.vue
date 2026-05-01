@@ -1,34 +1,46 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from '#ui/types'
-import { reactive } from 'vue'
-import { useAlbumUpdate } from '~/composables/account/useAlbumUpdate'
-import { albumInfoSchema, type AlbumUpdateDto } from '~/types/album-info.contract'
-import type { AlbumUpdateModalResult } from '~/types/album-update.contract'
-import type { Album } from "~/types/album.model"
+import type { Form, FormSubmitEvent } from '#ui/types'
+import { computed, reactive, ref } from 'vue'
+import { useAlbumUpdateOperation } from '~/composables/features/useAlbumUpdateOperation'
+import { albumInfoSchema, type AlbumInfoDto, type AlbumUpdateModalResult } from '~/types/album-info.contract'
+import type { AccountAlbum } from '~/types/account-album.model'
 
-const props = defineProps<{ album: Album }>()
+const props = defineProps<{ album: AccountAlbum }>()
 const emit = defineEmits<{ (e: 'close', value: AlbumUpdateModalResult): void }>()
-const { updateAlbum, isUpdating } = useAlbumUpdate()
 
-const state = reactive<AlbumUpdateDto>({ name: props.album.name })
+const initial = computed<AlbumInfoDto>(() => ({
+  name: props.album.name ?? '',
+}))
+
+const state = reactive<AlbumInfoDto>({ ...initial.value })
+const form = ref<Form<AlbumInfoDto>>()
+const { updateAlbum, isUpdating } = useAlbumUpdateOperation()
 
 function closeModal() {
   emit('close', { action: 'cancel' })
 }
 
-async function onSubmit(e: FormSubmitEvent<AlbumUpdateDto>) {
-  const updated = await updateAlbum(props.album.id, e.data)
-  if (updated) {
-    emit('close', { action: 'confirm', album: updated })
+async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
+  form.value?.clear()
+  const result = await updateAlbum(props.album.id, e.data)
+
+  if (result.ok) {
+    emit('close', { action: 'confirm', album: result.data })
+    return
+  }
+
+  if (result.reason === 'validation') {
+    form.value?.setErrors(result.errors)
   }
 }
 </script>
 
 <template>
   <UModal :close="{ onClick: closeModal }">
-    <template #title> Edit album info</template>
+    <template #title>Rename album</template>
+
     <template #body>
-      <UForm :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
+      <UForm ref="form" :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
         <UFormField name="name" label="Album name">
           <UInput v-model="state.name" class="w-full" />
         </UFormField>
