@@ -1,0 +1,1 @@
+export { useOpenModal } from './useOpenModal'

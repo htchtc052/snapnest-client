@@ -1,226 +1,131 @@
 <script setup lang="ts">
-import { computed, onBeforeRouteLeave } from '#imports'
-import { useEventListener } from '@vueuse/core'
-import ImageDeleteModal from '~/components/account/ImageDeleteModal.vue'
-import { useImagesDelete } from '~/composables/account/useImagesDelete'
-import { useImagesRestore } from '~/composables/account/useImagesRestore'
-import { useImagesTrashGet } from '~/composables/account/useImagesTrashGet'
-import { useOpenModal } from '~/composables/useOpenModal'
-import { provideSelectionStore } from '~/composables/useSelection'
-import { useVirtualGridLanes } from '~/composables/useVirtualGridLanes'
-import { formatImageDate } from '~/utils/formatImageDate'
-import type { DeleteImagesModalResult } from '~/types/image-delete.contract'
-import type { Image } from '~/types/image.model'
+import { imagesTrashGet } from '~/api/account/imagesTrashGet'
+import SelectionBar from '~/components/ui/SelectionBar.vue'
+import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
+import { removeImagesFromCollection, useImageCollection } from '~/composables/images/useImageCollection'
+import { useImageSelection } from '~/composables/images/useImageSelection'
+import { useImageTrashActions } from '~/features/image-trash-actions'
 
 definePageMeta({
   layout: 'media',
 })
 
+const client = useSanctumClient()
 const {
   images,
   isLoading,
-  removeImages,
-  scrollArea,
-} = useImagesTrashGet()
-
+  loadError,
+  loadInitial,
+} = useImageCollection(() => imagesTrashGet(client))
 const {
-  selectedImagesData,
   selectedIds,
-  selectionMode,
-  hasSelection,
-  selectionLabel,
-  showClearToggle,
   toggleSelection,
   clearSelection,
-  selectImages,
-  deselectImages,
-} = provideSelectionStore()
+} = useImageSelection(images)
 
-const openDeleteModal = useOpenModal<typeof ImageDeleteModal, DeleteImagesModalResult>(ImageDeleteModal)
-const { restoreImages, isRestoring } = useImagesRestore()
-const { isDeleting } = useImagesDelete()
-const { lanes: gridLanes } = useVirtualGridLanes(() => scrollArea.value?.$el, {
-  min: 2,
-  max: 6,
-  targetWidth: 200,
+const isSelectionMode = computed(() => selectedIds.value.length > 0)
+
+const {
+  deleteImages,
+  isDeletingImages,
+  isRestoringImages,
+  restoreImages,
+} = useImageTrashActions()
+
+onMounted(() => {
+  void loadInitial()
+  window.addEventListener('keydown', handleKeydown)
 })
 
-const selectableImages = computed(() =>
-  images.value.map(image => ({ id: image.id, name: image.name })),
-)
-const selectedVisibleCount = computed(() =>
-  selectableImages.value.reduce(
-    (count, image) => count + (selectedImagesData.value[image.id] ? 1 : 0),
-    0,
-  ),
-)
-const isAllVisibleSelected = computed(() =>
-  selectableImages.value.length > 0
-    && selectedVisibleCount.value === selectableImages.value.length,
-)
-const isVisibleSelectionIndeterminate = computed(() =>
-  selectedVisibleCount.value > 0 && !isAllVisibleSelected.value,
-)
-
-onBeforeRouteLeave(() => {
-  clearSelection()
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeydown)
 })
-
-useEventListener(
-  () => window,
-  'keydown',
-  (event) => {
-    if (event.key !== 'Escape' || !hasSelection.value) return
-    clearSelection()
-  },
-)
-
-function handleImageSelection(image: Image) {
-  if (!selectionMode.value) return
-  toggleSelection(image)
-}
-
-function toggleAllVisibleSelection(value: boolean | 'indeterminate') {
-  if (value) {
-    selectImages(selectableImages.value)
-    return
-  }
-
-  deselectImages(selectableImages.value.map(image => image.id))
-}
 
 async function restoreSelected() {
-  const ids = selectedIds.value
-  if (!ids.length) return
+  const restoredIds = await restoreImages(selectedIds.value)
+  if (!restoredIds) return
 
-  const result = await restoreImages(ids)
-  if (!result?.restoredIds?.length) return
-
-  removeImages(result.restoredIds)
+  images.value = removeImagesFromCollection(images.value, restoredIds)
   clearSelection()
 }
 
-async function destroySelected() {
-  const ids = selectedIds.value
-  const modalResult = await openDeleteModal({ ids })
-  if (modalResult.action === 'cancel') return
-  if (!modalResult.deletedIds?.length) return
+async function trashSelected() {
+  const deletedIds = await deleteImages(selectedIds.value)
+  if (!deletedIds) return
 
-  removeImages(modalResult.deletedIds)
+  images.value = removeImagesFromCollection(images.value, deletedIds)
+  clearSelection()
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key !== 'Escape' || selectedIds.value.length === 0) return
+
   clearSelection()
 }
 </script>
 
 <template>
   <div class="flex h-full min-h-0 flex-col px-4">
-    <UAlert
-      v-if="hasSelection"
-      color="primary"
-      variant="solid"
-      orientation="horizontal"
-      :title="selectionLabel"
-      class="my-4"
-      :ui="{ title: 'truncate' }"
-    >
-      <template #leading>
-        <UCheckbox
-          v-if="showClearToggle"
-          :model-value="true"
-          color="primary"
-          :ui="{ base: 'ring-white/70', indicator: 'bg-white text-primary' }"
-          @click.stop
-          @update:model-value="clearSelection"
-        />
-      </template>
+    <div class="mt-4">
+      <SelectionBar v-if="isSelectionMode" @clear="clearSelection">
+        <div class="flex min-w-0 flex-1 items-center justify-between gap-3">
+          <span class="truncate text-base font-medium sm:text-lg">
+            {{ selectedIds.length === 1 ? '1 selected' : `${selectedIds.length} selected` }}
+          </span>
 
-      <template #actions>
-        <UButton
-          icon="i-heroicons-arrow-path-20-solid"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          square
-          class="text-white"
-          :loading="isRestoring"
-          title="Restore"
-          @click="restoreSelected"
-        >
-          <span class="hidden sm:inline">Restore</span>
-        </UButton>
-        <UButton
-          icon="i-heroicons-trash-20-solid"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          square
-          class="text-white"
-          :loading="isDeleting"
-          title="Delete permanently"
-          @click="destroySelected"
-        >
-          <span class="hidden sm:inline">Delete permanently</span>
-        </UButton>
-        <UButton
-          icon="i-heroicons-x-mark-20-solid"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          square
-          class="text-white"
-          @click="clearSelection"
-        />
-      </template>
-    </UAlert>
+          <div class="flex shrink-0 items-center gap-1">
+            <UButton
+              icon="i-heroicons-arrow-path-20-solid"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              square
+              :loading="isRestoringImages"
+              title="Restore"
+              @click="restoreSelected"
+            >
+              <span class="hidden sm:inline">Restore</span>
+            </UButton>
 
-    <UPageHeader title="Trash" class="pt-5 pb-4" />
-    <UCheckbox
-      v-if="!isLoading && images.length > 0"
-      :model-value="isAllVisibleSelected"
-      :indeterminate="isVisibleSelectionIndeterminate"
-      label="Select all"
-      class="pb-3"
-      @update:model-value="toggleAllVisibleSelection"
-    />
+            <UButton
+              icon="i-heroicons-trash-20-solid"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              square
+              title="Delete permanently"
+              :loading="isDeletingImages"
+              @click="trashSelected"
+            >
+              <span class="hidden sm:inline">Delete permanently</span>
+            </UButton>
+          </div>
+        </div>
+      </SelectionBar>
+    </div>
+
+    <div class="flex items-start gap-3 pt-5 pb-4">
+      <h1 class="text-4xl font-bold tracking-tight text-highlighted">
+        Trash
+      </h1>
+    </div>
+
 
     <USkeleton v-if="isLoading" class="h-40" />
 
     <template v-else>
-      <UEmpty v-if="images.length === 0" description="Trash is empty" size="md" variant="naked" class="py-8" />
+      <UEmpty v-if="loadError" description="Unable to load trash" size="md" variant="naked" class="py-8" />
 
-      <UScrollArea
+      <UEmpty v-else-if="images.length === 0" description="Trash is empty" size="md" variant="naked" class="py-8" />
+
+      <ImageOwnerCollectionGrid
         v-else
-        ref="scrollArea"
-        v-slot="{ item: image }"
-        :items="images"
-        :virtualize="{ estimateSize: 240, gap: 12, lanes: gridLanes }"
-        class="min-h-0 flex-1"
-      >
-        <UPageCard
-          :key="image.id"
-          variant="naked"
-          class="relative w-full aspect-square overflow-hidden rounded-lg"
-          @click="handleImageSelection(image)"
-        >
-          <img :src="image.previewUrl" :alt="image.name" class="h-full w-full object-cover">
-
-          <div class="absolute inset-x-0 bottom-0 bg-default/85 p-2">
-            <p class="truncate text-sm font-medium text-highlighted">
-              {{ image.name }}
-            </p>
-            <p class="text-xs text-muted">
-              {{ formatImageDate(image.capturedAt, image.createdAt) }}
-            </p>
-          </div>
-
-          <UCheckbox
-            :model-value="Boolean(selectedImagesData[image.id])"
-            color="primary"
-            class="absolute top-2 left-2 z-10"
-            @click.stop
-            @update:model-value="() => toggleSelection(image)"
-          />
-        </UPageCard>
-      </UScrollArea>
+        :images="images"
+        :selected-ids="selectedIds"
+        :selection-mode="isSelectionMode"
+        :can-open="false"
+        @toggle-selection="toggleSelection"
+      />
     </template>
   </div>
 </template>

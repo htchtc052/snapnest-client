@@ -1,123 +1,157 @@
 <script setup lang="ts">
-import { onMounted } from '#imports'
+import { computed } from '#imports'
 import type { DropdownMenuItem } from '@nuxt/ui'
-import AlbumCreateModal from '~/components/account/AlbumCreateModal.vue'
-import AlbumDeleteModal from '~/components/account/AlbumDeleteModal.vue'
-import AlbumUpdateModal from '~/components/account/AlbumUpdateModal.vue'
-import { useAlbumsGet } from '~/composables/account/useAlbumsGet'
-import { useOpenModal } from '~/composables/useOpenModal'
-import type { AlbumCreateModalResult } from '~/types/album-create.contracts'
-import type { AlbumDeleteModalResult } from '~/types/album-delete.contract'
-import type { AlbumUpdateModalResult } from '~/types/album-update.contract'
-import type { Album } from '~/types/album.model'
+import AlbumCollectionGrid from '~/components/widgets/AlbumCollectionGrid.vue'
+import { albumsGet } from '~/api/account/albumsGet'
+import { useCreatePrivateAlbum } from '~/features/create-private-album'
+import { useAlbumInfoUpdate } from '~/features/album-info-update'
+import { useDeleteAlbum } from '~/features/delete-album'
+import { useAlbumVisibilityFeature } from '~/features/album-visibility'
+import type { AccountAlbum } from '~/entities/album/model'
 
 definePageMeta({
   layout: 'media',
 })
 
-const { albums, isLoading, loadAlbums } = useAlbumsGet()
-const openCreateAlbum = useOpenModal<typeof AlbumCreateModal, AlbumCreateModalResult>(AlbumCreateModal)
-const openUpdateAlbum = useOpenModal<typeof AlbumUpdateModal, AlbumUpdateModalResult>(AlbumUpdateModal)
-const openDeleteAlbum = useOpenModal<typeof AlbumDeleteModal, AlbumDeleteModalResult>(AlbumDeleteModal)
+const client = useSanctumClient()
 
-onMounted(() => {
-  loadAlbums()
-})
+const {
+  data: albums,
+  status,
+  error,
+} = await useAsyncData<AccountAlbum[]>(
+  'account-albums',
+  () => albumsGet(client),
+  {
+    default: () => [],
+  },
+)
 
-async function openCreateAlbumModal() {
-  const result = await openCreateAlbum()
-  if (result.action === 'cancel') return
-  albums.value.unshift(result.album)
+const isLoading = computed(() => status.value === 'pending')
+
+const hasLoadError = computed(() => Boolean(error.value))
+
+const { createPrivateAlbum } = useCreatePrivateAlbum()
+const { deleteAlbum: deleteAlbumFeature } = useDeleteAlbum()
+const {
+  publishAlbum: publishAlbumFeature,
+  hideAlbum: hideAlbumFeature,
+  copyPublicLink,
+} = useAlbumVisibilityFeature()
+
+const { updateAlbumInfo } = useAlbumInfoUpdate()
+
+function replaceAlbumInList(updatedAlbum: AccountAlbum) {
+  albums.value = albums.value.map(item =>
+    item.id === updatedAlbum.id ? updatedAlbum : item,
+  )
 }
 
-async function renameAlbum(album: Album) {
-  const result = await openUpdateAlbum({ album })
-  if (result.action === 'cancel') return
-  albums.value = albums.value.map((item) => (item.id === result.album.id ? result.album : item))
+function removeAlbumFromList(albumId: number) {
+  albums.value = albums.value.filter(item => item.id !== albumId)
 }
 
-async function deleteAlbum(album: Album) {
-  const result = await openDeleteAlbum({ album })
-  if (result.action === 'cancel') return
-  albums.value = albums.value.filter((item) => item.id !== album.id)
+async function createAlbum() {
+  const album = await createPrivateAlbum()
+  if (!album) return
+
+  await navigateTo(`/account/albums/${album.id}`)
+}
+async function deleteAlbum(album: AccountAlbum) {
+  const isDeleted = await deleteAlbumFeature(album)
+  if (!isDeleted) return
+
+  removeAlbumFromList(album.id)
 }
 
-function albumMenuItems(album: Album): DropdownMenuItem[][] {
+async function renameAlbum(album: AccountAlbum) {
+  const updatedAlbum = await updateAlbumInfo(album)
+  if (!updatedAlbum) return
+
+  replaceAlbumInList(updatedAlbum)
+}
+
+async function publishAlbum(album: AccountAlbum) {
+  const updatedAlbum = await publishAlbumFeature(album)
+  if (!updatedAlbum) return
+
+  replaceAlbumInList(updatedAlbum)
+}
+
+async function hideAlbum(album: AccountAlbum) {
+  const updatedAlbum = await hideAlbumFeature(album)
+  if (!updatedAlbum) return
+
+  replaceAlbumInList(updatedAlbum)
+}
+
+function albumMenuItems(album: AccountAlbum): DropdownMenuItem[][] {
+  const visibilityItems: DropdownMenuItem[] = album.isPublic
+    ? [
+      {
+        label: 'Copy link',
+        icon: 'i-lucide-copy',
+        onSelect: () => void copyPublicLink(album),
+      },
+      {
+        label: 'Make private',
+        icon: 'i-lucide-eye-off',
+        onSelect: () => void hideAlbum(album),
+      },
+    ]
+    : [
+      {
+        label: 'Create link',
+        icon: 'i-lucide-link',
+        onSelect: () => void publishAlbum(album),
+      },
+    ]
+
   return [
     [
+      ...visibilityItems,
       {
         label: 'Rename',
         icon: 'i-lucide-pencil',
-        onSelect: () => renameAlbum(album),
+        onSelect: () => void renameAlbum(album),
       },
+    ],
+    [
       {
         label: 'Delete',
         icon: 'i-lucide-trash',
         color: 'error',
-        onSelect: () => deleteAlbum(album),
+        onSelect: () => void deleteAlbum(album),
       },
     ],
   ]
 }
 </script>
 
-
 <template>
   <div class="flex h-full min-h-0 flex-col">
-    <UPageHeader title="Albums" class="border-0 px-4 pt-5" />
-
-    <div class="flex justify-end px-4 pb-4">
-      <UButton color="primary" @click="openCreateAlbumModal">
-        Create Album
-      </UButton>
-    </div>
+    <UPageHeader title="Albums" class="border-0 px-4 pt-5">
+      <template #links>
+        <UButton icon="i-lucide-plus" @click="createAlbum">
+          New album
+        </UButton>
+      </template>
+    </UPageHeader>
 
     <div class="min-h-0 flex-1">
-      <UScrollArea class="h-full min-h-0">
-        <template v-if="isLoading">
-          <USkeleton class="mx-4 h-40" />
-        </template>
+      <template v-if="isLoading">
+        <USkeleton class="mx-4 h-40" />
+      </template>
 
-        <div v-else-if="albums.length === 0" class="px-4 py-8 text-center text-sm text-muted-500">
-          No albums yet
-        </div>
+      <UEmpty v-else-if="hasLoadError" description="Failed to load albums." size="md" variant="naked" class="py-8" />
+      <UEmpty v-else-if="albums.length === 0" description="No albums yet" size="md" variant="naked" class="py-8" />
 
-        <UPageGrid v-else class="grid-cols-2 gap-5 px-4 pb-8 md:grid-cols-3 lg:grid-cols-4">
-          <UPageCard
-            v-for="album in albums"
-            :key="album.id"
-            variant="outline"
-          >
-            <template #title>
-              <div class="flex items-center justify-between gap-2">
-                <NuxtLink :to="`/account/albums/${album.id}`" class="truncate">
-                  {{ album.name }}
-                </NuxtLink>
-                <UDropdownMenu :items="albumMenuItems(album)" :content="{ align: 'end' }">
-                  <UButton
-                    icon="i-heroicons-ellipsis-vertical-20-solid"
-                    color="neutral"
-                    variant="soft"
-                    size="xs"
-                    square
-                    @click.stop
-                  />
-                </UDropdownMenu>
-              </div>
-            </template>
-            <NuxtLink :to="`/account/albums/${album.id}`" class="block">
-              <div class="aspect-square w-full overflow-hidden rounded-lg bg-muted">
-                <img
-                  v-if="album.coverPreviewUrl"
-                  :src="album.coverPreviewUrl"
-                  :alt="album.name"
-                  class="h-full w-full object-cover"
-                >
-              </div>
-            </NuxtLink>
-          </UPageCard>
-        </UPageGrid>
-      </UScrollArea>
+      <AlbumCollectionGrid
+        v-else
+        :albums="albums"
+        :get-album-menu-items="albumMenuItems"
+        class="px-4"
+      />
     </div>
   </div>
 </template>

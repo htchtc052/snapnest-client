@@ -7,11 +7,11 @@ export type User = {
   createdAt: string
   avatarUrl?: string | null
   plan?: 'free' | 'premium'
+  isAdmin?: boolean
   imagesUsed?: number
   bytesUsed?: number
   maxImages?: number
   maxTotalBytes?: number
-  maxImageKb?: number
   isUploadBlocked?: boolean
-  uploadBlockedReason?: 'UPLOAD_QUOTA_IMAGES_REACHED' | 'UPLOAD_QUOTA_BYTES_REACHED'
+  uploadBlockedReason?: string
 }

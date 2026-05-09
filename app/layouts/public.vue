@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import type { DropdownMenuItem } from '@nuxt/ui'
 import Logo from '~/components/shell/Logo.vue'
 import UserAvatar from '~/components/account/UserAvatar.vue'
 import type { User } from '~/types/user.model'
@@ -11,7 +12,24 @@ const headerClass = computed(() =>
   user.value ? 'h-16 flex items-center justify-between' : 'h-16 flex items-center justify-center'
 )
 
-const userMenuItems = computed(() => [
+const userMenuItems = computed<DropdownMenuItem[][]>(() => [
+  [
+    {
+      label: 'Upload',
+      icon: 'i-heroicons-arrow-up-tray-20-solid',
+      onSelect: () => navigateTo('/account/upload'),
+    },
+    {
+      label: 'Photos',
+      icon: 'i-heroicons-photo-20-solid',
+      onSelect: () => navigateTo('/account/images'),
+    },
+    {
+      label: 'Albums',
+      icon: 'i-heroicons-folder-20-solid',
+      onSelect: () => navigateTo('/account/albums'),
+    },
+  ],
   [
     {
       label: 'Logout',
