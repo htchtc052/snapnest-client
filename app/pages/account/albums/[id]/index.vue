@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted } from '#imports'
-import { useClipboard } from '@vueuse/core'
-import { FetchError } from 'ofetch'
 import { albumGet } from '~/api/account/albumGet'
 import { accountAlbumImageDetailGet } from '~/api/account/albumImageDetailGet'
 import { albumImagesGet } from '~/api/account/albumImagesGet'
 import SelectionBar from '~/components/ui/SelectionBar.vue'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
 import ImageViewerModal from '~/components/widgets/ImageViewerModal.vue'
-import { useAlbumCoverFeature } from '~/composables/features/useAlbumCoverFeature'
-import { useAlbumImagesRemoveOperation } from '~/composables/features/useAlbumImagesRemoveOperation'
-import { useAlbumVisibilityFeature } from '~/composables/features/useAlbumVisibilityFeature'
+import { useAlbumCoverUpdate } from '~/features/album-cover-update'
+import { useAlbumVisibilityFeature } from '~/features/album-visibility'
+import { useRemoveImagesFromAlbumFeature } from '~/features/remove-images-from-album'
 import { removeImagesFromCollection, useImageCollection } from '~/composables/images/useImageCollection'
 import { useImageSelection } from '~/composables/images/useImageSelection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
-import type { AccountAlbum } from '~/types/account-album.model'
+import type { AccountAlbum } from '~/entities/album/model'
 import type { AlbumView } from '~/types/album-view.model'
 
 
@@ -27,9 +25,6 @@ const route = useRoute()
 const router = useRouter()
 const albumId = computed(() => Number(route.params.id))
 const client = useSanctumClient()
-
-const { copy, copied } = useClipboard()
-
 
 const { data: album, error: albumError } = await useAsyncData<AlbumView>(
   `account-album:${albumId.value}`,
@@ -74,8 +69,8 @@ const {
 } = useImageSelection(images)
 
 
-const { isUpdatingAlbumCover, setAlbumCover: setAlbumCoverFeature } = useAlbumCoverFeature()
-const { isRemovingImages, removeImagesFromAlbum } = useAlbumImagesRemoveOperation()
+const { isUpdatingAlbumCover, setAlbumCover: setAlbumCoverFeature } = useAlbumCoverUpdate()
+const { isRemovingImages, removeImagesFromAlbum } = useRemoveImagesFromAlbumFeature()
 const isSelectionMode = computed(() => selectedIds.value.length > 0)
 const selectedImageId = computed<number | null>(() => selectedIds.value.length === 1 ? (selectedIds.value[0] ?? null) : null)
 
@@ -205,13 +200,30 @@ function handleKeydown(event: KeyboardEvent) {
           </span>
 
           <div class="flex shrink-0 items-center gap-1">
-            <UButton v-if="selectedIds.length === 1" icon="i-heroicons-photo-20-solid" color="neutral" variant="ghost"
-              size="sm" square :loading="isUpdatingAlbumCover" title="Set as cover" @click="setSelectedImageAsCover">
+            <UButton
+              v-if="selectedIds.length === 1"
+              icon="i-heroicons-photo-20-solid"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              square
+              :loading="isUpdatingAlbumCover"
+              title="Set as cover"
+              @click="setSelectedImageAsCover"
+            >
               <span class="hidden sm:inline">Set as cover</span>
             </UButton>
 
-            <UButton icon="i-heroicons-folder-minus-20-solid" color="neutral" variant="ghost" size="sm" square
-              title="Remove from album" :loading="isRemovingImages" @click="removeSelectedImages">
+            <UButton
+              icon="i-heroicons-folder-minus-20-solid"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              square
+              title="Remove from album"
+              :loading="isRemovingImages"
+              @click="removeSelectedImages"
+            >
               <span class="hidden sm:inline">Remove from album</span>
             </UButton>
           </div>
@@ -234,8 +246,13 @@ function handleKeydown(event: KeyboardEvent) {
               {{ copiedPublicLink ? 'Link copied' : 'Copy link' }}
             </UButton>
 
-            <UButton icon="i-lucide-eye-off" color="neutral" variant="ghost" :loading="isUpdatingAlbumVisibility"
-              @click="hideAlbum">
+            <UButton
+              icon="i-lucide-eye-off"
+              color="neutral"
+              variant="ghost"
+              :loading="isUpdatingAlbumVisibility"
+              @click="hideAlbum"
+            >
               Make private
             </UButton>
           </div>
@@ -256,12 +273,27 @@ function handleKeydown(event: KeyboardEvent) {
 
       <UEmpty v-else-if="images.length === 0" description="No images" size="md" variant="naked" class="py-8" />
 
-      <ImageOwnerCollectionGrid v-else :images="images" :selected-ids="selectedIds" :selection-mode="isSelectionMode"
-        :has-more="hasMore" :is-loading-more="isLoadingMore" :on-load-more="loadMore" @open="openImageViewer"
-        @toggle-selection="toggleSelection" />
+      <ImageOwnerCollectionGrid
+        v-else
+        :images="images"
+        :selected-ids="selectedIds"
+        :selection-mode="isSelectionMode"
+        :has-more="hasMore"
+        :is-loading-more="isLoadingMore"
+        :on-load-more="loadMore"
+        @open="openImageViewer"
+        @toggle-selection="toggleSelection"
+      />
     </template>
 
-    <ImageViewerModal :open="isViewerOpen" :detail="viewerDetail" :is-loading="isViewerLoading"
-      :load-error="viewerLoadError" :prev-to="viewerPrevTo" :next-to="viewerNextTo" @close="closeImageViewer" />
+    <ImageViewerModal
+      :open="isViewerOpen"
+      :detail="viewerDetail"
+      :is-loading="isViewerLoading"
+      :load-error="viewerLoadError"
+      :prev-to="viewerPrevTo"
+      :next-to="viewerNextTo"
+      @close="closeImageViewer"
+    />
   </div>
 </template>

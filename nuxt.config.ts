@@ -19,8 +19,8 @@ export default defineNuxtConfig({
     },
     redirect: {
       onAuthOnly: '/login',
-      onGuestOnly: '/account',
-      onLogin: '/account',
+      onGuestOnly: '/account/images',
+      onLogin: '/account/images',
       onLogout: '/',
     },
     globalMiddleware: { enabled: true, allow404WithoutAuth: true },

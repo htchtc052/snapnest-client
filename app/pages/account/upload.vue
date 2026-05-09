@@ -289,7 +289,7 @@ function hasServerPreview(item: UploadItem): item is UploadItem & { image: Image
       >
         <template v-if="completedCount > 0" #actions>
           <NuxtLink
-            to="/account"
+            to="/account/images"
             class="text-sm font-medium text-primary underline underline-offset-4"
           >
             Open photos grid

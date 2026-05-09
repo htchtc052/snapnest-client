@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import type { AccountAlbum } from '~/types/account-album.model'
+import type { AccountAlbum } from '~/entities/album/model'
 
 const props = defineProps<{
   albums: AccountAlbum[]

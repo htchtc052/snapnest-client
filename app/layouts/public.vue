@@ -22,7 +22,7 @@ const userMenuItems = computed<DropdownMenuItem[][]>(() => [
     {
       label: 'Photos',
       icon: 'i-heroicons-photo-20-solid',
-      onSelect: () => navigateTo('/account'),
+      onSelect: () => navigateTo('/account/images'),
     },
     {
       label: 'Albums',

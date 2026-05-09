@@ -1,1 +1,5 @@
-export { useApiOperation, type ApiOperationResult } from './useApiOperation'
+export {
+  ApiOperationResult,
+  useApiOperation,
+  type ApiOperationResponse,
+} from '../api'

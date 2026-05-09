@@ -1,4 +1,4 @@
-import type { AccountAlbum } from '~/types/account-album.model'
+import type { AccountAlbum } from '~/entities/album/model'
 
 export type AlbumView = AccountAlbum & {
   isOwner: boolean

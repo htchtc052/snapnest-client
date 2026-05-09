@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { computed, ref } from '#imports'
-import { useEditProfileFeature } from '~/composables/features/useEditProfileFeature'
+import { useProfileInfoUpdate } from '~/features/profile-info-update'
 import type { User } from '~/types/user.model'
 import { formatBytes } from '~/utils/format-bytes'
 
-const { editProfile } = useEditProfileFeature()
+const { updateProfileInfo } = useProfileInfoUpdate()
 const { user, logout } = useSanctumAuth<User>()
 const isLoggingOut = ref(false)
 
 const navItems = [
-  { label: 'Photos', to: '/account', icon: 'i-heroicons-photo-20-solid', exact: true },
+  { label: 'Photos', to: '/account/images', icon: 'i-heroicons-photo-20-solid', exact: true },
   { label: 'Albums', to: '/account/albums', icon: 'i-heroicons-folder-20-solid', exact: false },
   { label: 'Upload', to: '/account/upload', icon: 'i-heroicons-arrow-up-tray-20-solid', exact: false },
   { label: 'Trash', to: '/account/trash', icon: 'i-heroicons-trash-20-solid', exact: false },
@@ -40,7 +40,7 @@ const profileMenuItems = computed<DropdownMenuItem[][]>(() => [
 async function openProfileEditor() {
   if (!user.value) return
 
-  await editProfile(user.value)
+  await updateProfileInfo(user.value)
 }
 
 async function handleLogout() {
@@ -55,7 +55,7 @@ async function handleLogout() {
 
 <template>
   <aside class="flex h-full w-72 shrink-0 flex-col border-r border-default bg-elevated/30 px-5 py-6">
-    <NuxtLink to="/account" class="mb-8 flex items-center gap-3">
+    <NuxtLink to="/account/images" class="mb-8 flex items-center gap-3">
       <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
         <UIcon name="i-heroicons-cloud-20-solid" class="h-6 w-6" />
       </div>

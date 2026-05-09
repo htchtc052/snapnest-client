@@ -3,11 +3,11 @@ import { computed } from '#imports'
 import type { DropdownMenuItem } from '@nuxt/ui'
 import AlbumCollectionGrid from '~/components/widgets/AlbumCollectionGrid.vue'
 import { albumsGet } from '~/api/account/albumsGet'
-import { useCreatePrivateAlbumFeature } from '~/composables/features/useCreatePrivateAlbumFeature'
-import { useDeleteAlbumFeature } from '~/composables/features/useDeleteAlbumFeature'
-import { useAlbumVisibilityFeature } from '~/composables/features/useAlbumVisibilityFeature'
-import { useRenameAlbumFeature } from '~/composables/features/useRenameAlbumFeature'
-import type { AccountAlbum } from '~/types/account-album.model'
+import { useCreatePrivateAlbum } from '~/features/create-private-album'
+import { useAlbumInfoUpdate } from '~/features/album-info-update'
+import { useDeleteAlbum } from '~/features/delete-album'
+import { useAlbumVisibilityFeature } from '~/features/album-visibility'
+import type { AccountAlbum } from '~/entities/album/model'
 
 definePageMeta({
   layout: 'media',
@@ -31,18 +31,15 @@ const isLoading = computed(() => status.value === 'pending')
 
 const hasLoadError = computed(() => Boolean(error.value))
 
-const { createPrivateAlbum } = useCreatePrivateAlbumFeature()
-const { deleteAlbum: deleteAlbumFeature } = useDeleteAlbumFeature()
+const { createPrivateAlbum } = useCreatePrivateAlbum()
+const { deleteAlbum: deleteAlbumFeature } = useDeleteAlbum()
 const {
   publishAlbum: publishAlbumFeature,
   hideAlbum: hideAlbumFeature,
   copyPublicLink,
 } = useAlbumVisibilityFeature()
 
-const { renameAlbum: renameAlbumFeature } = useRenameAlbumFeature()
-
-
-
+const { updateAlbumInfo } = useAlbumInfoUpdate()
 
 function replaceAlbumInList(updatedAlbum: AccountAlbum) {
   albums.value = albums.value.map(item =>
@@ -58,7 +55,7 @@ async function createAlbum() {
   const album = await createPrivateAlbum()
   if (!album) return
 
-  await navigateTo(albumPath(album))
+  await navigateTo(`/account/albums/${album.id}`)
 }
 async function deleteAlbum(album: AccountAlbum) {
   const isDeleted = await deleteAlbumFeature(album)
@@ -68,7 +65,7 @@ async function deleteAlbum(album: AccountAlbum) {
 }
 
 async function renameAlbum(album: AccountAlbum) {
-  const updatedAlbum = await renameAlbumFeature(album)
+  const updatedAlbum = await updateAlbumInfo(album)
   if (!updatedAlbum) return
 
   replaceAlbumInList(updatedAlbum)
@@ -142,16 +139,19 @@ function albumMenuItems(album: AccountAlbum): DropdownMenuItem[][] {
     </UPageHeader>
 
     <div class="min-h-0 flex-1">
-        <template v-if="isLoading">
-          <USkeleton class="mx-4 h-40" />
-        </template>
+      <template v-if="isLoading">
+        <USkeleton class="mx-4 h-40" />
+      </template>
 
-        <UEmpty v-else-if="hasLoadError" description="Failed to load albums." size="md" variant="naked" class="py-8" />
-        <UEmpty v-else-if="albums.length === 0" description="No albums yet" size="md" variant="naked" class="py-8" />
+      <UEmpty v-else-if="hasLoadError" description="Failed to load albums." size="md" variant="naked" class="py-8" />
+      <UEmpty v-else-if="albums.length === 0" description="No albums yet" size="md" variant="naked" class="py-8" />
 
-        <AlbumCollectionGrid v-else :albums="albums" :get-album-menu-items="albumMenuItems" 
-          class="px-4" />
-
+      <AlbumCollectionGrid
+        v-else
+        :albums="albums"
+        :get-album-menu-items="albumMenuItems"
+        class="px-4"
+      />
     </div>
   </div>
 </template>

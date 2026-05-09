@@ -15,7 +15,7 @@ export function useRegister() {
     try {
       await register(client, data)
       await refreshIdentity()
-      await router.push(config.redirect.onLogin || '/account')
+      await router.push(config.redirect.onLogin || '/account/images')
     } catch (error: unknown) {
       const parsed = mapFormError(error)
       if (parsed.isValidationError) return parsed.bag

@@ -2,10 +2,9 @@
 import { imagesTrashGet } from '~/api/account/imagesTrashGet'
 import SelectionBar from '~/components/ui/SelectionBar.vue'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
-import { useDeleteImagesFeature } from '~/composables/features/useDeleteImagesFeature'
-import { useImagesRestoreOperation } from '~/composables/features/useImagesRestoreOperation'
 import { removeImagesFromCollection, useImageCollection } from '~/composables/images/useImageCollection'
 import { useImageSelection } from '~/composables/images/useImageSelection'
+import { useImageTrashActions } from '~/features/image-trash-actions'
 
 definePageMeta({
   layout: 'media',
@@ -20,16 +19,18 @@ const {
 } = useImageCollection(() => imagesTrashGet(client))
 const {
   selectedIds,
-  selectAllState,
   toggleSelection,
   clearSelection,
-
 } = useImageSelection(images)
 
 const isSelectionMode = computed(() => selectedIds.value.length > 0)
 
-const { deleteImages, isDeletingImages } = useDeleteImagesFeature()
-const { restoreImages, isRestoring } = useImagesRestoreOperation()
+const {
+  deleteImages,
+  isDeletingImages,
+  isRestoringImages,
+  restoreImages,
+} = useImageTrashActions()
 
 onMounted(() => {
   void loadInitial()
@@ -41,10 +42,10 @@ onBeforeUnmount(() => {
 })
 
 async function restoreSelected() {
-  const result = await restoreImages(selectedIds.value)
-  if (!result) return
+  const restoredIds = await restoreImages(selectedIds.value)
+  if (!restoredIds) return
 
-  images.value = removeImagesFromCollection(images.value, result.restoredIds)
+  images.value = removeImagesFromCollection(images.value, restoredIds)
   clearSelection()
 }
 
@@ -73,13 +74,29 @@ function handleKeydown(event: KeyboardEvent) {
           </span>
 
           <div class="flex shrink-0 items-center gap-1">
-            <UButton icon="i-heroicons-arrow-path-20-solid" color="neutral" variant="ghost" size="sm" square
-              :loading="isRestoring" title="Restore" @click="restoreSelected">
+            <UButton
+              icon="i-heroicons-arrow-path-20-solid"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              square
+              :loading="isRestoringImages"
+              title="Restore"
+              @click="restoreSelected"
+            >
               <span class="hidden sm:inline">Restore</span>
             </UButton>
 
-            <UButton icon="i-heroicons-trash-20-solid" color="neutral" variant="ghost" size="sm" square
-              title="Delete permanently" :loading="isDeletingImages" @click="trashSelected">
+            <UButton
+              icon="i-heroicons-trash-20-solid"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              square
+              title="Delete permanently"
+              :loading="isDeletingImages"
+              @click="trashSelected"
+            >
               <span class="hidden sm:inline">Delete permanently</span>
             </UButton>
           </div>
@@ -101,10 +118,14 @@ function handleKeydown(event: KeyboardEvent) {
 
       <UEmpty v-else-if="images.length === 0" description="Trash is empty" size="md" variant="naked" class="py-8" />
 
-      <ImageOwnerCollectionGrid v-else :images="images" :selected-ids="selectedIds" 
-      :selection-mode="isSelectionMode"
+      <ImageOwnerCollectionGrid
+        v-else
+        :images="images"
+        :selected-ids="selectedIds"
+        :selection-mode="isSelectionMode"
         :can-open="false"
-      @toggle-selection="toggleSelection" />
+        @toggle-selection="toggleSelection"
+      />
     </template>
   </div>
 </template>
