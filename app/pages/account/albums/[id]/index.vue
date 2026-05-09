@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, onMounted } from '#imports'
-import { albumGet } from '~/api/account/albumGet'
 import { accountAlbumImageDetailGet } from '~/api/account/albumImageDetailGet'
 import SelectionBar from '~/components/ui/SelectionBar.vue'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
@@ -12,6 +11,7 @@ import { removeImagesFromCollection } from '~/composables/images/useImageCollect
 import { useImageSelection } from '~/composables/images/useImageSelection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
+import { useAccountAlbumRequest } from '~/entities/album'
 import { useAccountAlbumImages } from '~/widgets/account-album-images'
 import type { AccountAlbum } from '~/entities/album/model'
 import type { AlbumView } from '~/types/album-view.model'
@@ -25,10 +25,11 @@ const route = useRoute()
 const router = useRouter()
 const albumId = computed(() => Number(route.params.id))
 const client = useSanctumClient()
+const { getAccountAlbum } = useAccountAlbumRequest()
 
 const { data: album, error: albumError } = await useAsyncData<AlbumView>(
   `account-album:${albumId.value}`,
-  () => albumGet(client, albumId.value),
+  () => getAccountAlbum(albumId.value),
 )
 
 if (albumError.value) {
