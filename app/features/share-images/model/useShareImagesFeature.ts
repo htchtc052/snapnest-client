@@ -1,6 +1,6 @@
 import { useClipboard } from '@vueuse/core'
 import { useOpenModal } from '~/shared/modal'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useShareImagesRequest } from '../api/useShareImagesRequest'
 import type { ShareImagesConfirmModalResult } from '../contract/share-images.contract'
 import ShareImagesConfirmModal from '../ui/ShareImagesConfirmModal.vue'
@@ -25,7 +25,7 @@ export function useShareImagesFeature() {
     if (modalResult.action === 'cancel') return
 
     const result = await executeShareImages(ids)
-    if (result.status !== ApiOperationResult.Success) return
+    if (result.status !== ApiResultStatus.Success) return
 
     const album = result.data
 

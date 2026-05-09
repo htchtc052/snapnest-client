@@ -1,5 +1,5 @@
 import { useOpenModal } from '~/shared/modal'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { User } from '~/types/user.model'
 import { useImageTrashActionRequest } from '../api/useImageTrashActionRequest'
 import { ImageTrashActionType, type ImageTrashActionModalResult } from '../contract/image-trash-actions.contract'
@@ -43,7 +43,7 @@ export function useImageTrashActions() {
     if (!isConfirmed) return
 
     const result = await actionOperations[actionType].execute(ids)
-    if (result.status !== ApiOperationResult.Success) return
+    if (result.status !== ApiResultStatus.Success) return
 
     const imageIds = result.data.imageIds
 

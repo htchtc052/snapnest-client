@@ -1,6 +1,6 @@
 import { useOpenModal } from '~/shared/modal'
 import type { AccountAlbum } from '~/entities/album/model'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumImagesAddRequest } from '../api/useAlbumImagesAddRequest'
 import type { AlbumSelectModalResult } from '../contract/add-images-to-album.contract'
 import AlbumSelectModal from '../ui/AlbumSelectModal.vue'
@@ -19,7 +19,7 @@ export function useAddImagesToAlbumFeature() {
 
   async function addImagesToAlbum(album: AlbumToastTarget, imageIds: number[]) {
     const result = await executeAddImagesToAlbum(album.id, imageIds)
-    if (result.status !== ApiOperationResult.Success) return
+    if (result.status !== ApiResultStatus.Success) return
 
     const addedIds = result.data.addedIds
     const label = addedIds.length === 1 ? 'image' : 'images'

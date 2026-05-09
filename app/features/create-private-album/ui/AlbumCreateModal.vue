@@ -2,7 +2,7 @@
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { reactive, ref } from 'vue'
 import { usePrivateAlbumCreateRequest } from '~/features/create-private-album/api/usePrivateAlbumCreateRequest'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { albumInfoSchema, type AlbumInfoDto } from '~/entities/album/model'
 import type { AlbumCreateModalResult } from '../contract/create-private-album.contract'
 
@@ -29,12 +29,12 @@ async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
 
   const result = await createPrivateAlbum(e.data)
 
-  if (result.status === ApiOperationResult.Success) {
+  if (result.status === ApiResultStatus.Success) {
     emit('close', { action: 'confirm', album: result.data })
     return
   }
 
-  if (result.status === ApiOperationResult.Validation) {
+  if (result.status === ApiResultStatus.Validation) {
     form.value?.setErrors(result.errors)
   }
 }

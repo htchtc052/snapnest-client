@@ -1,5 +1,5 @@
 import { useOpenModal } from '~/shared/modal'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useImageUpdateRequest } from '../api/useImageUpdateRequest'
 import type { ImageUpdateModalResult } from '../contract/image-update.contract'
 import ImageUpdateModal from '../ui/ImageUpdateModal.vue'
@@ -14,7 +14,7 @@ export function useImageUpdate() {
 
   async function updateImage(imageId: number) {
     const imageResult = await getImageUpdateTarget(imageId)
-    if (imageResult.status !== ApiOperationResult.Success) return
+    if (imageResult.status !== ApiResultStatus.Success) return
 
     const modalResult = await openImageUpdateModal({ image: imageResult.data })
     if (modalResult.action === 'cancel') return

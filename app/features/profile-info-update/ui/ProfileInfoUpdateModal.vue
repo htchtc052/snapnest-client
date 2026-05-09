@@ -2,7 +2,7 @@
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
 import { profileInfoSchema, type ProfileInfoDto } from '~/entities/user/model'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { User } from '~/types/user.model'
 import { useProfileInfoUpdateRequest } from '../api/useProfileInfoUpdateRequest'
 import type { ProfileInfoUpdateModalResult } from '../contract/profile-info-update.contract'
@@ -33,12 +33,12 @@ async function onSubmit(e: FormSubmitEvent<ProfileInfoDto>) {
 
   const result = await updateProfileInfo(e.data)
 
-  if (result.status === ApiOperationResult.Success) {
+  if (result.status === ApiResultStatus.Success) {
     emit('close', { action: 'confirm', user: result.data })
     return
   }
 
-  if (result.status === ApiOperationResult.Validation) {
+  if (result.status === ApiResultStatus.Validation) {
     form.value?.setErrors(result.errors)
   }
 }

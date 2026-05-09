@@ -1,4 +1,4 @@
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumImagesRemoveRequest } from '../api/useAlbumImagesRemoveRequest'
 
 export function useRemoveImagesFromAlbumFeature() {
@@ -12,7 +12,7 @@ export function useRemoveImagesFromAlbumFeature() {
 
   async function removeImagesFromAlbum(albumId: number, imageIds: number[]) {
     const result = await executeRemoveImagesFromAlbum(albumId, imageIds)
-    if (result.status !== ApiOperationResult.Success) return
+    if (result.status !== ApiResultStatus.Success) return
 
     const removedIds = result.data.removedIds
 

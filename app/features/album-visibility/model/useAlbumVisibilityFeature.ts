@@ -1,6 +1,6 @@
 import { useClipboard } from '@vueuse/core'
 import type { AccountAlbum } from '~/entities/album/model'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumVisibilityRequest } from '../api/useAlbumVisibilityRequest'
 
 export function useAlbumVisibilityFeature() {
@@ -28,7 +28,7 @@ export function useAlbumVisibilityFeature() {
 
   async function setAlbumVisibility(album: Pick<AccountAlbum, 'id'>, isPublic: boolean) {
     const result = await updateAlbumVisibility(album.id, isPublic)
-    if (result.status !== ApiOperationResult.Success) return
+    if (result.status !== ApiResultStatus.Success) return
 
     return result.data
   }

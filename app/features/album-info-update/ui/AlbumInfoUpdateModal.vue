@@ -3,7 +3,7 @@ import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
 import { albumInfoSchema, type AccountAlbum, type AlbumInfoDto } from '~/entities/album/model'
 import { useAlbumInfoUpdateRequest } from '~/features/album-info-update/api/useAlbumInfoUpdateRequest'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { AlbumInfoUpdateModalResult } from '../contract/album-info-update.contract'
 
 const props = defineProps<{ album: AccountAlbum }>()
@@ -30,12 +30,12 @@ async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
   form.value?.clear()
   const result = await updateAlbumInfo(props.album.id, e.data)
 
-  if (result.status === ApiOperationResult.Success) {
+  if (result.status === ApiResultStatus.Success) {
     emit('close', { action: 'confirm', album: result.data })
     return
   }
 
-  if (result.status === ApiOperationResult.Validation) {
+  if (result.status === ApiResultStatus.Validation) {
     form.value?.setErrors(result.errors)
   }
 }

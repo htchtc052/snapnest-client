@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from '#imports'
 import type { AccountAlbum } from '~/entities/album/model'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumSelectRequest } from '../api/useAlbumSelectRequest'
 import type { AlbumSelectModalResult } from '../contract/add-images-to-album.contract'
 
@@ -35,7 +35,7 @@ async function loadAlbums() {
 
   isInitialLoading.value = false
 
-  if (result.status !== ApiOperationResult.Success) {
+  if (result.status !== ApiResultStatus.Success) {
     loadError.value = 'Failed to load albums.'
     return
   }

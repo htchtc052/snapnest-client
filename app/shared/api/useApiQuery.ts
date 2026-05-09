@@ -1,5 +1,6 @@
 import { computed, ref } from '#imports'
 import type { Ref } from 'vue'
+import { parseApiCommonError, type ApiCommonErrorResponse } from './apiResponse'
 
 export enum ApiQueryStatus {
   Idle = 'idle',
@@ -12,7 +13,7 @@ export function useApiQuery<TArgs extends unknown[], TResult>(
   handler: (...args: TArgs) => Promise<TResult>,
 ) {
   const data = ref<TResult | null>(null) as Ref<TResult | null>
-  const error = ref<unknown | null>(null)
+  const error = ref<ApiCommonErrorResponse | null>(null)
   const status = ref<ApiQueryStatus>(ApiQueryStatus.Idle)
 
   const isLoading = computed(() => status.value === ApiQueryStatus.Pending)
@@ -32,10 +33,16 @@ export function useApiQuery<TArgs extends unknown[], TResult>(
 
       return result
     } catch (queryError: unknown) {
-      error.value = queryError
+      const apiError = parseApiCommonError(queryError)
+
+      error.value = apiError
       status.value = ApiQueryStatus.Error
 
-      console.error('[API query failed]', queryError)
+      console.error('[API query failed]', {
+        httpStatus: apiError.httpStatus,
+        status: apiError.status,
+        error: queryError,
+      })
 
       return null
     }

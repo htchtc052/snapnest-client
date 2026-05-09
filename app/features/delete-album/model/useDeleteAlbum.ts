@@ -1,6 +1,6 @@
 import { useOpenModal } from '~/shared/modal'
 import type { AccountAlbum } from '~/entities/album/model'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumDeleteRequest } from '../api/useAlbumDeleteRequest'
 import type { AlbumDeleteModalResult } from '../contract/delete-album.contract'
 import AlbumDeleteModal from '../ui/AlbumDeleteModal.vue'
@@ -20,7 +20,7 @@ export function useDeleteAlbum() {
     if (modalResult.action === 'cancel') return
 
     const result = await executeDeleteAlbum(album.id)
-    if (result.status !== ApiOperationResult.Success) return
+    if (result.status !== ApiResultStatus.Success) return
 
     toast.add({
       title: 'Album deleted.',

@@ -1,5 +1,5 @@
 import type { AccountAlbum } from '~/entities/album/model'
-import { ApiOperationResult, useApiOperation } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumCoverUpdateRequest } from '../api/useAlbumCoverUpdateRequest'
 
 export function useAlbumCoverUpdate() {
@@ -13,7 +13,7 @@ export function useAlbumCoverUpdate() {
 
   async function setAlbumCover(album: AccountAlbum, imageId: number) {
     const result = await executeAlbumCoverUpdate(album.id, imageId)
-    if (result.status !== ApiOperationResult.Success) return
+    if (result.status !== ApiResultStatus.Success) return
 
     toast.add({
       title: 'Album cover updated.',
