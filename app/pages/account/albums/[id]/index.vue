@@ -2,17 +2,17 @@
 import { computed, onMounted } from '#imports'
 import { albumGet } from '~/api/account/albumGet'
 import { accountAlbumImageDetailGet } from '~/api/account/albumImageDetailGet'
-import { albumImagesGet } from '~/api/account/albumImagesGet'
 import SelectionBar from '~/components/ui/SelectionBar.vue'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
 import ImageViewerModal from '~/components/widgets/ImageViewerModal.vue'
 import { useAlbumCoverUpdate } from '~/features/album-cover-update'
 import { useAlbumVisibilityFeature } from '~/features/album-visibility'
 import { useRemoveImagesFromAlbumFeature } from '~/features/remove-images-from-album'
-import { removeImagesFromCollection, useImageCollection } from '~/composables/images/useImageCollection'
+import { removeImagesFromCollection } from '~/composables/images/useImageCollection'
 import { useImageSelection } from '~/composables/images/useImageSelection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
+import { useAccountAlbumImages } from '~/widgets/account-album-images'
 import type { AccountAlbum } from '~/entities/album/model'
 import type { AlbumView } from '~/types/album-view.model'
 
@@ -55,11 +55,12 @@ const {
   images,
   isLoading,
   isLoadingMore,
-  loadError,
+  hasLoadError,
+  isEmpty,
   hasMore,
   loadInitial,
   loadMore,
-} = useImageCollection(page => albumImagesGet(client, albumId.value, page))
+} = useAccountAlbumImages(albumId.value)
 
 
 const {
@@ -269,9 +270,9 @@ function handleKeydown(event: KeyboardEvent) {
     <USkeleton v-if="isLoading" class="h-40" />
 
     <template v-else>
-      <UEmpty v-if="loadError" description="Unable to load album images" size="md" variant="naked" class="py-8" />
+      <UEmpty v-if="hasLoadError" description="Unable to load album images" size="md" variant="naked" class="py-8" />
 
-      <UEmpty v-else-if="images.length === 0" description="No images" size="md" variant="naked" class="py-8" />
+      <UEmpty v-else-if="isEmpty" description="No images" size="md" variant="naked" class="py-8" />
 
       <ImageOwnerCollectionGrid
         v-else
