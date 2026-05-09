@@ -1,8 +1,8 @@
 import { computed, ref } from '#imports'
 import type { Ref } from 'vue'
-import { type ApiCommonErrorResponse } from './apiResponse'
-import { parseApiError } from './apiError'
-import { mapHttpStatusToApiCommonStatus } from './apiErrorStatus'
+import { type ApiCommonErrorResponse } from '../result/apiResponse'
+import { parseApiError } from '../error/apiError'
+import { mapHttpStatusToApiCommonStatus } from '../result/apiErrorStatus'
 
 export enum ApiQueryStatus {
   Idle = 'idle',

@@ -1,12 +1,12 @@
 export {
   useApiOperation,
   type ApiOperationResponse,
-} from './useApiOperation'
+} from './operation/useApiOperation'
 
 export {
   parseApiError,
   type ParsedApiError,
-} from './apiError'
+} from './error/apiError'
 
 export {
   ApiResultStatus,
@@ -15,17 +15,17 @@ export {
   type ApiOperationErrorResponse,
   type ApiSuccessResponse,
   type ApiValidationErrorResponse,
-} from './apiResponse'
+} from './result/apiResponse'
 
 export {
   mapHttpStatusToApiCommonStatus,
-} from './apiErrorStatus'
+} from './result/apiErrorStatus'
 
 export {
   ApiQueryStatus,
   useApiQuery,
-} from './useApiQuery'
+} from './query/useApiQuery'
 
 export {
   usePaginatedApiQuery,
-} from './usePaginatedApiQuery'
+} from './query/usePaginatedApiQuery'

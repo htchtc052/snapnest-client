@@ -3,9 +3,9 @@ import {
   ApiResultStatus,
   type ApiCommonErrorResponse,
   type ApiOperationResponse,
-} from './apiResponse'
-import { parseApiError } from './apiError'
-import { mapHttpStatusToApiCommonStatus } from './apiErrorStatus'
+} from '../result/apiResponse'
+import { parseApiError } from '../error/apiError'
+import { mapHttpStatusToApiCommonStatus } from '../result/apiErrorStatus'
 
 export type { ApiOperationResponse }
 
