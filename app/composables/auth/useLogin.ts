@@ -1,5 +1,5 @@
 import type { FormError } from '#ui/types';
-import { mapFormError } from "~/http/handle-form-error";
+import { parseApiError } from '~/shared/api'
 import type { LoginDto } from "~/types/login.contract";
 
 export function useLogin() {
@@ -11,8 +11,8 @@ export function useLogin() {
         try {
             await login(data)
         } catch (error: unknown) {
-            const parsed = mapFormError(error)
-            if (parsed.isValidationError) return parsed.bag
+            const parsed = parseApiError(error)
+            if (parsed.isValidationError) return parsed.validationErrors
             console.error('[Auth] Failed to login', error)
         } finally {
             isLoading.value = false

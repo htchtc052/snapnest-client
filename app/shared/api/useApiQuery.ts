@@ -1,6 +1,8 @@
 import { computed, ref } from '#imports'
 import type { Ref } from 'vue'
-import { parseApiCommonError, type ApiCommonErrorResponse } from './apiResponse'
+import { type ApiCommonErrorResponse } from './apiResponse'
+import { parseApiError } from './apiError'
+import { mapHttpStatusToApiCommonStatus } from './apiErrorStatus'
 
 export enum ApiQueryStatus {
   Idle = 'idle',
@@ -33,7 +35,11 @@ export function useApiQuery<TArgs extends unknown[], TResult>(
 
       return result
     } catch (queryError: unknown) {
-      const apiError = parseApiCommonError(queryError)
+      const parsed = parseApiError(queryError)
+      const apiError: ApiCommonErrorResponse = {
+        status: mapHttpStatusToApiCommonStatus(parsed.httpStatus),
+        httpStatus: parsed.httpStatus,
+      }
 
       error.value = apiError
       status.value = ApiQueryStatus.Error

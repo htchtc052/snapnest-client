@@ -1,10 +1,11 @@
 import { ref } from '#imports'
 import {
   ApiResultStatus,
-  createApiSuccessResponse,
-  parseApiOperationError,
+  type ApiCommonErrorResponse,
   type ApiOperationResponse,
 } from './apiResponse'
+import { parseApiError } from './apiError'
+import { mapHttpStatusToApiCommonStatus } from './apiErrorStatus'
 
 export type { ApiOperationResponse }
 
@@ -18,11 +19,25 @@ export function useApiOperation<TArgs extends unknown[], TResult>(
     isLoading.value = true
 
     try {
-      return createApiSuccessResponse(await handler(...args))
+      return {
+        status: ApiResultStatus.Success,
+        data: await handler(...args),
+      }
     } catch (error: unknown) {
-      const result = parseApiOperationError(error)
+      const parsed = parseApiError(error)
 
-      if (result.status === ApiResultStatus.Validation) return result
+      if (parsed.isValidationError) {
+        return {
+          status: ApiResultStatus.Validation,
+          errors: parsed.validationErrors,
+          httpStatus: parsed.httpStatus,
+        }
+      }
+
+      const result: ApiCommonErrorResponse = {
+        status: mapHttpStatusToApiCommonStatus(parsed.httpStatus),
+        httpStatus: parsed.httpStatus,
+      }
 
       console.error('[API operation failed]', {
         httpStatus: result.httpStatus,

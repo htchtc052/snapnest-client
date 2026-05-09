@@ -1,6 +1,6 @@
 import type { FormError } from '#ui/types'
 import { resetPassword } from '~/api/resetPassword'
-import { mapFormError } from '~/http/handle-form-error'
+import { parseApiError } from '~/shared/api'
 import type { PasswordResetDto } from '~/types/password-reset.contract'
 
 export function useResetPassword() {
@@ -15,9 +15,9 @@ export function useResetPassword() {
       await resetPassword(client, data)
       await router.push('/login?reset=1')
     } catch (error: unknown) {
-      const parsed = mapFormError(error)
+      const parsed = parseApiError(error)
 
-      if (parsed.isValidationError) return parsed.bag
+      if (parsed.isValidationError) return parsed.validationErrors
 
       console.error('[Auth] Failed to reset password', error)
     } finally {

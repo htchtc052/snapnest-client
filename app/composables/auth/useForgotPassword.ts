@@ -1,6 +1,6 @@
 import type { FormError } from '#ui/types'
 import { forgotPassword } from '~/api/forgotPassword'
-import { mapFormError } from '~/http/handle-form-error'
+import { parseApiError } from '~/shared/api'
 import type { ForgotPasswordDto } from '~/types/forgot-password.contract'
 
 export function useForgotPassword() {
@@ -16,9 +16,9 @@ export function useForgotPassword() {
       const response = await forgotPassword(client, data)
       statusMessage.value = response.status
     } catch (error: unknown) {
-      const parsed = mapFormError(error)
+      const parsed = parseApiError(error)
 
-      if (parsed.isValidationError) return parsed.bag
+      if (parsed.isValidationError) return parsed.validationErrors
 
       console.error('[Auth] Failed to send password reset link', error)
     } finally {

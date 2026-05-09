@@ -1,6 +1,6 @@
 import type { FormError } from '#ui/types'
 import { register } from "~/api/register"
-import { mapFormError } from "~/http/handle-form-error"
+import { parseApiError } from '~/shared/api'
 import type { RegistrationDto } from "~/types/registration.contract"
 
 export function useRegister() {
@@ -17,8 +17,8 @@ export function useRegister() {
       await refreshIdentity()
       await router.push(config.redirect.onLogin || '/account/images')
     } catch (error: unknown) {
-      const parsed = mapFormError(error)
-      if (parsed.isValidationError) return parsed.bag
+      const parsed = parseApiError(error)
+      if (parsed.isValidationError) return parsed.validationErrors
       console.error('[Auth] Failed to register', error)
     } finally {
       isLoading.value = false

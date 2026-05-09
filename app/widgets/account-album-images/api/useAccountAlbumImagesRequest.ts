@@ -1,7 +1,6 @@
 import type { Image } from '~/types/image.model'
-import type { ApiPageResponse } from '~/shared/api'
 
-type AccountAlbumImagesPageApiResponse = {
+type AccountAlbumImagesApiResponse = {
   images: Image[]
   nextPage: number | null
 }
@@ -12,18 +11,13 @@ export function useAccountAlbumImagesRequest() {
   async function getAccountAlbumImages(
     albumId: number,
     page?: number | null,
-  ): Promise<ApiPageResponse<Image>> {
-    const response = await client<AccountAlbumImagesPageApiResponse>(
+  ): Promise<AccountAlbumImagesApiResponse> {
+    return client<AccountAlbumImagesApiResponse>(
       `/api/account/albums/${albumId}/images`,
       {
         query: page ? { page } : undefined,
       },
     )
-
-    return {
-      items: response.images,
-      nextPage: response.nextPage,
-    }
   }
 
   return {
