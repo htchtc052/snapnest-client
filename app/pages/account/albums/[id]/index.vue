@@ -12,6 +12,7 @@ import { useImageSelection } from '~/composables/images/useImageSelection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
 import { useAccountAlbumRequest } from '~/entities/album'
+import { ApiHttpStatus } from '~/shared/api'
 import { useAccountAlbumImages } from '~/widgets/account-album-images'
 import type { AccountAlbum } from '~/entities/album/model'
 import type { AlbumView } from '~/types/album-view.model'
@@ -35,9 +36,9 @@ const { data: album, error: albumError } = await useAsyncData<AlbumView>(
 if (albumError.value) {
   const statusCode = albumError.value.statusCode || albumError.value.status
 
-  if (statusCode === 404) {
+  if (statusCode === ApiHttpStatus.NotFound) {
     throw createError({
-      statusCode: 404,
+      statusCode: ApiHttpStatus.NotFound,
       statusMessage: 'Album not found',
       fatal: true,
     })
@@ -46,7 +47,7 @@ if (albumError.value) {
   console.error('Album load error', albumError.value)
 
   throw createError({
-    statusCode: 500,
+    statusCode: ApiHttpStatus.InternalServerError,
     statusMessage: 'Album load failed',
     fatal: true,
   })

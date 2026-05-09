@@ -1,18 +1,21 @@
 import { ApiResultStatus, type ApiCommonErrorStatus } from './apiResponse'
 
-const BAD_REQUEST_CODE = 400
-const FORBIDDEN_CODE = 403
-const NOT_FOUND_CODE = 404
+export enum ApiHttpStatus {
+  BadRequest = 400,
+  Forbidden = 403,
+  NotFound = 404,
+  InternalServerError = 500,
+}
 
 export function mapHttpStatusToApiCommonStatus(code: number): ApiCommonErrorStatus {
   switch (code) {
-    case BAD_REQUEST_CODE:
+    case ApiHttpStatus.BadRequest:
       return ApiResultStatus.BadRequest
 
-    case FORBIDDEN_CODE:
+    case ApiHttpStatus.Forbidden:
       return ApiResultStatus.Forbidden
 
-    case NOT_FOUND_CODE:
+    case ApiHttpStatus.NotFound:
       return ApiResultStatus.NotFound
 
     default:

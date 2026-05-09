@@ -18,6 +18,7 @@ export {
 } from './result/apiResponse'
 
 export {
+  ApiHttpStatus,
   mapHttpStatusToApiCommonStatus,
 } from './result/apiErrorStatus'
 
