@@ -16,7 +16,6 @@ export function useAccountAlbumImages(albumId: number) {
   const {
     data: albumImagesPage,
     status: albumImagesStatus,
-    error: albumImagesLoadError,
     refresh,
   } = useLazyAsyncData<AccountAlbumImagesApiResponse>(
     `account-album-images:${albumId}`,
@@ -46,7 +45,7 @@ export function useAccountAlbumImages(albumId: number) {
   })
 
   const isLoading = computed(() => albumImagesStatus.value === 'pending')
-  const hasLoadError = computed(() => albumImagesLoadError.value !== null)
+  const hasLoadError = computed(() => albumImagesStatus.value === 'error')
   const hasMore = computed(() => nextPage.value !== null)
   const isEmpty = computed(() => {
     return !isLoading.value
