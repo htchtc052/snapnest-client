@@ -1,8 +1,6 @@
 import type { FormError } from '#ui/types'
 import { FetchError } from 'ofetch'
-
-const VALIDATION_ERROR_CODE = 422
-const SERVER_ERROR_CODE = 500
+import { ApiHttpStatus } from '../result/apiErrorStatus'
 
 export type ParsedApiError = {
   isValidationError: boolean
@@ -24,9 +22,9 @@ export function parseApiError(error: unknown): ParsedApiError {
   const httpStatus =
     isFetchError && error.response?.status
       ? error.response.status
-      : SERVER_ERROR_CODE
+      : ApiHttpStatus.InternalServerError
 
-  const isValidationError = httpStatus === VALIDATION_ERROR_CODE
+  const isValidationError = httpStatus === ApiHttpStatus.Validation
 
   const validationErrors =
     isValidationError && isFetchError && error.response?._data?.errors
