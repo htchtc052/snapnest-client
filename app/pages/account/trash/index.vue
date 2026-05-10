@@ -3,8 +3,8 @@ import { imagesTrashGet } from '~/api/account/imagesTrashGet'
 import SelectionBar from '~/components/ui/SelectionBar.vue'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
 import { removeImagesFromCollection, useImageCollection } from '~/composables/images/useImageCollection'
-import { useImageSelection } from '~/composables/images/useImageSelection'
 import { useImageTrashActions } from '~/features/image-trash-actions'
+import { useSelection } from '~/shared/selection'
 
 definePageMeta({
   layout: 'media',
@@ -21,7 +21,7 @@ const {
   selectedIds,
   toggleSelection,
   clearSelection,
-} = useImageSelection(images)
+} = useSelection()
 
 const isSelectionMode = computed(() => selectedIds.value.length > 0)
 

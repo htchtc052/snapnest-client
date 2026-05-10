@@ -8,11 +8,11 @@ import { useAlbumCoverUpdate } from '~/features/album-cover-update'
 import { useAlbumVisibilityFeature } from '~/features/album-visibility'
 import { useRemoveImagesFromAlbumFeature } from '~/features/remove-images-from-album'
 import { removeImagesFromCollection } from '~/composables/images/useImageCollection'
-import { useImageSelection } from '~/composables/images/useImageSelection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
 import { useAccountAlbumRequest } from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
+import { useSelection } from '~/shared/selection'
 import { useAccountAlbumImages } from '~/widgets/account-album-images'
 import type { AccountAlbum } from '~/entities/album/model'
 import type { AlbumView } from '~/types/album-view.model'
@@ -68,7 +68,7 @@ const {
   selectedIds,
   toggleSelection,
   clearSelection,
-} = useImageSelection(images)
+} = useSelection()
 
 
 const { isUpdatingAlbumCover, setAlbumCover: setAlbumCoverFeature } = useAlbumCoverUpdate()

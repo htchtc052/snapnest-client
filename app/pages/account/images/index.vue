@@ -9,9 +9,9 @@ import { useShareImagesFeature } from '~/features/share-images'
 import { useImageUpdate } from '~/features/image-update'
 import { useImageTrashActions } from '~/features/image-trash-actions'
 import { removeImagesFromCollection, replaceImageInCollection, useImageCollection } from '~/composables/images/useImageCollection'
-import { useImageSelection } from '~/composables/images/useImageSelection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
+import { useSelection } from '~/shared/selection'
 
 definePageMeta({
   layout: 'media',
@@ -33,7 +33,7 @@ const {
   selectedIds,
   toggleSelection,
   clearSelection,
-} = useImageSelection(images)
+} = useSelection()
 
 const isSelectionMode = computed(() => selectedIds.value.length > 0)
 
