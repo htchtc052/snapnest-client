@@ -27,8 +27,8 @@ export function parseApiError(error: unknown): ParsedApiError {
   const isValidationError = httpStatus === ApiHttpStatus.Validation
 
   const validationErrors =
-    isValidationError && isFetchError && error.response?._data?.errors
-      ? mapValidationErrors(error.response._data.errors)
+    isValidationError && isFetchError && error.data?.errors
+      ? mapValidationErrors(error.data.errors)
       : []
 
   return {

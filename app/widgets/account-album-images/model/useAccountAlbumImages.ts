@@ -33,7 +33,7 @@ export function useAccountAlbumImages(albumId: number) {
   const {
     execute: loadMoreImagesPage,
     isLoading: isLoadingMore,
-    error: loadMoreError,
+    hasError: hasLoadMoreError,
   } = useApiQuery((page: number) => getAccountAlbumImages(albumId, page))
 
   watch(albumImagesPage, (page) => {
@@ -75,9 +75,8 @@ export function useAccountAlbumImages(albumId: number) {
     isLoading,
     isLoadingMore,
 
-    loadError: albumImagesLoadError,
-    loadMoreError,
     hasLoadError,
+    hasLoadMoreError,
 
     isEmpty,
     hasMore,
