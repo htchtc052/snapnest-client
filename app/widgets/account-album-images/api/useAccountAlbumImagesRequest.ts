@@ -1,6 +1,6 @@
 import type { Image } from '~/types/image.model'
 
-type AccountAlbumImagesApiResponse = {
+export type AccountAlbumImagesApiResponse = {
   images: Image[]
   nextPage: number | null
 }
@@ -15,7 +15,7 @@ export function useAccountAlbumImagesRequest() {
     return client<AccountAlbumImagesApiResponse>(
       `/api/account/albums/${albumId}/images`,
       {
-        query: page ? { page } : undefined,
+        query: page != null ? { page } : undefined,
       },
     )
   }

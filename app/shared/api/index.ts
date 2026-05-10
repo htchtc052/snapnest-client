@@ -26,7 +26,3 @@ export {
   ApiQueryStatus,
   useApiQuery,
 } from './query/useApiQuery'
-
-export {
-  usePaginatedApiQuery,
-} from './query/usePaginatedApiQuery'

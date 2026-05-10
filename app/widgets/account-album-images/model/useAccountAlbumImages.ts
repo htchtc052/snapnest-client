@@ -1,37 +1,88 @@
-import { computed } from '#imports'
-import { usePaginatedApiQuery } from '~/shared/api'
-import { useAccountAlbumImagesRequest } from '../api/useAccountAlbumImagesRequest'
+import { computed, ref, useLazyAsyncData, watch } from '#imports'
+import type { Ref } from 'vue'
+import { useApiQuery } from '~/shared/api'
+import type { Image } from '~/types/image.model'
+import {
+  useAccountAlbumImagesRequest,
+  type AccountAlbumImagesApiResponse,
+} from '../api/useAccountAlbumImagesRequest'
 
 export function useAccountAlbumImages(albumId: number) {
+  const images = ref<Image[]>([]) as Ref<Image[]>
+  const nextPage = ref<number | null>(null)
+
   const { getAccountAlbumImages } = useAccountAlbumImagesRequest()
 
-  const query = usePaginatedApiQuery(
-    page => getAccountAlbumImages(albumId, page),
-    response => response.images,
+  const {
+    data: albumImagesPage,
+    status: albumImagesStatus,
+    error: albumImagesLoadError,
+    refresh,
+  } = useLazyAsyncData<AccountAlbumImagesApiResponse>(
+    `account-album-images:${albumId}`,
+    () => getAccountAlbumImages(albumId),
+    {
+      server: false,
+      default: () => ({
+        images: [],
+        nextPage: null,
+      }),
+    },
   )
 
-  const hasLoadError = computed(() => query.loadError.value !== null)
+  const {
+    execute: loadMoreImagesPage,
+    isLoading: isLoadingMore,
+    error: loadMoreError,
+  } = useApiQuery((page: number) => getAccountAlbumImages(albumId, page))
 
-  const isEmpty = computed(() => {
-    return !query.isLoading.value
-      && !hasLoadError.value
-      && query.items.value.length === 0
+  watch(albumImagesPage, (page) => {
+    if (!page) return
+
+    images.value = page.images
+    nextPage.value = page.nextPage
+  }, {
+    immediate: true,
   })
 
+  const isLoading = computed(() => albumImagesStatus.value === 'pending')
+  const hasLoadError = computed(() => albumImagesLoadError.value !== null)
+  const hasMore = computed(() => nextPage.value !== null)
+  const isEmpty = computed(() => {
+    return !isLoading.value
+      && !hasLoadError.value
+      && images.value.length === 0
+  })
+
+  async function loadMore() {
+    if (nextPage.value === null || isLoadingMore.value) return null
+
+    const page = await loadMoreImagesPage(nextPage.value)
+    if (!page) return null
+
+    images.value = [
+      ...images.value,
+      ...page.images,
+    ]
+    nextPage.value = page.nextPage
+
+    return page
+  }
+
   return {
-    images: query.items,
+    images,
 
-    isLoading: query.isLoading,
-    isLoadingMore: query.isLoadingMore,
+    isLoading,
+    isLoadingMore,
 
-    loadError: query.loadError,
-    loadMoreError: query.loadMoreError,
+    loadError: albumImagesLoadError,
+    loadMoreError,
     hasLoadError,
 
     isEmpty,
-    hasMore: query.hasMore,
+    hasMore,
 
-    loadInitial: query.loadInitial,
-    loadMore: query.loadMore,
+    refresh,
+    loadMore,
   }
 }

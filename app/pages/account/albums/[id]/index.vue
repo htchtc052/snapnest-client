@@ -60,7 +60,6 @@ const {
   hasLoadError,
   isEmpty,
   hasMore,
-  loadInitial,
   loadMore,
 } = useAccountAlbumImages(albumId.value)
 
@@ -119,7 +118,6 @@ const viewerNextTo = computed(() => {
 
 
 onMounted(() => {
-  void loadInitial()
   window.addEventListener('keydown', handleKeydown)
 })
 
