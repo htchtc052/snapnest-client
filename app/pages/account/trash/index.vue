@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import { imagesTrashGet } from '~/api/account/imagesTrashGet'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
-import { removeImagesFromCollection, useImageCollection } from '~/composables/images/useImageCollection'
+import { removeImagesFromCollection } from '~/composables/images/useImageCollection'
 import { useImageTrashActions } from '~/features/image-trash-actions'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
+import { useAccountTrashImages } from '~/widgets/account-trash-images'
 
 definePageMeta({
   layout: 'media',
 })
 
-const client = useSanctumClient()
 const {
   images,
   isLoading,
-  loadError,
-  loadInitial,
-} = useImageCollection(() => imagesTrashGet(client))
+  hasLoadError,
+  isEmpty,
+} = useAccountTrashImages()
 const {
   selectedIds,
   toggleSelection,
@@ -47,7 +46,6 @@ const selectionActions = computed<SelectionAction[]>(() => [
 ])
 
 onMounted(() => {
-  void loadInitial()
   window.addEventListener('keydown', handleKeydown)
 })
 
@@ -112,9 +110,9 @@ function handleSelectionAction(actionKey: string) {
     <USkeleton v-if="isLoading" class="h-40" />
 
     <template v-else>
-      <UEmpty v-if="loadError" description="Unable to load trash" size="md" variant="naked" class="py-8" />
+      <UEmpty v-if="hasLoadError" description="Unable to load trash" size="md" variant="naked" class="py-8" />
 
-      <UEmpty v-else-if="images.length === 0" description="Trash is empty" size="md" variant="naked" class="py-8" />
+      <UEmpty v-else-if="isEmpty" description="Trash is empty" size="md" variant="naked" class="py-8" />
 
       <ImageOwnerCollectionGrid
         v-else

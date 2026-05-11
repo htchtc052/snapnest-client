@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { computed } from '#imports'
 import { accountImageDetailGet } from '~/api/account/imageDetailGet'
-import { imagesGet } from '~/api/account/imagesGet'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
 import ImageViewerModal from '~/components/widgets/ImageViewerModal.vue'
 import { useShareImagesFeature } from '~/features/share-images'
 import { useImageUpdate } from '~/features/image-update'
 import { useImageTrashActions } from '~/features/image-trash-actions'
-import { removeImagesFromCollection, replaceImageInCollection, useImageCollection } from '~/composables/images/useImageCollection'
+import { removeImagesFromCollection, replaceImageInCollection } from '~/composables/images/useImageCollection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
+import { useAccountImages } from '~/widgets/account-images'
 
 definePageMeta({
   layout: 'media',
@@ -24,11 +24,11 @@ const {
   images,
   isLoading,
   isLoadingMore,
-  loadError,
+  hasLoadError,
+  isEmpty,
   hasMore,
-  loadInitial,
   loadMore,
-} = useImageCollection(page => imagesGet(client, page))
+} = useAccountImages()
 const {
   selectedIds,
   toggleSelection,
@@ -100,7 +100,6 @@ const selectionActions = computed<SelectionAction[]>(() => [
 ])
 
 onMounted(() => {
-  void loadInitial()
   window.addEventListener('keydown', handleKeydown)
 })
 
@@ -176,9 +175,9 @@ function handleSelectionAction(actionKey: string) {
     <USkeleton v-if="isLoading" class="h-40" />
 
     <template v-else>
-      <UEmpty v-if="loadError" description="Unable to load photos" size="md" variant="naked" class="py-8" />
+      <UEmpty v-if="hasLoadError" description="Unable to load photos" size="md" variant="naked" class="py-8" />
 
-      <UEmpty v-else-if="images.length === 0" description="No images yet" size="md" variant="naked" class="py-8" />
+      <UEmpty v-else-if="isEmpty" description="No images yet" size="md" variant="naked" class="py-8" />
 
       <ImageOwnerCollectionGrid
         v-else
