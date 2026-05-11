@@ -8,6 +8,14 @@ export default defineNuxtConfig({
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
     },
   },
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@vueuse/core',
+        'yup',
+      ],
+    },
+  },
   modules: ['@nuxt/eslint', '@nuxt/ui', ['nuxt-auth-sanctum', {
     baseUrl: process.env.NUXT_PUBLIC_API_BASE ?? 'http://localhost:8000',
     mode: 'cookie',
