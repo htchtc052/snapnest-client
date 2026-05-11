@@ -1,14 +1,10 @@
-import { computed, ref, useLazyAsyncData, watch } from '#imports'
-import type { Ref } from 'vue'
-import type { Image } from '~/types/image.model'
+import { computed, useLazyAsyncData } from '#imports'
 import {
   useAccountTrashImagesRequest,
   type AccountTrashImagesApiResponse,
 } from '../api/useAccountTrashImagesRequest'
 
 export function useAccountTrashImages() {
-  const images = ref<Image[]>([]) as Ref<Image[]>
-
   const { getAccountTrashImages } = useAccountTrashImagesRequest()
 
   const {
@@ -26,13 +22,7 @@ export function useAccountTrashImages() {
     },
   )
 
-  watch(accountTrashImagesResponse, (response) => {
-    if (!response) return
-
-    images.value = response.images
-  }, {
-    immediate: true,
-  })
+  const images = computed(() => accountTrashImagesResponse.value.images)
 
   const isLoading = computed(() => accountTrashImagesStatus.value === 'pending')
   const hasLoadError = computed(() => accountTrashImagesStatus.value === 'error')
@@ -41,6 +31,19 @@ export function useAccountTrashImages() {
       && !hasLoadError.value
       && images.value.length === 0
   })
+
+  function removeImagesById(ids: number[]) {
+    const idsSet = new Set(ids)
+    const images = accountTrashImagesResponse.value.images
+
+    for (let index = images.length - 1; index >= 0; index--) {
+      const image = images[index]
+
+      if (image && idsSet.has(image.id)) {
+        images.splice(index, 1)
+      }
+    }
+  }
 
   return {
     images,
@@ -52,5 +55,6 @@ export function useAccountTrashImages() {
     isEmpty,
 
     refresh,
+    removeImagesById,
   }
 }
