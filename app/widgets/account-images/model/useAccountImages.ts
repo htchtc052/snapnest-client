@@ -1,20 +1,21 @@
-import { computed, ref, useLazyAsyncData, watch } from '#imports'
-import type { Ref } from 'vue'
+import { computed, useLazyAsyncData } from '#imports'
 import { useApiQuery } from '~/shared/api'
 import type { Image } from '~/types/image.model'
 import {
   useAccountImagesRequest,
   type AccountImagesApiResponse,
 } from '../api/useAccountImagesRequest'
+import {
+  appendImages as appendFeedImages,
+  removeImagesById as removeFeedImagesById,
+  replaceImage as replaceFeedImage,
+} from './accountImagesFeedMutations'
 
 export function useAccountImages() {
-  const images = ref<Image[]>([]) as Ref<Image[]>
-  const nextPage = ref<number | null>(null)
-
   const { getAccountImages } = useAccountImagesRequest()
 
   const {
-    data: accountImagesPage,
+    data: accountImagesFeed,
     status: accountImagesStatus,
     refresh,
   } = useLazyAsyncData<AccountImagesApiResponse>(
@@ -35,18 +36,10 @@ export function useAccountImages() {
     hasError: hasLoadMoreError,
   } = useApiQuery((page: number) => getAccountImages(page))
 
-  watch(accountImagesPage, (page) => {
-    if (!page) return
-
-    images.value = page.images
-    nextPage.value = page.nextPage
-  }, {
-    immediate: true,
-  })
-
+  const images = computed(() => accountImagesFeed.value.images)
   const isLoading = computed(() => accountImagesStatus.value === 'pending')
   const hasLoadError = computed(() => accountImagesStatus.value === 'error')
-  const hasMore = computed(() => nextPage.value !== null)
+  const hasMore = computed(() => accountImagesFeed.value.nextPage !== null)
   const isEmpty = computed(() => {
     return !isLoading.value
       && !hasLoadError.value
@@ -54,18 +47,23 @@ export function useAccountImages() {
   })
 
   async function loadMore() {
-    if (nextPage.value === null || isLoadingMore.value) return null
+    if (accountImagesFeed.value.nextPage === null || isLoadingMore.value) return null
 
-    const page = await loadMoreImagesPage(nextPage.value)
+    const page = await loadMoreImagesPage(accountImagesFeed.value.nextPage)
     if (!page) return null
 
-    images.value = [
-      ...images.value,
-      ...page.images,
-    ]
-    nextPage.value = page.nextPage
+    appendFeedImages(accountImagesFeed.value, page.images)
+    accountImagesFeed.value.nextPage = page.nextPage
 
     return page
+  }
+
+  function removeImagesById(ids: number[]) {
+    removeFeedImagesById(accountImagesFeed.value, ids)
+  }
+
+  function replaceImage(image: Image) {
+    replaceFeedImage(accountImagesFeed.value, image)
   }
 
   return {
@@ -82,5 +80,7 @@ export function useAccountImages() {
 
     refresh,
     loadMore,
+    removeImagesById,
+    replaceImage,
   }
 }
