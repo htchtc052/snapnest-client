@@ -2,7 +2,6 @@ import type { Image } from '~/types/image.model'
 
 export type AccountTrashImagesApiResponse = {
   images: Image[]
-  nextPage: number | null
 }
 
 export function useAccountTrashImagesRequest() {

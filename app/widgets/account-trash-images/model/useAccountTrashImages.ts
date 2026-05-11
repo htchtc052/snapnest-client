@@ -22,7 +22,6 @@ export function useAccountTrashImages() {
       server: false,
       default: () => ({
         images: [],
-        nextPage: null,
       }),
     },
   )
