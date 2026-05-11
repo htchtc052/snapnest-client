@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted } from '#imports'
 import { accountAlbumImageDetailGet } from '~/api/account/albumImageDetailGet'
-import SelectionBar from '~/components/ui/SelectionBar.vue'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
 import ImageViewerModal from '~/components/widgets/ImageViewerModal.vue'
 import { useAlbumCoverUpdate } from '~/features/album-cover-update'
@@ -12,7 +11,8 @@ import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
 import { useAccountAlbumRequest } from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
-import { useSelection } from '~/shared/selection'
+import { useSelection, type SelectionAction } from '~/shared/selection'
+import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
 import { useAccountAlbumImages } from '~/widgets/account-album-images'
 import type { AccountAlbum } from '~/entities/album/model'
 import type { AlbumView } from '~/types/album-view.model'
@@ -75,6 +75,21 @@ const { isUpdatingAlbumCover, setAlbumCover: setAlbumCoverFeature } = useAlbumCo
 const { isRemovingImages, removeImagesFromAlbum } = useRemoveImagesFromAlbumFeature()
 const isSelectionMode = computed(() => selectedIds.value.length > 0)
 const selectedImageId = computed<number | null>(() => selectedIds.value.length === 1 ? (selectedIds.value[0] ?? null) : null)
+const selectionActions = computed<SelectionAction[]>(() => [
+  {
+    key: 'set-cover',
+    label: 'Set as cover',
+    icon: 'i-heroicons-photo-20-solid',
+    visible: selectedIds.value.length === 1,
+    loading: isUpdatingAlbumCover.value,
+  },
+  {
+    key: 'remove-from-album',
+    label: 'Remove from album',
+    icon: 'i-heroicons-folder-minus-20-solid',
+    loading: isRemovingImages.value,
+  },
+])
 
 const {
   activeViewerImageId,
@@ -189,47 +204,30 @@ function handleKeydown(event: KeyboardEvent) {
   clearSelection()
 }
 
+function handleSelectionAction(actionKey: string) {
+  switch (actionKey) {
+    case 'set-cover':
+      void setSelectedImageAsCover()
+      break
+
+    case 'remove-from-album':
+      void removeSelectedImages()
+      break
+  }
+}
+
 </script>
 
 <template>
   <div class="flex h-full min-h-0 flex-col px-4">
     <div class="mt-4">
-      <SelectionBar v-if="isSelectionMode" @clear="clearSelection">
-        <div class="flex min-w-0 flex-1 items-center justify-between gap-3">
-          <span class="truncate text-base font-medium sm:text-lg">
-            {{ selectedIds.length === 1 ? '1 selected' : `${selectedIds.length} selected` }}
-          </span>
-
-          <div class="flex shrink-0 items-center gap-1">
-            <UButton
-              v-if="selectedIds.length === 1"
-              icon="i-heroicons-photo-20-solid"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              square
-              :loading="isUpdatingAlbumCover"
-              title="Set as cover"
-              @click="setSelectedImageAsCover"
-            >
-              <span class="hidden sm:inline">Set as cover</span>
-            </UButton>
-
-            <UButton
-              icon="i-heroicons-folder-minus-20-solid"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              square
-              title="Remove from album"
-              :loading="isRemovingImages"
-              @click="removeSelectedImages"
-            >
-              <span class="hidden sm:inline">Remove from album</span>
-            </UButton>
-          </div>
-        </div>
-      </SelectionBar>
+      <SelectionBar
+        v-if="isSelectionMode"
+        :selected-count="selectedIds.length"
+        :actions="selectionActions"
+        @clear="clearSelection"
+        @action="handleSelectionAction"
+      />
     </div>
 
     <div class="flex items-start justify-between gap-3 pt-5 pb-4">

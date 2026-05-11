@@ -2,7 +2,6 @@
 import { computed } from '#imports'
 import { accountImageDetailGet } from '~/api/account/imageDetailGet'
 import { imagesGet } from '~/api/account/imagesGet'
-import SelectionBar from '~/components/ui/SelectionBar.vue'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
 import ImageViewerModal from '~/components/widgets/ImageViewerModal.vue'
 import { useShareImagesFeature } from '~/features/share-images'
@@ -11,7 +10,8 @@ import { useImageTrashActions } from '~/features/image-trash-actions'
 import { removeImagesFromCollection, replaceImageInCollection, useImageCollection } from '~/composables/images/useImageCollection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
-import { useSelection } from '~/shared/selection'
+import { useSelection, type SelectionAction } from '~/shared/selection'
+import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
 
 definePageMeta({
   layout: 'media',
@@ -78,6 +78,26 @@ const viewerNextTo = computed(() => {
 const { updateImage } = useImageUpdate()
 const { shareImages, isSharing } = useShareImagesFeature()
 const { isTrashingImages, trashImages } = useImageTrashActions()
+const selectionActions = computed<SelectionAction[]>(() => [
+  {
+    key: 'share',
+    label: 'Share',
+    icon: 'i-heroicons-share-20-solid',
+    loading: isSharing.value,
+  },
+  {
+    key: 'rename',
+    label: 'Rename',
+    icon: 'i-heroicons-pencil-square-20-solid',
+    visible: selectedIds.value.length === 1,
+  },
+  {
+    key: 'move-to-trash',
+    label: 'Move to trash',
+    icon: 'i-heroicons-archive-box-arrow-down-20-solid',
+    loading: isTrashingImages.value,
+  },
+])
 
 onMounted(() => {
   void loadInitial()
@@ -117,59 +137,34 @@ async function trashSelectedImages() {
   }
 }
 
+function handleSelectionAction(actionKey: string) {
+  switch (actionKey) {
+    case 'share':
+      void shareSelectedImages()
+      break
+
+    case 'rename':
+      void updateSelectedImage()
+      break
+
+    case 'move-to-trash':
+      void trashSelectedImages()
+      break
+  }
+}
+
 </script>
 
 <template>
   <div class="flex h-full min-h-0 flex-col overflow-hidden px-4">
     <div class="mt-4">
-      <SelectionBar v-if="isSelectionMode" @clear="clearSelection">
-        <div class="flex min-w-0 flex-1 items-center justify-between gap-3">
-          <span class="truncate text-base font-medium sm:text-lg">
-            {{ selectedIds.length === 1 ? '1 selected' : `${selectedIds.length} selected` }}
-          </span>
-
-          <div class="flex shrink-0 items-center gap-1">
-            <UButton
-              icon="i-heroicons-share-20-solid"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              square
-              title="Share"
-              :loading="isSharing"
-              @click="shareSelectedImages"
-            >
-              <span class="hidden sm:inline">Share</span>
-            </UButton>
-
-            <UButton
-              v-if="selectedIds.length === 1"
-              icon="i-heroicons-pencil-square-20-solid"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              square
-              title="Rename"
-              @click="updateSelectedImage"
-            >
-              <span class="hidden sm:inline">Rename</span>
-            </UButton>
-
-            <UButton
-              icon="i-heroicons-archive-box-arrow-down-20-solid"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              square
-              title="Move to trash"
-              :loading="isTrashingImages"
-              @click="trashSelectedImages"
-            >
-              <span class="hidden sm:inline">Move to trash</span>
-            </UButton>
-          </div>
-        </div>
-      </SelectionBar>
+      <SelectionBar
+        v-if="isSelectionMode"
+        :selected-count="selectedIds.length"
+        :actions="selectionActions"
+        @clear="clearSelection"
+        @action="handleSelectionAction"
+      />
     </div>
 
     <div class="flex items-start gap-3 pt-5 pb-4">

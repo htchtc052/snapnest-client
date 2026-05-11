@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { imagesTrashGet } from '~/api/account/imagesTrashGet'
-import SelectionBar from '~/components/ui/SelectionBar.vue'
 import ImageOwnerCollectionGrid from '~/components/widgets/ImageOwnerCollectionGrid.vue'
 import { removeImagesFromCollection, useImageCollection } from '~/composables/images/useImageCollection'
 import { useImageTrashActions } from '~/features/image-trash-actions'
-import { useSelection } from '~/shared/selection'
+import { useSelection, type SelectionAction } from '~/shared/selection'
+import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
 
 definePageMeta({
   layout: 'media',
@@ -31,6 +31,20 @@ const {
   isRestoringImages,
   restoreImages,
 } = useImageTrashActions()
+const selectionActions = computed<SelectionAction[]>(() => [
+  {
+    key: 'restore',
+    label: 'Restore',
+    icon: 'i-heroicons-arrow-path-20-solid',
+    loading: isRestoringImages.value,
+  },
+  {
+    key: 'delete',
+    label: 'Delete permanently',
+    icon: 'i-heroicons-trash-20-solid',
+    loading: isDeletingImages.value,
+  },
+])
 
 onMounted(() => {
   void loadInitial()
@@ -62,46 +76,30 @@ function handleKeydown(event: KeyboardEvent) {
 
   clearSelection()
 }
+
+function handleSelectionAction(actionKey: string) {
+  switch (actionKey) {
+    case 'restore':
+      void restoreSelected()
+      break
+
+    case 'delete':
+      void trashSelected()
+      break
+  }
+}
 </script>
 
 <template>
   <div class="flex h-full min-h-0 flex-col px-4">
     <div class="mt-4">
-      <SelectionBar v-if="isSelectionMode" @clear="clearSelection">
-        <div class="flex min-w-0 flex-1 items-center justify-between gap-3">
-          <span class="truncate text-base font-medium sm:text-lg">
-            {{ selectedIds.length === 1 ? '1 selected' : `${selectedIds.length} selected` }}
-          </span>
-
-          <div class="flex shrink-0 items-center gap-1">
-            <UButton
-              icon="i-heroicons-arrow-path-20-solid"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              square
-              :loading="isRestoringImages"
-              title="Restore"
-              @click="restoreSelected"
-            >
-              <span class="hidden sm:inline">Restore</span>
-            </UButton>
-
-            <UButton
-              icon="i-heroicons-trash-20-solid"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              square
-              title="Delete permanently"
-              :loading="isDeletingImages"
-              @click="trashSelected"
-            >
-              <span class="hidden sm:inline">Delete permanently</span>
-            </UButton>
-          </div>
-        </div>
-      </SelectionBar>
+      <SelectionBar
+        v-if="isSelectionMode"
+        :selected-count="selectedIds.length"
+        :actions="selectionActions"
+        @clear="clearSelection"
+        @action="handleSelectionAction"
+      />
     </div>
 
     <div class="flex items-start gap-3 pt-5 pb-4">
