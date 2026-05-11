@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from '#imports'
-//import ImageDetailShell from '~/components/widgets/ImageDetailShell.vue'
 import type { ImageDetailContext } from '~/types/image-detail-context.model'
 
 const props = withDefaults(defineProps<{
