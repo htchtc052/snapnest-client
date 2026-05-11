@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, useLazyAsyncData } from '#imports'
+import { computed } from '#imports'
 import { formatDate } from '@vueuse/core'
 import { albumGet } from '~/api/public/albumGet'
 import { publicAlbumImageDetailGet } from '~/api/public/albumImageDetailGet'
-import { albumImagesGet } from '~/api/public/albumImagesGet'
 import ImagePublicCollectionGrid from '~/components/widgets/ImagePublicCollectionGrid.vue'
 import ImageViewerModal from '~/components/widgets/ImageViewerModal.vue'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
+import { usePublicAlbumImages } from '~/widgets/public-album-images'
 import type { PublicAlbum } from '~/types/public-album.model'
 
 definePageMeta({
@@ -57,27 +57,11 @@ if (albumError.value) {
 }
 
 const {
-  data: albumImagesResponse,
-  status: albumImagesStatus,
-} = useLazyAsyncData(
-  `public-album-images:${token.value}`,
-  () => albumImagesGet(client, token.value),
-  {
-    server: false,
-    default: () => ({
-      images: [],
-    }),
-  },
-)
-
-const images = computed(() => albumImagesResponse.value.images)
-const isLoading = computed(() => albumImagesStatus.value === 'pending')
-const hasLoadError = computed(() => albumImagesStatus.value === 'error')
-const isEmpty = computed(() => {
-  return !isLoading.value
-    && !hasLoadError.value
-    && images.value.length === 0
-})
+  images,
+  isLoading,
+  hasLoadError,
+  isEmpty,
+} = usePublicAlbumImages(token.value)
 const {
   activeViewerImageId,
   isViewerOpen,
