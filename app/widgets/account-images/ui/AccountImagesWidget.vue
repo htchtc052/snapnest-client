@@ -2,14 +2,14 @@
 import { computed, onBeforeUnmount, onMounted, useTemplateRef } from '#imports'
 import { formatDate, useInfiniteScroll, useWindowSize } from '@vueuse/core'
 import { accountImageDetailGet } from '~/api/account/imageDetailGet'
-import ImageViewerModal from '~/components/widgets/ImageViewerModal.vue'
 import { useImageUpdate } from '~/features/image-update'
 import { useImageTrashActions } from '~/features/image-trash-actions'
 import { useShareImagesFeature } from '~/features/share-images'
-import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
-import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
+import ImageViewerModal from '~/viewer_old/ImageViewerModal.vue'
+import { useImageViewerDetail } from '~/viewer_old/useImageViewerDetail'
+import { useImageViewerQuery } from '~/viewer_old/useImageViewerQuery'
 import { useAccountImages } from '../model/useAccountImages'
 
 const route = useRoute()
