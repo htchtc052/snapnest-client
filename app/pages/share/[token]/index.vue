@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted } from '#imports'
+import { computed, useLazyAsyncData } from '#imports'
 import { formatDate } from '@vueuse/core'
 import { albumGet } from '~/api/public/albumGet'
 import { publicAlbumImageDetailGet } from '~/api/public/albumImageDetailGet'
 import { albumImagesGet } from '~/api/public/albumImagesGet'
 import ImagePublicCollectionGrid from '~/components/widgets/ImagePublicCollectionGrid.vue'
 import ImageViewerModal from '~/components/widgets/ImageViewerModal.vue'
-import { useImageCollection } from '~/composables/images/useImageCollection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
 import type { PublicAlbum } from '~/types/public-album.model'
@@ -58,14 +57,27 @@ if (albumError.value) {
 }
 
 const {
-  images,
-  isLoading,
-  isLoadingMore,
-  loadError,
-  hasMore,
-  loadInitial,
-  loadMore,
-} = useImageCollection(page => albumImagesGet(client, token.value, page))
+  data: albumImagesResponse,
+  status: albumImagesStatus,
+} = useLazyAsyncData(
+  `public-album-images:${token.value}`,
+  () => albumImagesGet(client, token.value),
+  {
+    server: false,
+    default: () => ({
+      images: [],
+    }),
+  },
+)
+
+const images = computed(() => albumImagesResponse.value.images)
+const isLoading = computed(() => albumImagesStatus.value === 'pending')
+const hasLoadError = computed(() => albumImagesStatus.value === 'error')
+const isEmpty = computed(() => {
+  return !isLoading.value
+    && !hasLoadError.value
+    && images.value.length === 0
+})
 const {
   activeViewerImageId,
   isViewerOpen,
@@ -104,11 +116,6 @@ const viewerNextTo = computed(() => {
   }).fullPath
 })
 
-onMounted(() => {
-  void loadInitial()
-})
-
-
 </script>
 
 <template>
@@ -121,8 +128,12 @@ onMounted(() => {
 
         <template #description>
           <div class="flex items-center gap-4">
-            <img v-if="album.coverPreviewUrl" :src="album.coverPreviewUrl" alt="Album cover"
-              class="h-16 w-16 shrink-0 rounded-lg object-cover">
+            <img
+              v-if="album.coverPreviewUrl"
+              :src="album.coverPreviewUrl"
+              alt="Album cover"
+              class="h-16 w-16 shrink-0 rounded-lg object-cover"
+            >
 
             <div class="min-w-0 space-y-1">
               <p class="text-sm text-muted">
@@ -143,15 +154,21 @@ onMounted(() => {
     <USkeleton v-if="isLoading" class="h-40" />
 
     <template v-else>
-      <UEmpty v-if="loadError" description="Unable to load images" size="md" variant="naked" class="py-8" />
+      <UEmpty v-if="hasLoadError" description="Unable to load images" size="md" variant="naked" class="py-8" />
 
-      <UEmpty v-else-if="images.length === 0" description="No images" size="md" variant="naked" class="py-8" />
+      <UEmpty v-else-if="isEmpty" description="No images" size="md" variant="naked" class="py-8" />
 
-      <ImagePublicCollectionGrid v-else :images="images" :has-more="hasMore" :is-loading-more="isLoadingMore"
-        :on-load-more="loadMore" @open="openImageViewer" />
+      <ImagePublicCollectionGrid v-else :images="images" @open="openImageViewer" />
     </template>
 
-    <ImageViewerModal :open="isViewerOpen" :detail="viewerDetail" :is-loading="isViewerLoading"
-      :load-error="viewerLoadError" :prev-to="viewerPrevTo" :next-to="viewerNextTo" @close="closeImageViewer" />
+    <ImageViewerModal
+      :open="isViewerOpen"
+      :detail="viewerDetail"
+      :is-loading="isViewerLoading"
+      :load-error="viewerLoadError"
+      :prev-to="viewerPrevTo"
+      :next-to="viewerNextTo"
+      @close="closeImageViewer"
+    />
   </div>
 </template>

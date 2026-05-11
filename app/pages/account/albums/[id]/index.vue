@@ -6,7 +6,6 @@ import ImageViewerModal from '~/components/widgets/ImageViewerModal.vue'
 import { useAlbumCoverUpdate } from '~/features/album-cover-update'
 import { useAlbumVisibilityFeature } from '~/features/album-visibility'
 import { useRemoveImagesFromAlbumFeature } from '~/features/remove-images-from-album'
-import { removeImagesFromCollection } from '~/composables/images/useImageCollection'
 import { useImageViewerDetail } from '~/composables/images/useImageViewerDetail'
 import { useImageViewerQuery } from '~/composables/images/useImageViewerQuery'
 import { useAccountAlbumRequest } from '~/entities/album'
@@ -56,11 +55,9 @@ if (albumError.value) {
 const {
   images,
   isLoading,
-  isLoadingMore,
   hasLoadError,
   isEmpty,
-  hasMore,
-  loadMore,
+  removeImagesById,
 } = useAccountAlbumImages(albumId.value)
 
 
@@ -153,7 +150,7 @@ async function removeSelectedImages() {
   const removedIds = await removeImagesFromAlbum(album.value!.id, selectedIds.value)
   if (!removedIds) return
 
-  images.value = removeImagesFromCollection(images.value, removedIds)
+  removeImagesById(removedIds)
   clearSelection()
 }
 
@@ -277,9 +274,6 @@ function handleSelectionAction(actionKey: string) {
         :images="images"
         :selected-ids="selectedIds"
         :selection-mode="isSelectionMode"
-        :has-more="hasMore"
-        :is-loading-more="isLoadingMore"
-        :on-load-more="loadMore"
         @open="openImageViewer"
         @toggle-selection="toggleSelection"
       />
