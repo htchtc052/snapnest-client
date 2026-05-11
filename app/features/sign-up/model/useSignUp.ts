@@ -1,32 +1,36 @@
 import type { FormError } from '#ui/types'
-import { register } from "~/api/register"
+import { ref } from '#imports'
 import { parseApiError } from '~/shared/api'
-import type { RegistrationDto } from "~/types/registration.contract"
+import type { SignUpDto } from '../contract/sign-up.contract'
+import { useSignUpRequest } from '../api/useSignUpRequest'
 
-export function useRegister() {
+export function useSignUp() {
   const isLoading = ref(false)
-  const client = useSanctumClient()
   const { refreshIdentity } = useSanctumAuth()
   const config = useSanctumConfig()
   const router = useRouter()
+  const { signUpRequest } = useSignUpRequest()
 
-  async function registerRequest(data: RegistrationDto): Promise<FormError[] | undefined> {
+  async function signUp(data: SignUpDto): Promise<FormError[] | undefined> {
     isLoading.value = true
+
     try {
-      await register(client, data)
+      await signUpRequest(data)
       await refreshIdentity()
       await router.push(config.redirect.onLogin || '/account/images')
     } catch (error: unknown) {
       const parsed = parseApiError(error)
+
       if (parsed.isValidationError) return parsed.validationErrors
-      console.error('[Auth] Failed to register', error)
+
+      console.error('[Auth] Failed to sign up', error)
     } finally {
       isLoading.value = false
     }
   }
 
   return {
-    register: registerRequest,
+    signUp,
     isLoading,
   }
 }

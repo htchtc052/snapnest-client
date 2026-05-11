@@ -1,21 +1,19 @@
 <script setup lang="ts">
-import { loginSchema, type LoginDto } from '~/types/login.contract'
-
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { useLogin } from '~/composables/auth/useLogin'
+import { signInSchema, type SignInDto, useSignIn } from '~/features/sign-in'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
 const route = useRoute()
-const state = reactive<LoginDto>({ email: "", password: "" })
+const state = reactive<SignInDto>({ email: '', password: '' })
 
-const { login, isLoading } = useLogin()
-const form = ref<Form<LoginDto>>()
+const { signIn, isLoading } = useSignIn()
+const form = ref<Form<SignInDto>>()
 
-async function onSubmit(e: FormSubmitEvent<LoginDto>) {
+async function onSubmit(e: FormSubmitEvent<SignInDto>) {
   form.value?.clear()
 
-  const errors = await login(e.data)
+  const errors = await signIn(e.data)
   if (errors) {
     form.value?.setErrors(errors)
   }
@@ -30,7 +28,7 @@ async function onSubmit(e: FormSubmitEvent<LoginDto>) {
 
     <UForm
       ref="form"
-      :schema="loginSchema"
+      :schema="signInSchema"
       :state="state"
       class="space-y-4"
       method="post"

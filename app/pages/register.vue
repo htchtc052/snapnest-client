@@ -1,25 +1,24 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { useRegister } from '~/composables/auth/useRegister'
-import { registrationSchema, type RegistrationDto } from '~/types/registration.contract'
+import { signUpSchema, type SignUpDto, useSignUp } from '~/features/sign-up'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
 
-const state = reactive<RegistrationDto>({
+const state = reactive<SignUpDto>({
   name: '',
   email: '',
   password: '',
   password_confirmation: ''
 })
 
-const { register, isLoading } = useRegister()
-const form = ref<Form<RegistrationDto>>()
+const { signUp, isLoading } = useSignUp()
+const form = ref<Form<SignUpDto>>()
 
-async function onSubmit(e: FormSubmitEvent<RegistrationDto>) {
+async function onSubmit(e: FormSubmitEvent<SignUpDto>) {
   form.value?.clear()
 
-  const errors = await register(e.data)
+  const errors = await signUp(e.data)
   if (errors) {
     form.value?.setErrors(errors)
   }
@@ -31,7 +30,7 @@ async function onSubmit(e: FormSubmitEvent<RegistrationDto>) {
     <template #header>
       <h1 class="text-center text-xl font-semibold">Sign up</h1>
     </template>
-    <UForm ref="form" :schema="registrationSchema" :state="state" class="space-y-4" novalidate @submit="onSubmit">
+    <UForm ref="form" :schema="signUpSchema" :state="state" class="space-y-4" novalidate @submit="onSubmit">
       <UFormField name="name" label="Name">
         <UInput v-model="state.name" class="w-full" />
       </UFormField>

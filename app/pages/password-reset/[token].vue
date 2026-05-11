@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { useResetPassword } from '~/composables/auth/useResetPassword'
-import { passwordResetSchema, type PasswordResetDto } from '~/types/password-reset.contract'
+import { passwordResetSchema, type PasswordResetDto, usePasswordReset } from '~/features/password-reset'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
@@ -14,7 +13,7 @@ const state = reactive<PasswordResetDto>({
   password_confirmation: '',
 })
 
-const { resetPassword, isLoading } = useResetPassword()
+const { resetPassword, isLoading } = usePasswordReset()
 const form = ref<Form<PasswordResetDto>>()
 
 async function onSubmit(e: FormSubmitEvent<PasswordResetDto>) {

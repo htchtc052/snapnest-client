@@ -1,19 +1,21 @@
 import type { FormError } from '#ui/types'
-import { forgotPassword } from '~/api/forgotPassword'
+import { ref } from '#imports'
 import { parseApiError } from '~/shared/api'
-import type { ForgotPasswordDto } from '~/types/forgot-password.contract'
+import { usePasswordResetEmailRequest } from '../api/usePasswordResetEmailRequest'
+import type { PasswordResetRequestDto } from '../contract/password-reset-request.contract'
 
-export function useForgotPassword() {
+export function usePasswordResetRequest() {
   const isLoading = ref(false)
   const statusMessage = ref<string | null>(null)
-  const client = useSanctumClient()
+  const { sendPasswordResetEmailRequest } = usePasswordResetEmailRequest()
 
-  async function sendResetLink(data: ForgotPasswordDto): Promise<FormError[] | undefined> {
+  async function sendResetLink(data: PasswordResetRequestDto): Promise<FormError[] | undefined> {
     isLoading.value = true
     statusMessage.value = null
 
     try {
-      const response = await forgotPassword(client, data)
+      const response = await sendPasswordResetEmailRequest(data)
+
       statusMessage.value = response.status
     } catch (error: unknown) {
       const parsed = parseApiError(error)

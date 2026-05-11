@@ -1,18 +1,19 @@
 import type { FormError } from '#ui/types'
-import { resetPassword } from '~/api/resetPassword'
+import { ref } from '#imports'
 import { parseApiError } from '~/shared/api'
-import type { PasswordResetDto } from '~/types/password-reset.contract'
+import { usePasswordResetSubmitRequest } from '../api/usePasswordResetSubmitRequest'
+import type { PasswordResetDto } from '../contract/password-reset.contract'
 
-export function useResetPassword() {
+export function usePasswordReset() {
   const isLoading = ref(false)
-  const client = useSanctumClient()
   const router = useRouter()
+  const { submitPasswordResetRequest } = usePasswordResetSubmitRequest()
 
-  async function resetPasswordRequest(data: PasswordResetDto): Promise<FormError[] | undefined> {
+  async function resetPassword(data: PasswordResetDto): Promise<FormError[] | undefined> {
     isLoading.value = true
 
     try {
-      await resetPassword(client, data)
+      await submitPasswordResetRequest(data)
       await router.push('/login?reset=1')
     } catch (error: unknown) {
       const parsed = parseApiError(error)
@@ -26,7 +27,7 @@ export function useResetPassword() {
   }
 
   return {
-    resetPassword: resetPasswordRequest,
+    resetPassword,
     isLoading,
   }
 }

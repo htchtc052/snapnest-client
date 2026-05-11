@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { useForgotPassword } from '~/composables/auth/useForgotPassword'
-import { forgotPasswordSchema, type ForgotPasswordDto } from '~/types/forgot-password.contract'
+import {
+  passwordResetRequestSchema,
+  type PasswordResetRequestDto,
+  usePasswordResetRequest,
+} from '~/features/password-reset-request'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
-const state = reactive<ForgotPasswordDto>({
+const state = reactive<PasswordResetRequestDto>({
   email: '',
 })
 
-const { sendResetLink, isLoading, statusMessage } = useForgotPassword()
-const form = ref<Form<ForgotPasswordDto>>()
+const { sendResetLink, isLoading, statusMessage } = usePasswordResetRequest()
+const form = ref<Form<PasswordResetRequestDto>>()
 
-async function onSubmit(e: FormSubmitEvent<ForgotPasswordDto>) {
+async function onSubmit(e: FormSubmitEvent<PasswordResetRequestDto>) {
   form.value?.clear()
 
   const errors = await sendResetLink(e.data)
@@ -39,7 +42,7 @@ async function onSubmit(e: FormSubmitEvent<ForgotPasswordDto>) {
 
       <UForm
         ref="form"
-        :schema="forgotPasswordSchema"
+        :schema="passwordResetRequestSchema"
         :state="state"
         class="space-y-4"
         method="post"
