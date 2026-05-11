@@ -2,12 +2,7 @@
 import { computed } from '#imports'
 import { formatDate } from '@vueuse/core'
 import { albumGet } from '~/api/public/albumGet'
-import { publicAlbumImageDetailGet } from '~/api/public/albumImageDetailGet'
-import ImagePublicCollectionGrid from '~/components/widgets/ImagePublicCollectionGrid.vue'
-import ImageViewerModal from '~/viewer_old/ImageViewerModal.vue'
-import { useImageViewerDetail } from '~/viewer_old/useImageViewerDetail'
-import { useImageViewerQuery } from '~/viewer_old/useImageViewerQuery'
-import { usePublicAlbumImages } from '~/widgets/public-album-images'
+import { PublicAlbumImagesWidget } from '~/widgets/public-album-images'
 import type { PublicAlbum } from '~/types/public-album.model'
 
 definePageMeta({
@@ -18,7 +13,6 @@ definePageMeta({
 })
 
 const route = useRoute()
-const router = useRouter()
 const token = computed(() => route.params.token as string)
 const client = useSanctumClient()
 
@@ -56,50 +50,6 @@ if (albumError.value) {
   })
 }
 
-const {
-  images,
-  isLoading,
-  hasLoadError,
-  isEmpty,
-} = usePublicAlbumImages(token.value)
-const {
-  activeViewerImageId,
-  isViewerOpen,
-  openImageViewer,
-  closeImageViewer,
-} = useImageViewerQuery()
-
-const {
-  detail: viewerDetail,
-  isLoading: isViewerLoading,
-  loadError: viewerLoadError,
-} = useImageViewerDetail({
-  imageId: activeViewerImageId,
-  fetchDetail: detailImageId => publicAlbumImageDetailGet(client, token.value, detailImageId),
-})
-const viewerPrevTo = computed(() => {
-  if (!viewerDetail.value?.prevImageId) return null
-
-  return router.resolve({
-    path: route.path,
-    query: {
-      ...route.query,
-      image: String(viewerDetail.value.prevImageId),
-    },
-  }).fullPath
-})
-const viewerNextTo = computed(() => {
-  if (!viewerDetail.value?.nextImageId) return null
-
-  return router.resolve({
-    path: route.path,
-    query: {
-      ...route.query,
-      image: String(viewerDetail.value.nextImageId),
-    },
-  }).fullPath
-})
-
 </script>
 
 <template>
@@ -135,24 +85,6 @@ const viewerNextTo = computed(() => {
       </UPageHeader>
     </div>
 
-    <USkeleton v-if="isLoading" class="h-40" />
-
-    <template v-else>
-      <UEmpty v-if="hasLoadError" description="Unable to load images" size="md" variant="naked" class="py-8" />
-
-      <UEmpty v-else-if="isEmpty" description="No images" size="md" variant="naked" class="py-8" />
-
-      <ImagePublicCollectionGrid v-else :images="images" @open="openImageViewer" />
-    </template>
-
-    <ImageViewerModal
-      :open="isViewerOpen"
-      :detail="viewerDetail"
-      :is-loading="isViewerLoading"
-      :load-error="viewerLoadError"
-      :prev-to="viewerPrevTo"
-      :next-to="viewerNextTo"
-      @close="closeImageViewer"
-    />
+    <PublicAlbumImagesWidget :token="token" />
   </div>
 </template>

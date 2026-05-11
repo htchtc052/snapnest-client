@@ -11,8 +11,8 @@ export function useAlbumCoverUpdate() {
     isLoading: isUpdatingAlbumCover,
   } = useApiOperation(updateAlbumCoverRequest)
 
-  async function setAlbumCover(album: AccountAlbum, imageId: number) {
-    const result = await executeAlbumCoverUpdate(album.id, imageId)
+  async function setAlbumCover(albumId: AccountAlbum['id'], imageId: number) {
+    const result = await executeAlbumCoverUpdate(albumId, imageId)
     if (result.status !== ApiResultStatus.Success) return
 
     toast.add({
