@@ -12,7 +12,7 @@ export function useAccountTrashImages() {
   const { getAccountTrashImages } = useAccountTrashImagesRequest()
 
   const {
-    data: accountTrashImagesPage,
+    data: accountTrashImagesResponse,
     status: accountTrashImagesStatus,
     refresh,
   } = useLazyAsyncData<AccountTrashImagesApiResponse>(
@@ -26,10 +26,10 @@ export function useAccountTrashImages() {
     },
   )
 
-  watch(accountTrashImagesPage, (page) => {
-    if (!page) return
+  watch(accountTrashImagesResponse, (response) => {
+    if (!response) return
 
-    images.value = page.images
+    images.value = response.images
   }, {
     immediate: true,
   })
