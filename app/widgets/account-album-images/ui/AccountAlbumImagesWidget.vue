@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from '#imports'
 import { formatDate, useWindowSize } from '@vueuse/core'
-import { useAlbumCoverUpdate } from '~/features/album-cover-update'
-import { useRemoveImagesFromAlbumFeature } from '~/features/remove-images-from-album'
+import { useAlbumCoverUpdate } from '~/features/album/album-cover-update'
+import { useRemoveImagesFromAlbumFeature } from '~/features/album/remove-images-from-album'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
 import { useAccountAlbumImages } from '../model/useAccountAlbumImages'

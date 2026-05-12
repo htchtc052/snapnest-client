@@ -4,7 +4,7 @@ import {
   passwordResetRequestSchema,
   type PasswordResetRequestDto,
   usePasswordResetRequest,
-} from '~/features/password-reset-request'
+} from '~/features/auth/password-reset-request'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 

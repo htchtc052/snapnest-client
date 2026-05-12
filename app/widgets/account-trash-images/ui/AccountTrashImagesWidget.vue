@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from '#imports'
 import { formatDate, useWindowSize } from '@vueuse/core'
-import { useImageTrashActions } from '~/features/image-trash-actions'
+import { useImageTrashActions } from '~/features/image/image-trash-actions'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
 import { useAccountTrashImages } from '../model/useAccountTrashImages'

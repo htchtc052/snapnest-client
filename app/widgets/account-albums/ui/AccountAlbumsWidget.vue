@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import { useAlbumInfoUpdate } from '~/features/album-info-update'
-import { useAlbumVisibilityFeature } from '~/features/album-visibility'
-import { useCreatePrivateAlbum } from '~/features/create-private-album'
-import { useDeleteAlbum } from '~/features/delete-album'
+import { useAlbumInfoUpdate } from '~/features/album/album-info-update'
+import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
+import { useCreatePrivateAlbum } from '~/features/album/create-private-album'
+import { useDeleteAlbum } from '~/features/album/delete-album'
 import type { AccountAlbum } from '~/entities/album/model'
 import { useAccountAlbums } from '../model/useAccountAlbums'
 

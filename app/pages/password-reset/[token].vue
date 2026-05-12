@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { passwordResetSchema, type PasswordResetDto, usePasswordReset } from '~/features/password-reset'
+import { passwordResetSchema, type PasswordResetDto, usePasswordReset } from '~/features/auth/password-reset'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 

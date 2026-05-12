@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { signUpSchema, type SignUpDto, useSignUp } from '~/features/sign-up'
+import { signUpSchema, type SignUpDto, useSignUp } from '~/features/auth/sign-up'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 

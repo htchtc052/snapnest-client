@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { signInSchema, type SignInDto, useSignIn } from '~/features/sign-in'
+import { signInSchema, type SignInDto, useSignIn } from '~/features/auth/sign-in'
 
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 

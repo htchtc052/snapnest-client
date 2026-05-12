@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from '#imports'
-import { useAlbumVisibilityFeature } from '~/features/album-visibility'
+import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
 import { useAccountAlbumRequest } from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
 import { AccountAlbumImagesWidget } from '~/widgets/account-album-images'

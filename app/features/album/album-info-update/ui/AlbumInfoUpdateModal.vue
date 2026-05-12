@@ -1,24 +1,26 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { reactive, ref } from 'vue'
-import { usePrivateAlbumCreateRequest } from '~/features/create-private-album/api/usePrivateAlbumCreateRequest'
+import { computed, reactive, ref } from 'vue'
+import { albumInfoSchema, type AccountAlbum, type AlbumInfoDto } from '~/entities/album/model'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
-import { albumInfoSchema, type AlbumInfoDto } from '~/entities/album/model'
-import type { AlbumCreateModalResult } from '../contract/create-private-album.contract'
+import { useAlbumInfoUpdateRequest } from '../api/useAlbumInfoUpdateRequest'
+import type { AlbumInfoUpdateModalResult } from '../contract/album-info-update.contract'
 
-const emit = defineEmits<{ (e: 'close', value: AlbumCreateModalResult): void }>()
+const props = defineProps<{ album: AccountAlbum }>()
+const emit = defineEmits<{ (e: 'close', value: AlbumInfoUpdateModalResult): void }>()
 
-const state = reactive<AlbumInfoDto>({
-  name: '',
-})
+const initial = computed<AlbumInfoDto>(() => ({
+  name: props.album.name ?? '',
+}))
 
+const state = reactive<AlbumInfoDto>({ ...initial.value })
 const form = ref<Form<AlbumInfoDto>>()
-const { createPrivateAlbumRequest } = usePrivateAlbumCreateRequest()
+const { updateAlbumInfoRequest } = useAlbumInfoUpdateRequest()
 
 const {
-  execute: createPrivateAlbum,
-  isLoading: isCreating,
-} = useApiOperation(createPrivateAlbumRequest)
+  execute: updateAlbumInfo,
+  isLoading: isUpdating,
+} = useApiOperation(updateAlbumInfoRequest)
 
 function closeModal() {
   emit('close', { action: 'cancel' })
@@ -26,8 +28,7 @@ function closeModal() {
 
 async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
   form.value?.clear()
-
-  const result = await createPrivateAlbum(e.data)
+  const result = await updateAlbumInfo(props.album.id, e.data)
 
   if (result.status === ApiResultStatus.Success) {
     emit('close', { action: 'confirm', album: result.data })
@@ -42,7 +43,7 @@ async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
 
 <template>
   <UModal :close="{ onClick: closeModal }">
-    <template #title>Create album</template>
+    <template #title>Rename album</template>
 
     <template #body>
       <UForm ref="form" :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
@@ -54,9 +55,8 @@ async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
           <UButton variant="outline" type="button" @click="closeModal">
             Cancel
           </UButton>
-
-          <UButton type="submit" :loading="isCreating">
-            Create
+          <UButton type="submit" :loading="isUpdating">
+            Save changes
           </UButton>
         </div>
       </UForm>

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, useTemplateRef } from '#imports'
 import { formatDate, useInfiniteScroll, useWindowSize } from '@vueuse/core'
-import { useImageUpdate } from '~/features/image-update'
-import { useImageTrashActions } from '~/features/image-trash-actions'
-import { useShareImagesFeature } from '~/features/share-images'
+import { useImageUpdate } from '~/features/image/image-update'
+import { useImageTrashActions } from '~/features/image/image-trash-actions'
+import { useShareImagesFeature } from '~/features/image/share-images'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
 import { useAccountImages } from '../model/useAccountImages'
