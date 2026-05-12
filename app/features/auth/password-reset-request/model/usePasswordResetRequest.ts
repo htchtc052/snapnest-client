@@ -17,11 +17,12 @@ export function usePasswordResetRequest() {
 
     const result = await sendPasswordResetEmail(data)
 
+    if (result.status === ApiResultStatus.Success) {
+      statusMessage.value = result.data.status
+      return
+    }
+
     if (result.status === ApiResultStatus.Validation) return result.errors
-
-    if (result.status !== ApiResultStatus.Success) return
-
-    statusMessage.value = result.data.status
   }
 
   return {

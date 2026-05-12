@@ -16,13 +16,13 @@ export function useSignUp() {
   async function signUp(data: SignUpDto): Promise<FormError[] | undefined> {
     const result = await executeSignUp(data)
 
-    if (result.status !== ApiResultStatus.Success) {
-      if (result.status === ApiResultStatus.Validation) return result.errors
+    if (result.status === ApiResultStatus.Success) {
+      await refreshIdentity()
+      await router.push(config.redirect.onLogin as string)
       return
     }
 
-    await refreshIdentity()
-    await router.push(config.redirect.onLogin as string)
+    if (result.status === ApiResultStatus.Validation) return result.errors
   }
 
   return {
