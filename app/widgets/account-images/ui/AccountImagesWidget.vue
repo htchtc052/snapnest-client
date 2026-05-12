@@ -1,20 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, useTemplateRef } from '#imports'
 import { formatDate, useInfiniteScroll, useWindowSize } from '@vueuse/core'
-import { accountImageDetailGet } from '~/api/account/imageDetailGet'
 import { useImageUpdate } from '~/features/image-update'
 import { useImageTrashActions } from '~/features/image-trash-actions'
 import { useShareImagesFeature } from '~/features/share-images'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
-import ImageViewerModal from '~/viewer_old/ImageViewerModal.vue'
-import { useImageViewerDetail } from '~/viewer_old/useImageViewerDetail'
-import { useImageViewerQuery } from '~/viewer_old/useImageViewerQuery'
 import { useAccountImages } from '../model/useAccountImages'
-
-const route = useRoute()
-const router = useRouter()
-const client = useSanctumClient()
 
 const {
   images,
@@ -35,46 +27,6 @@ const {
 } = useSelection()
 
 const isSelectionMode = computed(() => selectedIds.value.length > 0)
-
-const {
-  activeViewerImageId,
-  isViewerOpen,
-  openImageViewer,
-  closeImageViewer,
-} = useImageViewerQuery()
-
-const {
-  detail: viewerDetail,
-  isLoading: isViewerLoading,
-  loadError: viewerLoadError,
-} = useImageViewerDetail({
-  imageId: activeViewerImageId,
-  fetchDetail: detailImageId => accountImageDetailGet(client, detailImageId),
-})
-
-const viewerPrevTo = computed(() => {
-  if (!viewerDetail.value?.prevImageId) return null
-
-  return router.resolve({
-    path: route.path,
-    query: {
-      ...route.query,
-      image: String(viewerDetail.value.prevImageId),
-    },
-  }).fullPath
-})
-
-const viewerNextTo = computed(() => {
-  if (!viewerDetail.value?.nextImageId) return null
-
-  return router.resolve({
-    path: route.path,
-    query: {
-      ...route.query,
-      image: String(viewerDetail.value.nextImageId),
-    },
-  }).fullPath
-})
 
 const { updateImage } = useImageUpdate()
 const { shareImages, isSharing } = useShareImagesFeature()
@@ -126,12 +78,9 @@ onBeforeUnmount(() => {
 })
 
 function handleCardClick(imageId: number) {
-  if (isSelectionMode.value) {
-    toggleSelection(imageId)
-    return
-  }
+  if (!isSelectionMode.value) return
 
-  openImageViewer(imageId)
+  toggleSelection(imageId)
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -212,7 +161,7 @@ function handleSelectionAction(actionKey: string) {
                 <button
                   type="button"
                   class="block w-full text-left"
-                  :aria-label="isSelectionMode ? `Select ${image.name}` : `Open ${image.name}`"
+                  :aria-label="`Select ${image.name}`"
                   @click="handleCardClick(image.id)"
                 >
                   <img :src="image.previewUrl" :alt="image.name" class="aspect-square w-full object-cover">
@@ -241,14 +190,5 @@ function handleSelectionAction(actionKey: string) {
       </div>
     </template>
 
-    <ImageViewerModal
-      :open="isViewerOpen"
-      :detail="viewerDetail"
-      :is-loading="isViewerLoading"
-      :load-error="viewerLoadError"
-      :prev-to="viewerPrevTo"
-      :next-to="viewerNextTo"
-      @close="closeImageViewer"
-    />
   </div>
 </template>

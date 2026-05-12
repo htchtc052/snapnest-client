@@ -1,23 +1,15 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from '#imports'
 import { formatDate, useWindowSize } from '@vueuse/core'
-import { accountAlbumImageDetailGet } from '~/api/account/albumImageDetailGet'
 import { useAlbumCoverUpdate } from '~/features/album-cover-update'
 import { useRemoveImagesFromAlbumFeature } from '~/features/remove-images-from-album'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
-import ImageViewerModal from '~/viewer_old/ImageViewerModal.vue'
-import { useImageViewerDetail } from '~/viewer_old/useImageViewerDetail'
-import { useImageViewerQuery } from '~/viewer_old/useImageViewerQuery'
 import { useAccountAlbumImages } from '../model/useAccountAlbumImages'
 
 const props = defineProps<{
   albumId: number
 }>()
-
-const route = useRoute()
-const router = useRouter()
-const client = useSanctumClient()
 
 const {
   images,
@@ -56,46 +48,6 @@ const selectionActions = computed<SelectionAction[]>(() => [
   },
 ])
 
-const {
-  activeViewerImageId,
-  isViewerOpen,
-  openImageViewer,
-  closeImageViewer,
-} = useImageViewerQuery()
-
-const {
-  detail: viewerDetail,
-  isLoading: isViewerLoading,
-  loadError: viewerLoadError,
-} = useImageViewerDetail({
-  imageId: activeViewerImageId,
-  fetchDetail: imageId => accountAlbumImageDetailGet(client, props.albumId, imageId),
-})
-
-const viewerPrevTo = computed(() => {
-  if (!viewerDetail.value?.prevImageId) return null
-
-  return router.resolve({
-    path: route.path,
-    query: {
-      ...route.query,
-      image: String(viewerDetail.value.prevImageId),
-    },
-  }).fullPath
-})
-
-const viewerNextTo = computed(() => {
-  if (!viewerDetail.value?.nextImageId) return null
-
-  return router.resolve({
-    path: route.path,
-    query: {
-      ...route.query,
-      image: String(viewerDetail.value.nextImageId),
-    },
-  }).fullPath
-})
-
 const { width } = useWindowSize()
 const lanes = computed(() => {
   return width.value < 640 ? 3 : 4
@@ -110,12 +62,9 @@ onBeforeUnmount(() => {
 })
 
 function handleCardClick(imageId: number) {
-  if (isSelectionMode.value) {
-    toggleSelection(imageId)
-    return
-  }
+  if (!isSelectionMode.value) return
 
-  openImageViewer(imageId)
+  toggleSelection(imageId)
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -182,7 +131,7 @@ function handleSelectionAction(actionKey: string) {
                 <button
                   type="button"
                   class="block w-full text-left"
-                  :aria-label="isSelectionMode ? `Select ${image.name}` : `Open ${image.name}`"
+                  :aria-label="`Select ${image.name}`"
                   @click="handleCardClick(image.id)"
                 >
                   <img :src="image.previewUrl" :alt="image.name" class="aspect-square w-full object-cover">
@@ -211,14 +160,5 @@ function handleSelectionAction(actionKey: string) {
       </div>
     </template>
 
-    <ImageViewerModal
-      :open="isViewerOpen"
-      :detail="viewerDetail"
-      :is-loading="isViewerLoading"
-      :load-error="viewerLoadError"
-      :prev-to="viewerPrevTo"
-      :next-to="viewerNextTo"
-      @close="closeImageViewer"
-    />
   </div>
 </template>

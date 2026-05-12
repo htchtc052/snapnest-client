@@ -1,19 +1,11 @@
 <script setup lang="ts">
 import { computed } from '#imports'
 import { formatDate, useWindowSize } from '@vueuse/core'
-import { publicAlbumImageDetailGet } from '~/api/public/albumImageDetailGet'
-import ImageViewerModal from '~/viewer_old/ImageViewerModal.vue'
-import { useImageViewerDetail } from '~/viewer_old/useImageViewerDetail'
-import { useImageViewerQuery } from '~/viewer_old/useImageViewerQuery'
 import { usePublicAlbumImages } from '../model/usePublicAlbumImages'
 
 const props = defineProps<{
   token: string
 }>()
-
-const route = useRoute()
-const router = useRouter()
-const client = useSanctumClient()
 
 const {
   images,
@@ -21,46 +13,6 @@ const {
   hasLoadError,
   isEmpty,
 } = usePublicAlbumImages(props.token)
-
-const {
-  activeViewerImageId,
-  isViewerOpen,
-  openImageViewer,
-  closeImageViewer,
-} = useImageViewerQuery()
-
-const {
-  detail: viewerDetail,
-  isLoading: isViewerLoading,
-  loadError: viewerLoadError,
-} = useImageViewerDetail({
-  imageId: activeViewerImageId,
-  fetchDetail: imageId => publicAlbumImageDetailGet(client, props.token, imageId),
-})
-
-const viewerPrevTo = computed(() => {
-  if (!viewerDetail.value?.prevImageId) return null
-
-  return router.resolve({
-    path: route.path,
-    query: {
-      ...route.query,
-      image: String(viewerDetail.value.prevImageId),
-    },
-  }).fullPath
-})
-
-const viewerNextTo = computed(() => {
-  if (!viewerDetail.value?.nextImageId) return null
-
-  return router.resolve({
-    path: route.path,
-    query: {
-      ...route.query,
-      image: String(viewerDetail.value.nextImageId),
-    },
-  }).fullPath
-})
 
 const { width } = useWindowSize()
 const lanes = computed(() => {
@@ -86,14 +38,9 @@ const lanes = computed(() => {
         >
           <UPageCard variant="naked" class="overflow-hidden rounded-lg p-0">
             <div class="flex flex-col">
-              <button
-                type="button"
-                class="block w-full text-left"
-                :aria-label="`Open ${image.name}`"
-                @click="openImageViewer(image.id)"
-              >
+              <div class="block w-full text-left">
                 <img :src="image.previewUrl" :alt="image.name" class="aspect-square w-full object-cover">
-              </button>
+              </div>
 
               <div class="bg-default p-2">
                 <p class="truncate text-sm font-medium text-highlighted">
@@ -109,14 +56,5 @@ const lanes = computed(() => {
       </div>
     </template>
 
-    <ImageViewerModal
-      :open="isViewerOpen"
-      :detail="viewerDetail"
-      :is-loading="isViewerLoading"
-      :load-error="viewerLoadError"
-      :prev-to="viewerPrevTo"
-      :next-to="viewerNextTo"
-      @close="closeImageViewer"
-    />
   </div>
 </template>
