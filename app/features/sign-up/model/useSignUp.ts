@@ -1,32 +1,27 @@
 import type { FormError } from '#ui/types'
-import { ref } from '#imports'
-import { parseApiError } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { SignUpDto } from '../contract/sign-up.contract'
 import { useSignUpRequest } from '../api/useSignUpRequest'
 
 export function useSignUp() {
-  const isLoading = ref(false)
   const { refreshIdentity } = useSanctumAuth()
   const config = useSanctumConfig()
   const router = useRouter()
   const { signUpRequest } = useSignUpRequest()
+  const {
+    execute: executeSignUp,
+    isLoading,
+  } = useApiOperation(signUpRequest)
 
   async function signUp(data: SignUpDto): Promise<FormError[] | undefined> {
-    isLoading.value = true
+    const result = await executeSignUp(data)
 
-    try {
-      await signUpRequest(data)
-      await refreshIdentity()
-      await router.push(config.redirect.onLogin || '/account/images')
-    } catch (error: unknown) {
-      const parsed = parseApiError(error)
+    if (result.status === ApiResultStatus.Validation) return result.errors
 
-      if (parsed.isValidationError) return parsed.validationErrors
+    if (result.status !== ApiResultStatus.Success) return
 
-      console.error('[Auth] Failed to sign up', error)
-    } finally {
-      isLoading.value = false
-    }
+    await refreshIdentity()
+    await router.push(config.redirect.onLogin || '/account/images')
   }
 
   return {

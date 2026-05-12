@@ -1,26 +1,18 @@
 import type { FormError } from '#ui/types'
-import { ref } from '#imports'
-import { parseApiError } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { SignInDto } from '../contract/sign-in.contract'
 
 export function useSignIn() {
-  const isLoading = ref(false)
   const { login } = useSanctumAuth()
+  const {
+    execute: executeSignIn,
+    isLoading,
+  } = useApiOperation(login)
 
   async function signIn(data: SignInDto): Promise<FormError[] | undefined> {
-    isLoading.value = true
+    const result = await executeSignIn(data)
 
-    try {
-      await login(data)
-    } catch (error: unknown) {
-      const parsed = parseApiError(error)
-
-      if (parsed.isValidationError) return parsed.validationErrors
-
-      console.error('[Auth] Failed to sign in', error)
-    } finally {
-      isLoading.value = false
-    }
+    if (result.status === ApiResultStatus.Validation) return result.errors
   }
 
   return {

@@ -1,31 +1,27 @@
 import type { FormError } from '#ui/types'
 import { ref } from '#imports'
-import { parseApiError } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { usePasswordResetEmailRequest } from '../api/usePasswordResetEmailRequest'
 import type { PasswordResetRequestDto } from '../contract/password-reset-request.contract'
 
 export function usePasswordResetRequest() {
-  const isLoading = ref(false)
   const statusMessage = ref<string | null>(null)
   const { sendPasswordResetEmailRequest } = usePasswordResetEmailRequest()
+  const {
+    execute: sendPasswordResetEmail,
+    isLoading,
+  } = useApiOperation(sendPasswordResetEmailRequest)
 
   async function sendResetLink(data: PasswordResetRequestDto): Promise<FormError[] | undefined> {
-    isLoading.value = true
     statusMessage.value = null
 
-    try {
-      const response = await sendPasswordResetEmailRequest(data)
+    const result = await sendPasswordResetEmail(data)
 
-      statusMessage.value = response.status
-    } catch (error: unknown) {
-      const parsed = parseApiError(error)
+    if (result.status === ApiResultStatus.Validation) return result.errors
 
-      if (parsed.isValidationError) return parsed.validationErrors
+    if (result.status !== ApiResultStatus.Success) return
 
-      console.error('[Auth] Failed to send password reset link', error)
-    } finally {
-      isLoading.value = false
-    }
+    statusMessage.value = result.data.status
   }
 
   return {

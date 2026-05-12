@@ -1,29 +1,24 @@
 import type { FormError } from '#ui/types'
-import { ref } from '#imports'
-import { parseApiError } from '~/shared/api'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { usePasswordResetSubmitRequest } from '../api/usePasswordResetSubmitRequest'
 import type { PasswordResetDto } from '../contract/password-reset.contract'
 
 export function usePasswordReset() {
-  const isLoading = ref(false)
   const router = useRouter()
   const { submitPasswordResetRequest } = usePasswordResetSubmitRequest()
+  const {
+    execute: submitPasswordReset,
+    isLoading,
+  } = useApiOperation(submitPasswordResetRequest)
 
   async function resetPassword(data: PasswordResetDto): Promise<FormError[] | undefined> {
-    isLoading.value = true
+    const result = await submitPasswordReset(data)
 
-    try {
-      await submitPasswordResetRequest(data)
-      await router.push('/login?reset=1')
-    } catch (error: unknown) {
-      const parsed = parseApiError(error)
+    if (result.status === ApiResultStatus.Validation) return result.errors
 
-      if (parsed.isValidationError) return parsed.validationErrors
+    if (result.status !== ApiResultStatus.Success) return
 
-      console.error('[Auth] Failed to reset password', error)
-    } finally {
-      isLoading.value = false
-    }
+    await router.push('/login?reset=1')
   }
 
   return {
