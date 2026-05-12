@@ -1,6 +1,6 @@
-import type { SanctumClient } from '~/http/sanctum/sanctum-client.type'
+import type { ApiClient } from '~/shared/api'
 import type { Image } from '~/types/image.model'
 
-export function imageStatusGet(client: SanctumClient, id: Image['id']): Promise<Image> {
+export function imageStatusGet(client: ApiClient, id: Image['id']): Promise<Image> {
   return client<Image>(`/api/account/images/${id}/status`)
 }

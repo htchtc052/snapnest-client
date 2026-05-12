@@ -1,7 +1,7 @@
-import type { SanctumClient } from '~/http/sanctum/sanctum-client.type'
+import type { ApiClient } from '~/shared/api'
 import type { Image } from '~/types/image.model'
 
-export function imagesUpload(client: SanctumClient, file: File): Promise<Image> {
+export function imagesUpload(client: ApiClient, file: File): Promise<Image> {
   const data = new FormData()
   data.append('image', file)
 

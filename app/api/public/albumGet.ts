@@ -1,8 +1,8 @@
-import type { SanctumClient } from '~/http/sanctum/sanctum-client.type'
+import type { ApiClient } from '~/shared/api'
 import type { PublicAlbum } from '~/types/public-album.model'
 
 export function albumGet(
-  client: SanctumClient,
+  client: ApiClient,
   token: string,
 ): Promise<PublicAlbum> {
   return client<PublicAlbum>(`/api/albums/${token}`)

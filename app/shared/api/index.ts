@@ -1,4 +1,8 @@
 export {
+  type ApiClient,
+} from './client/apiClient'
+
+export {
   useApiOperation,
   type ApiOperationResponse,
 } from './operation/useApiOperation'
