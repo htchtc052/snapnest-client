@@ -3,7 +3,7 @@ import { computed } from '#imports'
 import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
 import { useAccountAlbumRequest } from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
-import { AccountAlbumImagesWidget } from '~/widgets/account-album-images'
+import { AccountAlbumImagesWidget } from '~/widgets/images/account-album-images'
 import type { AccountAlbum } from '~/entities/album/model'
 import type { AlbumView } from '~/types/album-view.model'
 
