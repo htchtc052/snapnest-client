@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AccountTrashImagesWidget } from '~/widgets/images/account-trash-images'
+import { AccountTrashImagesWidget } from '~/widgets/image-lists/account-trash-images'
 
 definePageMeta({
   layout: 'media',

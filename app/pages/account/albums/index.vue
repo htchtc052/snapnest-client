@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AccountAlbumsWidget } from '~/widgets/account-albums'
+import { AccountAlbumsWidget } from '~/widgets/album-lists/account-albums'
 
 definePageMeta({
   layout: 'media',

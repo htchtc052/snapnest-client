@@ -3,7 +3,7 @@ import { computed } from '#imports'
 import { formatDate } from '@vueuse/core'
 import { usePublicAlbumRequest } from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
-import { PublicAlbumImagesWidget } from '~/widgets/images/public-album-images'
+import { PublicAlbumImagesWidget } from '~/widgets/image-lists/public-album-images'
 import type { PublicAlbum } from '~/types/public-album.model'
 
 definePageMeta({
