@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from '#imports'
 import { formatDate } from '@vueuse/core'
-import { albumGet } from '~/api/public/albumGet'
+import { usePublicAlbumRequest } from '~/entities/album'
+import { ApiHttpStatus } from '~/shared/api'
 import { PublicAlbumImagesWidget } from '~/widgets/public-album-images'
 import type { PublicAlbum } from '~/types/public-album.model'
 
@@ -14,28 +15,27 @@ definePageMeta({
 
 const route = useRoute()
 const token = computed(() => route.params.token as string)
-const client = useSanctumClient()
-
+const { getPublicAlbum } = usePublicAlbumRequest()
 
 const { data: album, error: albumError } = await useAsyncData<PublicAlbum>(
   `public-album:${token.value}`,
-  () => albumGet(client, token.value),
+  () => getPublicAlbum(token.value),
 )
 
 if (albumError.value) {
-  const statusCode = albumError.value.statusCode
+  const statusCode = albumError.value.statusCode || albumError.value.status
 
-  if (statusCode === 404) {
+  if (statusCode === ApiHttpStatus.NotFound) {
     throw createError({
-      statusCode: 404,
+      statusCode: ApiHttpStatus.NotFound,
       statusMessage: 'Album not found',
       fatal: true,
     })
   }
 
-  if (statusCode === 403) {
+  if (statusCode === ApiHttpStatus.Forbidden) {
     throw createError({
-      statusCode: 403,
+      statusCode: ApiHttpStatus.Forbidden,
       statusMessage: 'Access denied',
       fatal: true,
     })
@@ -44,7 +44,7 @@ if (albumError.value) {
   console.error('Public album load error', albumError.value)
 
   throw createError({
-    statusCode: 500,
+    statusCode: ApiHttpStatus.InternalServerError,
     statusMessage: 'Album load failed',
     fatal: true,
   })
