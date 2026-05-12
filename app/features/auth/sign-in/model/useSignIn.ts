@@ -12,6 +12,8 @@ export function useSignIn() {
   async function signIn(data: SignInDto): Promise<FormError[] | undefined> {
     const result = await executeSignIn(data)
 
+    if (result.status === ApiResultStatus.Success) return
+
     if (result.status === ApiResultStatus.Validation) return result.errors
   }
 

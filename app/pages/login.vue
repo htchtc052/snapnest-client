@@ -5,10 +5,30 @@ import { signInSchema, type SignInDto, useSignIn } from '~/features/auth/sign-in
 definePageMeta({ layout: 'guest', sanctum: { guestOnly: true } })
 
 const route = useRoute()
+const router = useRouter()
+const toast = useToast()
 const state = reactive<SignInDto>({ email: '', password: '' })
 
 const { signIn, isLoading } = useSignIn()
 const form = ref<Form<SignInDto>>()
+
+onMounted(() => {
+  if (route.query.reset !== '1') return
+
+  toast.add({
+    title: 'Password updated',
+    description: 'Sign in with your new password.',
+    color: 'success',
+  })
+
+  const query = { ...route.query }
+  delete query.reset
+
+  void router.replace({
+    path: route.path,
+    query,
+  })
+})
 
 async function onSubmit(e: FormSubmitEvent<SignInDto>) {
   form.value?.clear()
@@ -36,14 +56,6 @@ async function onSubmit(e: FormSubmitEvent<SignInDto>) {
       novalidate
       @submit="onSubmit"
     >
-      <UAlert
-        v-if="route.query.reset === '1'"
-        color="success"
-        variant="soft"
-        title="Password updated"
-        description="Sign in with your new password."
-      />
-
       <UFormField name="email" label="Email" type="email">
         <UInput
           v-model="state.email"
