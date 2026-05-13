@@ -1,4 +1,4 @@
-export type Image = {
+export type LegacyUploadImage = {
   id: number
   previewUrl?: string
   largeUrl?: string

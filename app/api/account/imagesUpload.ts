@@ -1,11 +1,11 @@
 import type { ApiClient } from '~/shared/api'
-import type { Image } from '~/entities/image'
+import type { LegacyUploadImage } from '~/types/legacy-upload-image.model'
 
-export function imagesUpload(client: ApiClient, file: File): Promise<Image> {
+export function imagesUpload(client: ApiClient, file: File): Promise<LegacyUploadImage> {
   const data = new FormData()
   data.append('image', file)
 
-  return client<Image>('/api/account/images', {
+  return client<LegacyUploadImage>('/api/account/images', {
     method: 'POST',
     body: data,
   })

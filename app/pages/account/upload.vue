@@ -6,7 +6,7 @@ import { imagesUpload } from '~/api/account/imagesUpload'
 
 import { UPLOAD_STATUS, UPLOAD_STATUS_COLORS, UPLOAD_STATUS_LABELS } from '~/types/upload-status'
 import { formatBytes } from '~/utils/format-bytes'
-import type { Image } from '~/entities/image'
+import type { LegacyUploadImage } from '~/types/legacy-upload-image.model'
 import type { UploadStatus } from '~/types/upload-status'
 import type { User } from '~/types/user.model'
 
@@ -16,7 +16,7 @@ definePageMeta({
 
 type UploadItem = {
   file: File
-  image: Image | null
+  image: LegacyUploadImage | null
   status: UploadStatus
 }
 
@@ -226,7 +226,7 @@ function itemKey(item: UploadItem, index: number): string {
   return `file-${item.file.name}-${item.file.size}-${item.file.lastModified}-${index}`
 }
 
-function hasServerPreview(item: UploadItem): item is UploadItem & { image: Image } {
+function hasServerPreview(item: UploadItem): item is UploadItem & { image: LegacyUploadImage } {
   return item.image !== null && item.status === UPLOAD_STATUS.completed && typeof item.image.previewUrl === 'string'
 }
 

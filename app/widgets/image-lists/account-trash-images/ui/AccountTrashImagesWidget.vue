@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from '#imports'
 import { useWindowSize } from '@vueuse/core'
-import { ImageCard } from '~/entities/image'
+import { ImageCard, mapImageToImageCard } from '~/entities/image'
 import { useImageTrashActions } from '~/features/image/image-trash-actions'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
@@ -124,7 +124,7 @@ function handleSelectionAction(actionKey: string) {
           class="min-h-0 flex-1"
         >
           <div class="relative">
-            <ImageCard :image="image" />
+            <ImageCard v-bind="mapImageToImageCard(image)" />
 
             <button
               type="button"

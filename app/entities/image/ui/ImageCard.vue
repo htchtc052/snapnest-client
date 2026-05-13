@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import { computed } from '#imports'
-import { mapImageToView, type Image } from '../model'
+import type { ImageCardData } from './imageCardData'
 
-const props = defineProps<{
-  image: Image
-}>()
-
-const imageView = computed(() => mapImageToView(props.image))
+defineProps<ImageCardData>()
 </script>
 
 <template>
@@ -14,22 +9,22 @@ const imageView = computed(() => mapImageToView(props.image))
     <div class="flex flex-col">
       <div class="block w-full text-left">
         <img
-          v-if="imageView.previewUrl"
-          :src="imageView.previewUrl"
-          :alt="imageView.previewAlt"
+          v-if="previewUrl"
+          :src="previewUrl"
+          :alt="previewAlt"
           class="aspect-square w-full object-cover"
         >
         <div v-else class="flex aspect-square w-full items-center justify-center bg-muted px-3 text-center text-xs text-muted">
-          {{ imageView.previewPlaceholder }}
+          {{ previewPlaceholder }}
         </div>
       </div>
 
       <div class="bg-default p-2">
         <p class="truncate text-sm font-medium text-highlighted">
-          {{ imageView.name }}
+          {{ name }}
         </p>
         <p class="text-xs text-muted">
-          {{ imageView.capturedDateLabel }}
+          {{ capturedDateLabel }}
         </p>
       </div>
     </div>

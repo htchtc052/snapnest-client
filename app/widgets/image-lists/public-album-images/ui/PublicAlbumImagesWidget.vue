@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from '#imports'
 import { useWindowSize } from '@vueuse/core'
-import { ImageCard } from '~/entities/image'
+import { ImageCard, mapImageToImageCard } from '~/entities/image'
 import { usePublicAlbumImages } from '../model/usePublicAlbumImages'
 
 const props = defineProps<{
@@ -37,7 +37,7 @@ const lanes = computed(() => {
           :virtualize="{ estimateSize: 240, gap: 12, lanes }"
           class="min-h-0 flex-1"
         >
-          <ImageCard :image="image" />
+          <ImageCard v-bind="mapImageToImageCard(image)" />
         </UScrollArea>
       </div>
     </template>
