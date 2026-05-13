@@ -6,7 +6,7 @@ import { imagesUpload } from '~/api/account/imagesUpload'
 
 import { UPLOAD_STATUS, UPLOAD_STATUS_COLORS, UPLOAD_STATUS_LABELS } from '~/types/upload-status'
 import { formatBytes } from '~/utils/format-bytes'
-import type { Image } from '~/types/image.model'
+import type { Image } from '~/entities/image'
 import type { UploadStatus } from '~/types/upload-status'
 import type { User } from '~/types/user.model'
 

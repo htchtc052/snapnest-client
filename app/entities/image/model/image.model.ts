@@ -1,10 +1,12 @@
+export type ImageDerivativesStatus = 'pending' | 'ready' | 'failed'
+
 export type Image = {
   id: number
   previewUrl?: string
   largeUrl?: string
   name: string
   originalName?: string | null
-  derivativesStatus?: 'pending' | 'ready' | 'failed' | null
+  derivativesStatus?: ImageDerivativesStatus | null
   downloadUrl?: string | null
   size: number
   width: number | null

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from '#imports'
-import { formatDate, useWindowSize } from '@vueuse/core'
+import { useWindowSize } from '@vueuse/core'
+import { ImageCard } from '~/entities/image'
 import { usePublicAlbumImages } from '../model/usePublicAlbumImages'
 
 const props = defineProps<{
@@ -36,22 +37,7 @@ const lanes = computed(() => {
           :virtualize="{ estimateSize: 240, gap: 12, lanes }"
           class="min-h-0 flex-1"
         >
-          <UPageCard variant="naked" class="overflow-hidden rounded-lg p-0">
-            <div class="flex flex-col">
-              <div class="block w-full text-left">
-                <img :src="image.previewUrl" :alt="image.name" class="aspect-square w-full object-cover">
-              </div>
-
-              <div class="bg-default p-2">
-                <p class="truncate text-sm font-medium text-highlighted">
-                  {{ image.name }}
-                </p>
-                <p class="text-xs text-muted">
-                  {{ formatDate(new Date(image.capturedAt), 'YYYY.MM.DD') }}
-                </p>
-              </div>
-            </div>
-          </UPageCard>
+          <ImageCard :image="image" />
         </UScrollArea>
       </div>
     </template>

@@ -1,6 +1,6 @@
 import { computed, useLazyAsyncData } from '#imports'
 import { useApiQuery } from '~/shared/api'
-import type { Image } from '~/types/image.model'
+import type { Image } from '~/entities/image'
 import {
   useAccountImagesRequest,
   type AccountImagesApiResponse,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from '#imports'
-import { formatDate, useWindowSize } from '@vueuse/core'
+import { useWindowSize } from '@vueuse/core'
+import { ImageCard } from '~/entities/image'
 import { useImageTrashActions } from '~/features/image/image-trash-actions'
 import { useSelection, type SelectionAction } from '~/shared/selection'
 import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
@@ -122,38 +123,25 @@ function handleSelectionAction(actionKey: string) {
           :virtualize="{ estimateSize: 240, gap: 12, lanes }"
           class="min-h-0 flex-1"
         >
-          <UPageCard variant="naked" class="overflow-hidden rounded-lg p-0">
-            <div class="flex flex-col">
-              <div class="relative">
-                <button
-                  type="button"
-                  class="block w-full text-left"
-                  :disabled="!isSelectionMode"
-                  :aria-label="isSelectionMode ? `Select ${image.name}` : image.name"
-                  @click="handleCardClick(image.id)"
-                >
-                  <img :src="image.previewUrl" :alt="image.name" class="aspect-square w-full object-cover">
-                </button>
+          <div class="relative">
+            <ImageCard :image="image" />
 
-                <UCheckbox
-                  :model-value="selectedIds.includes(image.id)"
-                  color="primary"
-                  class="absolute top-2 left-2 z-10"
-                  @click.stop
-                  @update:model-value="toggleSelection(image.id)"
-                />
-              </div>
+            <button
+              type="button"
+              class="absolute inset-0 z-0 block w-full rounded-lg text-left disabled:cursor-default"
+              :disabled="!isSelectionMode"
+              :aria-label="isSelectionMode ? `Select ${image.name}` : image.name"
+              @click="handleCardClick(image.id)"
+            />
 
-              <div class="bg-default p-2">
-                <p class="truncate text-sm font-medium text-highlighted">
-                  {{ image.name }}
-                </p>
-                <p class="text-xs text-muted">
-                  {{ formatDate(new Date(image.capturedAt), 'YYYY.MM.DD') }}
-                </p>
-              </div>
-            </div>
-          </UPageCard>
+            <UCheckbox
+              :model-value="selectedIds.includes(image.id)"
+              color="primary"
+              class="absolute top-2 left-2 z-10"
+              @click.stop
+              @update:model-value="toggleSelection(image.id)"
+            />
+          </div>
         </UScrollArea>
       </div>
     </template>

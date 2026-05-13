@@ -2,7 +2,7 @@
 import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
-import type { Image } from '~/types/image.model'
+import type { Image } from '~/entities/image'
 import { useImageUpdateRequest } from '../api/useImageUpdateRequest'
 import {
   imageUpdateSchema,

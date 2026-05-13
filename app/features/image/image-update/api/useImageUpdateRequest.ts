@@ -1,4 +1,4 @@
-import type { Image } from '~/types/image.model'
+import type { Image } from '~/entities/image'
 import type { ImageUpdateDto } from '../contract/image-update.contract'
 
 export function useImageUpdateRequest() {

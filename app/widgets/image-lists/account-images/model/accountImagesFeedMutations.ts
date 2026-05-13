@@ -1,4 +1,4 @@
-import type { Image } from '~/types/image.model'
+import type { Image } from '~/entities/image'
 import type { AccountImagesApiResponse } from '../api/useAccountImagesRequest'
 
 export function appendImages(feed: AccountImagesApiResponse, images: Image[]) {

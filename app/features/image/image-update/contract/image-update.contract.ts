@@ -1,6 +1,6 @@
 import type { Asserts } from 'yup'
 import * as yup from 'yup'
-import type { Image } from '~/types/image.model'
+import type { Image } from '~/entities/image'
 
 export const imageUpdateSchema = yup.object({
   name: yup.string().required('Image name is required'),

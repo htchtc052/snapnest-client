@@ -1,5 +1,5 @@
 import type { ApiClient } from '~/shared/api'
-import type { Image } from '~/types/image.model'
+import type { Image } from '~/entities/image'
 
 export function imagesUpload(client: ApiClient, file: File): Promise<Image> {
   const data = new FormData()
