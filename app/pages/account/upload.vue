@@ -141,14 +141,14 @@ async function processNext() {
 }
 
 function syncUploadStatus(item: UploadItem) {
-  const derivativesStatus = item.image?.derivativesStatus
+  const derivativeGenerationStatus = item.image?.derivativeGenerationStatus
 
-  if (derivativesStatus === 'ready') {
+  if (derivativeGenerationStatus === 'completed') {
     item.status = UPLOAD_STATUS.completed
     return
   }
 
-  if (derivativesStatus === 'failed') {
+  if (derivativeGenerationStatus === 'failed') {
     item.status = UPLOAD_STATUS.failed
     return
   }

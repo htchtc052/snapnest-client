@@ -4,7 +4,7 @@ export type LegacyUploadImage = {
   largeUrl?: string
   name: string
   originalName?: string | null
-  derivativesStatus?: 'pending' | 'ready' | 'failed' | null
+  derivativeGenerationStatus?: 'pending' | 'completed' | 'failed' | null
   downloadUrl?: string | null
   size: number
   width: number | null
