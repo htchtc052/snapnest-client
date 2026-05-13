@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, useTemplateRef } from '#imports'
 import { useInfiniteScroll, useWindowSize } from '@vueuse/core'
-import { ImageCard, mapImageToImageCard } from '~/entities/image'
+import { ImageCard } from '~/entities/image'
 import { useImageUpdate } from '~/features/image/image-update'
 import { useImageTrashActions } from '~/features/image/image-trash-actions'
 import { useShareImagesFeature } from '~/features/image/share-images'
@@ -157,7 +157,7 @@ function handleSelectionAction(actionKey: string) {
           class="min-h-0 flex-1"
         >
           <div class="relative">
-            <ImageCard v-bind="mapImageToImageCard(image)" />
+            <ImageCard :image="image" />
 
             <button
               type="button"

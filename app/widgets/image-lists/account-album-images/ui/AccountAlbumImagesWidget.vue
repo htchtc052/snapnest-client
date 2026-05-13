@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from '#imports'
 import { useWindowSize } from '@vueuse/core'
-import { ImageCard, mapImageToImageCard } from '~/entities/image'
+import { ImageCard } from '~/entities/image'
 import { useAlbumCoverUpdate } from '~/features/album/album-cover-update'
 import { useRemoveImagesFromAlbumFeature } from '~/features/album/remove-images-from-album'
 import { useSelection, type SelectionAction } from '~/shared/selection'
@@ -127,7 +127,7 @@ function handleSelectionAction(actionKey: string) {
           class="min-h-0 flex-1"
         >
           <div class="relative">
-            <ImageCard v-bind="mapImageToImageCard(image)" />
+            <ImageCard :image="image" />
 
             <button
               type="button"

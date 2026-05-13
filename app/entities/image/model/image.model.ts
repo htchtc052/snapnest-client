@@ -1,10 +1,10 @@
 export type Image = {
   id: number
-  previewUrl?: string
-  largeUrl?: string
+  previewUrl: string | null
+  largeUrl: string | null
   name: string
-  originalName?: string | null
-  downloadUrl?: string | null
+  originalName: string | null
+  downloadUrl: string | null
   size: number
   width: number | null
   height: number | null
