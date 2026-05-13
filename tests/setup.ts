@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { vi } from 'vitest'
 
 export const refreshIdentityMock = vi.fn(async () => {})
-export const sanctumUserMock = ref<any>(null)
+export const sanctumUserMock = ref<unknown | null>(null)
 export const sanctumIsAuthenticatedMock = ref(false)
 
 mockNuxtImport('useSanctumClient', () => () => vi.fn())

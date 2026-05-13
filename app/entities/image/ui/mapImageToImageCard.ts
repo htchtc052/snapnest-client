@@ -5,25 +5,9 @@ import { formatImageCapturedDate } from './formatImageCapturedDate'
 export function mapImageToImageCard(image: Image): ImageCardData {
   return {
     name: image.name,
-    previewUrl: getImagePreviewUrl(image),
+    previewUrl: image.previewUrl ?? null,
     previewAlt: image.name,
-    previewPlaceholder: getImagePreviewPlaceholder(image),
+    previewPlaceholder: 'No preview',
     capturedDateLabel: formatImageCapturedDate(image.capturedAt),
   }
-}
-
-function getImagePreviewUrl(image: Image): string | null {
-  if (image.derivativesStatus === 'pending' || image.derivativesStatus === 'failed') {
-    return null
-  }
-
-  return image.previewUrl ?? null
-}
-
-function getImagePreviewPlaceholder(image: Image): string {
-  if (image.derivativesStatus === 'pending') return 'Processing'
-
-  if (image.derivativesStatus === 'failed') return 'Preview failed'
-
-  return 'No preview'
 }

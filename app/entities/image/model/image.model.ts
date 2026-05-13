@@ -4,7 +4,6 @@ export type Image = {
   largeUrl?: string
   name: string
   originalName?: string | null
-  derivativesStatus?: 'pending' | 'ready' | 'failed' | null
   downloadUrl?: string | null
   size: number
   width: number | null
