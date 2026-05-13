@@ -5,8 +5,7 @@ import { ImageCard } from '~/entities/image'
 import { useImageUpdate } from '~/features/image/image-update'
 import { useImageTrashActions } from '~/features/image/image-trash-actions'
 import { useShareImagesFeature } from '~/features/image/share-images'
-import { useSelection, type SelectionAction } from '~/shared/selection'
-import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
+import { SelectionBar, useSelection, type SelectionAction } from '~/shared/selection'
 import { useAccountImages } from '../model/useAccountImages'
 
 const {
@@ -37,18 +36,21 @@ const selectionActions = computed<SelectionAction[]>(() => [
     key: 'share',
     label: 'Share',
     icon: 'i-heroicons-share-20-solid',
+    onSelect: shareSelectedImages,
     loading: isSharing.value,
   },
   {
     key: 'rename',
     label: 'Rename',
     icon: 'i-heroicons-pencil-square-20-solid',
+    onSelect: updateSelectedImage,
     visible: selectedIds.value.length === 1,
   },
   {
     key: 'move-to-trash',
     label: 'Move to trash',
     icon: 'i-heroicons-archive-box-arrow-down-20-solid',
+    onSelect: trashSelectedImages,
     loading: isTrashingImages.value,
   },
 ])
@@ -112,22 +114,6 @@ async function trashSelectedImages() {
   removeImagesById(trashedIds)
   clearSelection()
 }
-
-function handleSelectionAction(actionKey: string) {
-  switch (actionKey) {
-    case 'share':
-      void shareSelectedImages()
-      break
-
-    case 'rename':
-      void updateSelectedImage()
-      break
-
-    case 'move-to-trash':
-      void trashSelectedImages()
-      break
-  }
-}
 </script>
 
 <template>
@@ -137,7 +123,6 @@ function handleSelectionAction(actionKey: string) {
         :selected-count="selectedIds.length"
         :actions="selectionActions"
         @clear="clearSelection"
-        @action="handleSelectionAction"
       />
     </div>
 

@@ -4,8 +4,7 @@ import { useWindowSize } from '@vueuse/core'
 import { ImageCard } from '~/entities/image'
 import { useAlbumCoverUpdate } from '~/features/album/album-cover-update'
 import { useRemoveImagesFromAlbumFeature } from '~/features/album/remove-images-from-album'
-import { useSelection, type SelectionAction } from '~/shared/selection'
-import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
+import { SelectionBar, useSelection, type SelectionAction } from '~/shared/selection'
 import { useAccountAlbumImages } from '../model/useAccountAlbumImages'
 
 const props = defineProps<{
@@ -38,6 +37,7 @@ const selectionActions = computed<SelectionAction[]>(() => [
     key: 'set-cover',
     label: 'Set as cover',
     icon: 'i-heroicons-photo-20-solid',
+    onSelect: setSelectedImageAsCover,
     visible: selectedIds.value.length === 1,
     loading: isUpdatingAlbumCover.value,
   },
@@ -45,6 +45,7 @@ const selectionActions = computed<SelectionAction[]>(() => [
     key: 'remove-from-album',
     label: 'Remove from album',
     icon: 'i-heroicons-folder-minus-20-solid',
+    onSelect: removeSelectedImages,
     loading: isRemovingImages.value,
   },
 ])
@@ -87,18 +88,6 @@ async function setSelectedImageAsCover() {
 
   await setAlbumCover(props.albumId, selectedImageId.value)
 }
-
-function handleSelectionAction(actionKey: string) {
-  switch (actionKey) {
-    case 'set-cover':
-      void setSelectedImageAsCover()
-      break
-
-    case 'remove-from-album':
-      void removeSelectedImages()
-      break
-  }
-}
 </script>
 
 <template>
@@ -108,7 +97,6 @@ function handleSelectionAction(actionKey: string) {
         :selected-count="selectedIds.length"
         :actions="selectionActions"
         @clear="clearSelection"
-        @action="handleSelectionAction"
       />
     </div>
 

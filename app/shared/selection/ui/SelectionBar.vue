@@ -9,7 +9,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'clear'): void
-  (e: 'action', key: string): void
 }>()
 
 const selectedCountLabel = computed(() => {
@@ -17,6 +16,10 @@ const selectedCountLabel = computed(() => {
 })
 
 const visibleActions = computed(() => props.actions.filter(action => action.visible !== false))
+
+function selectAction(action: SelectionAction) {
+  void action.onSelect()
+}
 </script>
 
 <template>
@@ -38,7 +41,7 @@ const visibleActions = computed(() => props.actions.filter(action => action.visi
           :title="action.title ?? action.label"
           :loading="action.loading"
           :disabled="action.disabled"
-          @click="emit('action', action.key)"
+          @click="selectAction(action)"
         >
           <span class="hidden sm:inline">{{ action.label }}</span>
         </UButton>

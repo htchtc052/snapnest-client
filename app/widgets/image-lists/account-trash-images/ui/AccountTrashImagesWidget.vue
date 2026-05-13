@@ -3,8 +3,7 @@ import { computed, onBeforeUnmount, onMounted } from '#imports'
 import { useWindowSize } from '@vueuse/core'
 import { ImageCard } from '~/entities/image'
 import { useImageTrashActions } from '~/features/image/image-trash-actions'
-import { useSelection, type SelectionAction } from '~/shared/selection'
-import SelectionBar from '~/shared/selection/ui/SelectionBar.vue'
+import { SelectionBar, useSelection, type SelectionAction } from '~/shared/selection'
 import { useAccountTrashImages } from '../model/useAccountTrashImages'
 
 const {
@@ -34,12 +33,14 @@ const selectionActions = computed<SelectionAction[]>(() => [
     key: 'restore',
     label: 'Restore',
     icon: 'i-heroicons-arrow-path-20-solid',
+    onSelect: restoreSelected,
     loading: isRestoringImages.value,
   },
   {
     key: 'delete',
     label: 'Delete permanently',
     icon: 'i-heroicons-trash-20-solid',
+    onSelect: deleteSelected,
     loading: isDeletingImages.value,
   },
 ])
@@ -84,18 +85,6 @@ async function deleteSelected() {
   removeImagesById(deletedIds)
   clearSelection()
 }
-
-function handleSelectionAction(actionKey: string) {
-  switch (actionKey) {
-    case 'restore':
-      void restoreSelected()
-      break
-
-    case 'delete':
-      void deleteSelected()
-      break
-  }
-}
 </script>
 
 <template>
@@ -105,7 +94,6 @@ function handleSelectionAction(actionKey: string) {
         :selected-count="selectedIds.length"
         :actions="selectionActions"
         @clear="clearSelection"
-        @action="handleSelectionAction"
       />
     </div>
 
