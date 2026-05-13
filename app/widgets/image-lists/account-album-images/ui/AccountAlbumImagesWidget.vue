@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from '#imports'
 import { useWindowSize } from '@vueuse/core'
-import { ImageCard } from '~/entities/image'
 import { useAlbumCoverUpdate } from '~/features/album/album-cover-update'
 import { useRemoveImagesFromAlbumFeature } from '~/features/album/remove-images-from-album'
-import { SelectionBar, useSelection, type SelectionAction } from '~/shared/selection'
+import {
+  ImageSelectionBar,
+  SelectableImageCard,
+  useImageSelection,
+  type ImageSelectionAction,
+} from '~/features/image/image-selection'
 import { useAccountAlbumImages } from '../model/useAccountAlbumImages'
 
 const props = defineProps<{
@@ -19,26 +23,17 @@ const {
   removeImagesById,
 } = useAccountAlbumImages(props.albumId)
 
-const {
-  selectedIds,
-  toggleSelection,
-  clearSelection,
-} = useSelection()
-
-const isSelectionMode = computed(() => selectedIds.value.length > 0)
-const selectedImageId = computed<number | null>(() => {
-  return selectedIds.value.length === 1 ? (selectedIds.value[0] ?? null) : null
-})
+const imageSelection = useImageSelection()
 
 const { isUpdatingAlbumCover, setAlbumCover } = useAlbumCoverUpdate()
 const { isRemovingImages, removeImagesFromAlbum } = useRemoveImagesFromAlbumFeature()
-const selectionActions = computed<SelectionAction[]>(() => [
+const selectionActions = computed<ImageSelectionAction[]>(() => [
   {
     key: 'set-cover',
     label: 'Set as cover',
     icon: 'i-heroicons-photo-20-solid',
     onSelect: setSelectedImageAsCover,
-    visible: selectedIds.value.length === 1,
+    visible: imageSelection.mode.isSingleSelection.value,
     loading: isUpdatingAlbumCover.value,
   },
   {
@@ -56,47 +51,34 @@ const lanes = computed(() => {
 })
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('keydown', imageSelection.clearOnEscape)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('keydown', imageSelection.clearOnEscape)
 })
 
-function handleCardClick(imageId: number) {
-  if (!isSelectionMode.value) return
-
-  toggleSelection(imageId)
-}
-
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key !== 'Escape' || !isSelectionMode.value) return
-
-  clearSelection()
-}
-
 async function removeSelectedImages() {
-  const removedIds = await removeImagesFromAlbum(props.albumId, selectedIds.value)
+  const removedIds = await removeImagesFromAlbum(props.albumId, imageSelection.state.selectedIds.value)
   if (!removedIds) return
 
   removeImagesById(removedIds)
-  clearSelection()
+  imageSelection.clear()
 }
 
 async function setSelectedImageAsCover() {
-  if (selectedImageId.value === null) return
+  if (imageSelection.state.selectedImageId.value === null) return
 
-  await setAlbumCover(props.albumId, selectedImageId.value)
+  await setAlbumCover(props.albumId, imageSelection.state.selectedImageId.value)
 }
 </script>
 
 <template>
   <div class="flex min-h-0 flex-1 flex-col">
-    <div v-if="isSelectionMode" class="mb-4">
-      <SelectionBar
-        :selected-count="selectedIds.length"
+    <div v-if="imageSelection.mode.isSelectionMode.value" class="mb-4">
+      <ImageSelectionBar
+        :selection="imageSelection"
         :actions="selectionActions"
-        @clear="clearSelection"
       />
     </div>
 
@@ -114,24 +96,7 @@ async function setSelectedImageAsCover() {
           :virtualize="{ estimateSize: 240, gap: 12, lanes }"
           class="min-h-0 flex-1"
         >
-          <div class="relative">
-            <ImageCard :image="image" />
-
-            <button
-              type="button"
-              class="absolute inset-0 z-0 block w-full rounded-lg text-left"
-              :aria-label="`Select ${image.name}`"
-              @click="handleCardClick(image.id)"
-            />
-
-            <UCheckbox
-              :model-value="selectedIds.includes(image.id)"
-              color="primary"
-              class="absolute top-2 left-2 z-10"
-              @click.stop
-              @update:model-value="toggleSelection(image.id)"
-            />
-          </div>
+          <SelectableImageCard :image="image" :selection="imageSelection" />
         </UScrollArea>
       </div>
     </template>

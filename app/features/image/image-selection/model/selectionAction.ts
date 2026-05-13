@@ -1,4 +1,4 @@
-export type SelectionAction = {
+export type ImageSelectionAction = {
   key: string
   label: string
   icon: string

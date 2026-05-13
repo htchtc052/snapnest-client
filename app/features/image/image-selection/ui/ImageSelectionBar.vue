@@ -1,23 +1,22 @@
 <script setup lang="ts">
 import { computed } from '#imports'
-import type { SelectionAction } from '../model/selectionAction'
+import type { ImageSelectionAction } from '../model/selectionAction'
+import type { ImageSelection } from '../model/useImageSelection'
 
 const props = defineProps<{
-  selectedCount: number
-  actions: SelectionAction[]
-}>()
-
-const emit = defineEmits<{
-  (e: 'clear'): void
+  selection: ImageSelection
+  actions: ImageSelectionAction[]
 }>()
 
 const selectedCountLabel = computed(() => {
-  return props.selectedCount === 1 ? '1 selected' : `${props.selectedCount} selected`
+  return props.selection.state.selectedCount.value === 1
+    ? '1 selected'
+    : `${props.selection.state.selectedCount.value} selected`
 })
 
 const visibleActions = computed(() => props.actions.filter(action => action.visible !== false))
 
-function selectAction(action: SelectionAction) {
+function selectAction(action: ImageSelectionAction) {
   void action.onSelect()
 }
 </script>
@@ -54,7 +53,7 @@ function selectAction(action: SelectionAction) {
       variant="ghost"
       size="sm"
       square
-      @click="emit('clear')"
+      @click="selection.clear"
     />
   </div>
 </template>

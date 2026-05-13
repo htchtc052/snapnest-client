@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted } from '#imports'
 import { useWindowSize } from '@vueuse/core'
-import { ImageCard } from '~/entities/image'
+import {
+  ImageSelectionBar,
+  SelectableImageCard,
+  useImageSelection,
+  type ImageSelectionAction,
+} from '~/features/image/image-selection'
 import { useImageTrashActions } from '~/features/image/image-trash-actions'
-import { SelectionBar, useSelection, type SelectionAction } from '~/shared/selection'
 import { useAccountTrashImages } from '../model/useAccountTrashImages'
 
 const {
@@ -14,11 +18,7 @@ const {
   removeImagesById,
 } = useAccountTrashImages()
 
-const {
-  selectedIds,
-  toggleSelection,
-  clearSelection,
-} = useSelection()
+const imageSelection = useImageSelection()
 
 const {
   deleteImages,
@@ -27,8 +27,7 @@ const {
   restoreImages,
 } = useImageTrashActions()
 
-const isSelectionMode = computed(() => selectedIds.value.length > 0)
-const selectionActions = computed<SelectionAction[]>(() => [
+const selectionActions = computed<ImageSelectionAction[]>(() => [
   {
     key: 'restore',
     label: 'Restore',
@@ -51,49 +50,36 @@ const lanes = computed(() => {
 })
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('keydown', imageSelection.clearOnEscape)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('keydown', imageSelection.clearOnEscape)
 })
 
-function handleCardClick(imageId: number) {
-  if (!isSelectionMode.value) return
-
-  toggleSelection(imageId)
-}
-
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key !== 'Escape' || selectedIds.value.length === 0) return
-
-  clearSelection()
-}
-
 async function restoreSelected() {
-  const restoredIds = await restoreImages(selectedIds.value)
+  const restoredIds = await restoreImages(imageSelection.state.selectedIds.value)
   if (!restoredIds) return
 
   removeImagesById(restoredIds)
-  clearSelection()
+  imageSelection.clear()
 }
 
 async function deleteSelected() {
-  const deletedIds = await deleteImages(selectedIds.value)
+  const deletedIds = await deleteImages(imageSelection.state.selectedIds.value)
   if (!deletedIds) return
 
   removeImagesById(deletedIds)
-  clearSelection()
+  imageSelection.clear()
 }
 </script>
 
 <template>
   <div class="flex min-h-0 flex-1 flex-col">
-    <div v-if="isSelectionMode" class="mb-4">
-      <SelectionBar
-        :selected-count="selectedIds.length"
+    <div v-if="imageSelection.mode.isSelectionMode.value" class="mb-4">
+      <ImageSelectionBar
+        :selection="imageSelection"
         :actions="selectionActions"
-        @clear="clearSelection"
       />
     </div>
 
@@ -111,25 +97,7 @@ async function deleteSelected() {
           :virtualize="{ estimateSize: 240, gap: 12, lanes }"
           class="min-h-0 flex-1"
         >
-          <div class="relative">
-            <ImageCard :image="image" />
-
-            <button
-              type="button"
-              class="absolute inset-0 z-0 block w-full rounded-lg text-left disabled:cursor-default"
-              :disabled="!isSelectionMode"
-              :aria-label="isSelectionMode ? `Select ${image.name}` : image.name"
-              @click="handleCardClick(image.id)"
-            />
-
-            <UCheckbox
-              :model-value="selectedIds.includes(image.id)"
-              color="primary"
-              class="absolute top-2 left-2 z-10"
-              @click.stop
-              @update:model-value="toggleSelection(image.id)"
-            />
-          </div>
+          <SelectableImageCard :image="image" :selection="imageSelection" />
         </UScrollArea>
       </div>
     </template>

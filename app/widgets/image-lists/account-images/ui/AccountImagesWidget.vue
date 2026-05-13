@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, useTemplateRef } from '#imports'
 import { useInfiniteScroll, useWindowSize } from '@vueuse/core'
-import { ImageCard } from '~/entities/image'
+import {
+  ImageSelectionBar,
+  SelectableImageCard,
+  useImageSelection,
+  type ImageSelectionAction,
+} from '~/features/image/image-selection'
 import { useImageUpdate } from '~/features/image/image-update'
 import { useImageTrashActions } from '~/features/image/image-trash-actions'
 import { useShareImagesFeature } from '~/features/image/share-images'
-import { SelectionBar, useSelection, type SelectionAction } from '~/shared/selection'
 import { useAccountImages } from '../model/useAccountImages'
 
 const {
@@ -20,18 +24,12 @@ const {
   replaceImage,
 } = useAccountImages()
 
-const {
-  selectedIds,
-  toggleSelection,
-  clearSelection,
-} = useSelection()
-
-const isSelectionMode = computed(() => selectedIds.value.length > 0)
+const imageSelection = useImageSelection()
 
 const { updateImage } = useImageUpdate()
 const { shareImages, isSharing } = useShareImagesFeature()
 const { isTrashingImages, trashImages } = useImageTrashActions()
-const selectionActions = computed<SelectionAction[]>(() => [
+const selectionActions = computed<ImageSelectionAction[]>(() => [
   {
     key: 'share',
     label: 'Share',
@@ -44,7 +42,7 @@ const selectionActions = computed<SelectionAction[]>(() => [
     label: 'Rename',
     icon: 'i-heroicons-pencil-square-20-solid',
     onSelect: updateSelectedImage,
-    visible: selectedIds.value.length === 1,
+    visible: imageSelection.mode.isSingleSelection.value,
   },
   {
     key: 'move-to-trash',
@@ -73,56 +71,43 @@ useInfiniteScroll(
 )
 
 onMounted(() => {
-  window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('keydown', imageSelection.clearOnEscape)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('keydown', imageSelection.clearOnEscape)
 })
 
-function handleCardClick(imageId: number) {
-  if (!isSelectionMode.value) return
-
-  toggleSelection(imageId)
-}
-
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key !== 'Escape' || !isSelectionMode.value) return
-
-  clearSelection()
-}
-
 async function shareSelectedImages() {
-  await shareImages(selectedIds.value)
+  await shareImages(imageSelection.state.selectedIds.value)
 }
 
 async function updateSelectedImage() {
-  const imageId = selectedIds.value[0]
+  const imageId = imageSelection.state.selectedImageId.value
   if (!imageId) return
 
   const updatedImage = await updateImage(imageId)
   if (!updatedImage) return
 
   replaceImage(updatedImage)
-  clearSelection()
+  imageSelection.clear()
 }
 
 async function trashSelectedImages() {
-  const trashedIds = await trashImages(selectedIds.value)
+  const trashedIds = await trashImages(imageSelection.state.selectedIds.value)
   if (!trashedIds) return
 
   removeImagesById(trashedIds)
-  clearSelection()
+  imageSelection.clear()
 }
 </script>
 
 <template>
   <div class="flex min-h-0 flex-1 flex-col">
-    <div v-if="isSelectionMode" class="mb-4">
-      <SelectionBar
-        :selected-count="selectedIds.length"
+    <div v-if="imageSelection.mode.isSelectionMode.value" class="mb-4">
+      <ImageSelectionBar
+        :selection="imageSelection"
         :actions="selectionActions"
-        @clear="clearSelection"
       />
     </div>
 
@@ -141,24 +126,7 @@ async function trashSelectedImages() {
           :virtualize="{ estimateSize: 240, gap: 12, lanes }"
           class="min-h-0 flex-1"
         >
-          <div class="relative">
-            <ImageCard :image="image" />
-
-            <button
-              type="button"
-              class="absolute inset-0 z-0 block w-full rounded-lg text-left"
-              :aria-label="`Select ${image.name}`"
-              @click="handleCardClick(image.id)"
-            />
-
-            <UCheckbox
-              :model-value="selectedIds.includes(image.id)"
-              color="primary"
-              class="absolute top-2 left-2 z-10"
-              @click.stop
-              @update:model-value="toggleSelection(image.id)"
-            />
-          </div>
+          <SelectableImageCard :image="image" :selection="imageSelection" />
         </UScrollArea>
       </div>
     </template>
