@@ -2,8 +2,8 @@
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { computed, ref } from '#imports'
 import { useProfileInfoUpdate } from '~/features/profile-info-update'
+import { formatBytes } from '~/shared/format'
 import type { User } from '~/types/user.model'
-import { formatBytes } from '~/utils/format-bytes'
 
 const { updateProfileInfo } = useProfileInfoUpdate()
 const { user, logout } = useSanctumAuth<User>()
