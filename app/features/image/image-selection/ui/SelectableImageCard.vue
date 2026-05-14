@@ -10,13 +10,8 @@ const props = defineProps<{
 
 const isSelectionMode = computed(() => props.selection.mode.isSelectionMode.value)
 const isSelected = computed(() => props.selection.isSelected(props.image.id))
-const cardAriaLabel = computed(() => {
-  return isSelectionMode.value ? `Select ${props.image.name}` : props.image.name
-})
 
 function selectFromCard() {
-  if (!isSelectionMode.value) return
-
   props.selection.toggle(props.image.id)
 }
 
@@ -30,10 +25,10 @@ function toggleSelection() {
     <ImageCard :image="image" />
 
     <button
+      v-if="isSelectionMode"
       type="button"
-      class="absolute inset-0 z-0 block w-full rounded-lg text-left disabled:cursor-default"
-      :disabled="!isSelectionMode"
-      :aria-label="cardAriaLabel"
+      class="absolute inset-0 z-0 block w-full rounded-lg text-left"
+      :aria-label="`Select ${image.name}`"
       @click="selectFromCard"
     />
 
