@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { DropdownMenuItem } from '@nuxt/ui'
-import { BrandLogo } from '~/shared/brand'
+import { AppLogo } from '~/shared/brand'
 import UserAvatar from '~/components/account/UserAvatar.vue'
 import type { User } from '~/entities/user'
 
@@ -55,7 +55,7 @@ async function handleLogout() {
   <div class="min-h-screen flex flex-col bg-muted">
     <header class="border-b border-default bg-elevated">
       <UContainer :class="headerClass">
-        <BrandLogo />
+        <AppLogo />
 
         <UDropdownMenu v-if="user" :items="userMenuItems">
           <UButton variant="ghost" class="flex items-center gap-2">

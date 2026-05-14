@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { BrandLogo, FooterNote } from '~/shared/brand'
+import { AppLogo, FooterNote } from '~/shared/brand'
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-muted">
     <header class="border-b border-default bg-elevated">
       <UContainer class="h-16 flex items-center justify-center">
-        <BrandLogo />
+        <AppLogo />
       </UContainer>
     </header>
 
