@@ -10,10 +10,10 @@ export type AlbumPolicy = {
 }
 
 export function createAlbumPolicy(actor: AlbumPolicyActor, album: Album): AlbumPolicy {
-  const canManageAlbum = actor?.id === album.ownerId
+  const isOwner = actor?.id === album.ownerId
 
   return {
-    canEditAlbum: canManageAlbum,
-    canDownloadAlbum: canManageAlbum,
+    canEditAlbum: isOwner,
+    canDownloadAlbum: isOwner,
   }
 }
