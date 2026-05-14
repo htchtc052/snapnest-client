@@ -1,4 +1,4 @@
-export type AlbumHeaderData = {
+export type AlbumDetailsCardData = {
   name: string | null
   coverPreviewUrl: string | null
   coverAlt: string

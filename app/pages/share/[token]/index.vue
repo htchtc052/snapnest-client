@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from '#imports'
 import {
-  AlbumHeader,
+  AlbumDetailsCard,
   usePublicAlbum,
 } from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
@@ -51,10 +51,10 @@ if (albumError.value) {
 
 <template>
   <div class="flex h-full min-h-0 flex-col">
-    <AlbumHeader
+    <AlbumDetailsCard
       v-if="album"
       :album="album"
-      class="pb-6"
+      class="pt-5 pb-6"
     />
 
     <PublicAlbumImagesWidget :token="token" />

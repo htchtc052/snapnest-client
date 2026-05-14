@@ -1,4 +1,4 @@
 export * from './model'
-export { default as AlbumHeader } from './ui/AlbumHeader.vue'
+export { default as AlbumDetailsCard } from './ui/AlbumDetailsCard.vue'
 export { useAccountAlbumRequest } from './api/useAccountAlbumRequest'
 export { usePublicAlbumRequest } from './api/usePublicAlbumRequest'

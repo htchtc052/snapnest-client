@@ -1,8 +1,8 @@
 import { formatDate } from '@vueuse/core'
 import type { Album } from '../model'
-import type { AlbumHeaderData } from './albumHeaderData'
+import type { AlbumDetailsCardData } from './albumDetailsCardData'
 
-export function mapAlbumToAlbumHeader(album: Album): AlbumHeaderData {
+export function mapAlbumToAlbumDetailsCard(album: Album): AlbumDetailsCardData {
   const createdAtLabel = formatDate(new Date(album.createdAt), 'YYYY.MM.DD')
   const imagesCountLabel = `${album.imagesCount} ${album.imagesCount === 1 ? 'photo' : 'photos'}`
 
