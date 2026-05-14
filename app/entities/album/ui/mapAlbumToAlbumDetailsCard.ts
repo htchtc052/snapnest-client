@@ -1,16 +1,17 @@
 import { formatDate } from '@vueuse/core'
 import type { Album } from '../model'
 import type { AlbumDetailsCardData } from './albumDetailsCardData'
+import { mapAlbumToAlbumDisplay } from './mapAlbumToAlbumDisplay'
 
 export function mapAlbumToAlbumDetailsCard(album: Album): AlbumDetailsCardData {
+  const display = mapAlbumToAlbumDisplay(album)
   const createdAtLabel = formatDate(new Date(album.createdAt), 'YYYY.MM.DD')
-  const imagesCountLabel = `${album.imagesCount} ${album.imagesCount === 1 ? 'photo' : 'photos'}`
 
   return {
-    name: album.name,
-    coverPreviewUrl: album.coverPreviewUrl,
-    coverAlt: album.name ? `${album.name} cover` : 'Album cover',
+    name: display.name,
+    coverPreviewUrl: display.coverPreviewUrl,
+    coverAlt: display.coverAlt,
     ownerNameLabel: `By ${album.ownerName}`,
-    metaLabel: `${imagesCountLabel} • ${createdAtLabel}`,
+    metaLabel: `${display.imagesCountLabel} • ${createdAtLabel}`,
   }
 }

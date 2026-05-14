@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { DropdownMenuItem } from '@nuxt/ui'
+import { AlbumPreviewCard } from '~/entities/album'
+import { AlbumActionsMenu } from '~/features/album/album-actions-menu'
 import { useAlbumInfoUpdate } from '~/features/album/album-info-update'
 import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
 import { useCreatePrivateAlbum } from '~/features/album/create-private-album'
@@ -24,10 +25,6 @@ const {
   hideAlbum: hideAlbumFeature,
   copyPublicLink,
 } = useAlbumVisibilityFeature()
-
-function albumImagesLabel(imagesCount: number) {
-  return `${imagesCount} photo${imagesCount === 1 ? '' : 's'}`
-}
 
 async function createAlbum() {
   const album = await createPrivateAlbum()
@@ -63,48 +60,6 @@ async function hideAlbum(album: AccountAlbum) {
 
   replaceAlbum(updatedAlbum)
 }
-
-function albumMenuItems(album: AccountAlbum): DropdownMenuItem[][] {
-  const visibilityItems: DropdownMenuItem[] = album.isPublic
-    ? [
-      {
-        label: 'Copy link',
-        icon: 'i-lucide-copy',
-        onSelect: () => void copyPublicLink(album),
-      },
-      {
-        label: 'Make private',
-        icon: 'i-lucide-eye-off',
-        onSelect: () => void hideAlbum(album),
-      },
-    ]
-    : [
-      {
-        label: 'Create link',
-        icon: 'i-lucide-link',
-        onSelect: () => void publishAlbum(album),
-      },
-    ]
-
-  return [
-    [
-      ...visibilityItems,
-      {
-        label: 'Rename',
-        icon: 'i-lucide-pencil',
-        onSelect: () => void renameAlbum(album),
-      },
-    ],
-    [
-      {
-        label: 'Delete',
-        icon: 'i-lucide-trash',
-        color: 'error',
-        onSelect: () => void deleteAlbum(album),
-      },
-    ],
-  ]
-}
 </script>
 
 <template>
@@ -118,74 +73,33 @@ function albumMenuItems(album: AccountAlbum): DropdownMenuItem[][] {
     </UPageHeader>
 
     <div class="min-h-0 flex-1">
-      <template v-if="isLoading">
-        <USkeleton class="mx-4 h-40" />
-      </template>
+      <USkeleton v-if="isLoading" class="mx-4 h-40" />
 
       <UEmpty v-else-if="hasLoadError" description="Failed to load albums." size="md" variant="naked" class="py-8" />
 
       <UEmpty v-else-if="isEmpty" description="No albums yet" size="md" variant="naked" class="py-8" />
 
       <UPageGrid v-else class="grid-cols-2 gap-5 px-4 pb-8 md:grid-cols-3 lg:grid-cols-4">
-        <UPageCard
+        <div
           v-for="album in albums"
           :key="album.id"
-          variant="outline"
+          class="relative"
         >
-          <template #title>
-            <div class="space-y-2">
-              <div class="flex min-w-0 items-center justify-between gap-2">
-                <NuxtLink :to="`/account/albums/${album.id}`" class="min-w-0 flex-1 truncate">
-                  {{ album.name }}
-                </NuxtLink>
-
-                <UBadge v-if="album.isPublic" color="primary" variant="soft" size="xs">
-                  Shared
-                </UBadge>
-
-                <UDropdownMenu :items="albumMenuItems(album)" :content="{ align: 'end' }">
-                  <UButton
-                    icon="i-heroicons-ellipsis-vertical-20-solid"
-                    color="neutral"
-                    variant="soft"
-                    size="xs"
-                    square
-                    class="shrink-0"
-                    @click.stop
-                  />
-                </UDropdownMenu>
-              </div>
-
-              <div class="text-xs font-medium text-muted-500">
-                {{ albumImagesLabel(album.imagesCount) }}
-              </div>
-            </div>
-          </template>
-
-          <NuxtLink :to="`/account/albums/${album.id}`" class="block">
-            <div
-              class="aspect-square w-full overflow-hidden rounded-lg"
-              :class="album.coverPreviewUrl ? 'bg-muted' : 'border border-dashed border-muted bg-elevated/60'"
-            >
-              <img
-                v-if="album.coverPreviewUrl"
-                :src="album.coverPreviewUrl"
-                :alt="album.name || ''"
-                class="h-full w-full object-cover"
-              >
-
-              <div
-                v-else
-                class="flex h-full flex-col items-center justify-center gap-2 px-4 text-center text-muted-500"
-              >
-                <UIcon name="i-lucide-image-off" class="size-8" />
-                <p class="text-sm font-medium text-toned">
-                  Empty album
-                </p>
-              </div>
-            </div>
+          <NuxtLink :to="`/account/albums/${album.id}`" class="block h-full">
+            <AlbumPreviewCard :album="album" />
           </NuxtLink>
-        </UPageCard>
+
+          <div class="absolute top-3 right-3 z-10">
+            <AlbumActionsMenu
+              :album="album"
+              @rename="renameAlbum"
+              @delete="deleteAlbum"
+              @publish="publishAlbum"
+              @hide="hideAlbum"
+              @copy-public-link="copyPublicLink"
+            />
+          </div>
+        </div>
       </UPageGrid>
     </div>
   </div>
