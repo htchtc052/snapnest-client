@@ -1,12 +1,11 @@
-import { useOpenModal } from '~/shared/modal'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
+import { ConfirmForm, type ConfirmFormProps, type ConfirmResult } from '~/shared/confirm'
+import { useOpenModalContent } from '~/shared/modal'
 import type { User } from '~/entities/user'
 import { useImageTrashActionRequest } from '../api/useImageTrashActionRequest'
-import { ImageTrashActionType, type ImageTrashActionModalResult } from '../contract/image-trash-actions.contract'
-import ImageDeleteModal from '../ui/ImageDeleteModal.vue'
-import ImageTrashModal from '../ui/ImageTrashModal.vue'
+import { ImageTrashActionType } from '../contract/image-trash-actions.contract'
 
-type OpenConfirmModal = (ids: number[]) => Promise<ImageTrashActionModalResult>
+type CreateConfirmProps = (ids: number[]) => ConfirmFormProps
 
 const successTitleByAction: Record<ImageTrashActionType, (count: number) => string> = {
   [ImageTrashActionType.Trash]: count => `Moved ${count} images to trash.`,
@@ -17,8 +16,9 @@ const successTitleByAction: Record<ImageTrashActionType, (count: number) => stri
 export function useImageTrashActions() {
   const toast = useToast()
   const { refreshIdentity } = useSanctumAuth<User>()
-  const openTrashModal = useOpenModal<typeof ImageTrashModal, ImageTrashActionModalResult>(ImageTrashModal)
-  const openDeleteModal = useOpenModal<typeof ImageDeleteModal, ImageTrashActionModalResult>(ImageDeleteModal)
+  const openConfirm = useOpenModalContent<typeof ConfirmForm, ConfirmResult>({
+    component: ConfirmForm,
+  })
   const { executeImageTrashActionRequest } = useImageTrashActionRequest()
 
   function useActionOperation(actionType: ImageTrashActionType) {
@@ -31,15 +31,15 @@ export function useImageTrashActions() {
     [ImageTrashActionType.Delete]: useActionOperation(ImageTrashActionType.Delete),
   }
 
-  async function confirmAction(ids: number[], openConfirmModal?: OpenConfirmModal) {
-    if (!openConfirmModal) return true
+  async function confirmAction(ids: number[], createConfirmProps?: CreateConfirmProps) {
+    if (!createConfirmProps) return true
 
-    const modalResult = await openConfirmModal(ids)
+    const modalResult = await openConfirm(createConfirmProps(ids))
     return modalResult.action === 'confirm'
   }
 
-  async function executeAction(actionType: ImageTrashActionType, ids: number[], openConfirmModal?: OpenConfirmModal) {
-    const isConfirmed = await confirmAction(ids, openConfirmModal)
+  async function executeAction(actionType: ImageTrashActionType, ids: number[], createConfirmProps?: CreateConfirmProps) {
+    const isConfirmed = await confirmAction(ids, createConfirmProps)
     if (!isConfirmed) return
 
     const result = await actionOperations[actionType].execute(ids)
@@ -59,13 +59,33 @@ export function useImageTrashActions() {
     return imageIds
   }
 
-  function createAction(actionType: ImageTrashActionType, openConfirmModal?: OpenConfirmModal) {
-    return (ids: number[]) => executeAction(actionType, ids, openConfirmModal)
+  function createAction(actionType: ImageTrashActionType, createConfirmProps?: CreateConfirmProps) {
+    return (ids: number[]) => executeAction(actionType, ids, createConfirmProps)
   }
 
-  const trashImages = createAction(ImageTrashActionType.Trash, ids => openTrashModal({ ids }))
+  const trashImages = createAction(ImageTrashActionType.Trash, (ids) => {
+    const count = ids.length
+
+    return {
+      title: `Move ${count} image${count === 1 ? '' : 's'} to trash?`,
+      description: `This will move ${count} image${count === 1 ? '' : 's'} to trash.`,
+      confirmLabel: 'Move to trash',
+      confirmIcon: 'i-heroicons-trash-20-solid',
+      confirmColor: 'error',
+    }
+  })
   const restoreImages = createAction(ImageTrashActionType.Restore)
-  const deleteImages = createAction(ImageTrashActionType.Delete, ids => openDeleteModal({ ids }))
+  const deleteImages = createAction(ImageTrashActionType.Delete, (ids) => {
+    const count = ids.length
+
+    return {
+      title: `Delete ${count} image${count === 1 ? '' : 's'} permanently?`,
+      description: `This will permanently delete ${count} image${count === 1 ? '' : 's'}.`,
+      confirmLabel: 'Delete permanently',
+      confirmIcon: 'i-heroicons-trash-20-solid',
+      confirmColor: 'error',
+    }
+  })
 
   return {
     deleteImages,

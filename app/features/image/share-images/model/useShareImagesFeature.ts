@@ -1,18 +1,17 @@
 import { useClipboard } from '@vueuse/core'
-import { useOpenModal } from '~/shared/modal'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
+import { ConfirmForm, type ConfirmResult } from '~/shared/confirm'
+import { useOpenModalContent } from '~/shared/modal'
 import { useShareImagesRequest } from '../api/useShareImagesRequest'
-import type { ShareImagesConfirmModalResult } from '../contract/share-images.contract'
-import ShareImagesConfirmModal from '../ui/ShareImagesConfirmModal.vue'
 
 export function useShareImagesFeature() {
   const config = useRuntimeConfig()
   const toast = useToast()
   const { copy } = useClipboard()
-  const openShareConfirmModal = useOpenModal<
-    typeof ShareImagesConfirmModal,
-    ShareImagesConfirmModalResult
-  >(ShareImagesConfirmModal)
+  const openShareConfirm = useOpenModalContent<typeof ConfirmForm, ConfirmResult>({
+    component: ConfirmForm,
+    title: 'Share selected photos?',
+  })
   const { shareImagesRequest } = useShareImagesRequest()
 
   const {
@@ -21,7 +20,12 @@ export function useShareImagesFeature() {
   } = useApiOperation(shareImagesRequest)
 
   async function shareImages(ids: number[]) {
-    const modalResult = await openShareConfirmModal()
+    const modalResult = await openShareConfirm({
+      description: 'A public album will be created. Anyone with the link will be able to view it.',
+      confirmLabel: 'Create public album',
+      confirmIcon: 'i-heroicons-link-20-solid',
+      confirmColor: 'primary',
+    })
     if (modalResult.action === 'cancel') return
 
     const result = await executeShareImages(ids)

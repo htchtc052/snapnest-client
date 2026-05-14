@@ -1,13 +1,15 @@
-import { useOpenModal } from '~/shared/modal'
 import type { AccountAlbum } from '~/entities/album/model'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
+import { ConfirmForm, type ConfirmResult } from '~/shared/confirm'
+import { useOpenModalContent } from '~/shared/modal'
 import { useAlbumDeleteRequest } from '../api/useAlbumDeleteRequest'
-import type { AlbumDeleteModalResult } from '../contract/delete-album.contract'
-import AlbumDeleteModal from '../ui/AlbumDeleteModal.vue'
 
 export function useDeleteAlbum() {
   const toast = useToast()
-  const openDeleteAlbumModal = useOpenModal<typeof AlbumDeleteModal, AlbumDeleteModalResult>(AlbumDeleteModal)
+  const openDeleteAlbumConfirm = useOpenModalContent<typeof ConfirmForm, ConfirmResult>({
+    component: ConfirmForm,
+    title: 'Delete album?',
+  })
   const { deleteAlbumRequest } = useAlbumDeleteRequest()
 
   const {
@@ -16,7 +18,14 @@ export function useDeleteAlbum() {
   } = useApiOperation(deleteAlbumRequest)
 
   async function deleteAlbum(album: AccountAlbum) {
-    const modalResult = await openDeleteAlbumModal({ album })
+    const modalResult = await openDeleteAlbumConfirm({
+      description: album.name
+        ? `Are you sure you want to delete ${album.name}?`
+        : 'Are you sure you want to delete this album?',
+      confirmLabel: 'Delete',
+      confirmIcon: 'i-heroicons-trash-20-solid',
+      confirmColor: 'error',
+    })
     if (modalResult.action === 'cancel') return
 
     const result = await executeDeleteAlbum(album.id)

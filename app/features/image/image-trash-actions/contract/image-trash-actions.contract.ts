@@ -8,7 +8,3 @@ export type ImageTrashActionResult = {
   actionType: ImageTrashActionType
   imageIds: number[]
 }
-
-export type ImageTrashActionModalResult =
-  | { action: 'cancel' }
-  | { action: 'confirm' }
