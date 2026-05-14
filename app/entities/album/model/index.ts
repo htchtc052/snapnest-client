@@ -7,7 +7,7 @@ export type {
 export { useAccountAlbum } from './useAccountAlbum'
 export { usePublicAlbum } from './usePublicAlbum'
 export {
-  getAlbumPolicy,
+  createAlbumPolicy,
   type AlbumPolicy,
   type AlbumPolicyActor,
 } from './albumPolicy'

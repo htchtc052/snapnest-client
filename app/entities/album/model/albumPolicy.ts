@@ -5,15 +5,15 @@ export type AlbumPolicyActor = {
 } | null | undefined
 
 export type AlbumPolicy = {
-  isOwner: boolean
+  canEditAlbum: boolean
   canDownloadAlbum: boolean
 }
 
-export function getAlbumPolicy(actor: AlbumPolicyActor, album: Album): AlbumPolicy {
-  const isOwner = actor?.id === album.ownerId
+export function createAlbumPolicy(actor: AlbumPolicyActor, album: Album): AlbumPolicy {
+  const canManageAlbum = actor?.id === album.ownerId
 
   return {
-    isOwner,
-    canDownloadAlbum: isOwner,
+    canEditAlbum: canManageAlbum,
+    canDownloadAlbum: canManageAlbum,
   }
 }
