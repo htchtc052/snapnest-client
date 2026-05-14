@@ -6,3 +6,5 @@ export {
 export {
   useSignIn,
 } from './model/useSignIn'
+
+export { default as SignInForm } from './ui/SignInForm.vue'

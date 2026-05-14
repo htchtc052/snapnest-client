@@ -10,3 +10,5 @@ export {
 export {
   useSignUp,
 } from './model/useSignUp'
+
+export { default as SignUpForm } from './ui/SignUpForm.vue'

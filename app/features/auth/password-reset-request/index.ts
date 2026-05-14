@@ -10,3 +10,5 @@ export {
 export {
   usePasswordResetRequest,
 } from './model/usePasswordResetRequest'
+
+export { default as PasswordResetRequestForm } from './ui/PasswordResetRequestForm.vue'
