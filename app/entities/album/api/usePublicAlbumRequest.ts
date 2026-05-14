@@ -1,4 +1,4 @@
-import type { PublicAlbum } from '~/types/public-album.model'
+import type { PublicAlbum } from '../model'
 
 export function usePublicAlbumRequest() {
   const client = useSanctumClient()

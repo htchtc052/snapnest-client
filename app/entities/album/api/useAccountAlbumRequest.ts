@@ -1,4 +1,4 @@
-import type { AlbumView } from '~/types/album-view.model'
+import type { AlbumView } from '../model'
 
 export function useAccountAlbumRequest() {
   const client = useSanctumClient()

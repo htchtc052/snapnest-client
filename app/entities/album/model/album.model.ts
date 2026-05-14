@@ -1,4 +1,4 @@
-export type AccountAlbum = {
+export type Album = {
   id: number
   name: string | null
   description: string | null
@@ -10,4 +10,12 @@ export type AccountAlbum = {
   ownerId: number
   ownerName: string
   createdAt: string
+}
+
+export type AccountAlbum = Album
+
+export type PublicAlbum = Album
+
+export type AlbumView = Album & {
+  isOwner: boolean
 }

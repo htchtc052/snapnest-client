@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed } from '#imports'
 import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
-import { useAccountAlbumRequest } from '~/entities/album'
+import {
+  AlbumHeader,
+  useAccountAlbumRequest,
+  type Album,
+  type AlbumView,
+} from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
 import { AccountAlbumImagesWidget } from '~/widgets/image-lists/account-album-images'
-import type { AccountAlbum } from '~/entities/album/model'
-import type { AlbumView } from '~/types/album-view.model'
-
 
 definePageMeta({
   layout: 'media',
@@ -41,7 +43,7 @@ if (albumError.value) {
   })
 }
 
-function applyUpdatedAlbum(updatedAlbum: AccountAlbum) {
+function applyUpdatedAlbum(updatedAlbum: Album) {
   album.value = {
     ...album.value!,
     ...updatedAlbum,
@@ -83,16 +85,9 @@ async function copyLink() {
 
 <template>
   <div class="flex h-full min-h-0 flex-col px-4">
-    <div class="flex items-start justify-between gap-3 pt-5 pb-4">
-      <div class="min-w-0">
-        <h3 v-if="album?.name" class="truncate text-2xl font-semibold text-foreground">
-          {{ album.name }}
-        </h3>
-      </div>
-
-      <div class="flex min-w-0 flex-col items-end gap-2">
+    <AlbumHeader v-if="album" :album="album">
+      <template #actions>
         <template v-if="album?.isPublic">
-
           <div class="flex items-center gap-2">
             <UButton icon="i-lucide-copy" color="neutral" variant="outline" @click="copyLink">
               {{ copiedPublicLink ? 'Link copied' : 'Copy link' }}
@@ -115,8 +110,8 @@ async function copyLink() {
             Create link
           </UButton>
         </template>
-      </div>
-    </div>
+      </template>
+    </AlbumHeader>
 
     <AccountAlbumImagesWidget :album-id="albumId" />
   </div>
