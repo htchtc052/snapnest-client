@@ -2,10 +2,11 @@ export type User = {
   id: number
   name: string
   email: string
+  avatar?: string | null
+  avatarUrl?: string | null
   bio?: string | null
   birthDate?: string | null
   createdAt: string
-  avatarUrl?: string | null
   plan?: 'free' | 'premium'
   isAdmin?: boolean
   imagesUsed?: number
