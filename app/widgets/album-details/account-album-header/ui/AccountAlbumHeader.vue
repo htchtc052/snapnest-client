@@ -2,11 +2,11 @@
 import { computed } from '#imports'
 import type { User } from '~/types/user.model'
 import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
-import { AlbumDownloadButton } from '~/features/album/download-album'
 import {
   AlbumHeader,
   createAlbumPolicy,
   type Album,
+  type AlbumHeaderAction,
   type AlbumView,
 } from '~/entities/album'
 
@@ -59,48 +59,62 @@ async function copyLink() {
 
   await copyPublicLink(props.album)
 }
+
+const actions = computed<AlbumHeaderAction[]>(() => {
+  const albumActions: AlbumHeaderAction[] = []
+
+  if (albumPolicy.value.canDownloadAlbum) {
+    albumActions.push({
+      key: 'download',
+      label: 'Download',
+      icon: 'i-lucide-download',
+      color: 'neutral',
+      variant: 'ghost',
+      disabled: true,
+      onClick: () => {},
+    })
+  }
+
+  if (!albumPolicy.value.canEditAlbum) return albumActions
+
+  if (props.album.isPublic) {
+    albumActions.push(
+      {
+        key: 'copy-link',
+        label: copiedPublicLink.value ? 'Link copied' : 'Copy link',
+        icon: 'i-lucide-copy',
+        color: 'neutral',
+        variant: 'outline',
+        onClick: copyLink,
+      },
+      {
+        key: 'hide-album',
+        label: 'Make private',
+        icon: 'i-lucide-eye-off',
+        color: 'neutral',
+        variant: 'ghost',
+        loading: isUpdatingAlbumVisibility.value,
+        onClick: hideAlbum,
+      },
+    )
+
+    return albumActions
+  }
+
+  albumActions.push({
+    key: 'publish-album',
+    label: 'Create link',
+    icon: 'i-lucide-link',
+    color: 'primary',
+    variant: 'solid',
+    loading: isUpdatingAlbumVisibility.value,
+    onClick: publishAlbum,
+  })
+
+  return albumActions
+})
 </script>
 
 <template>
-  <AlbumHeader :album="album">
-    <template #actions>
-      <template v-if="album.isPublic">
-        <div class="flex items-center gap-2">
-          <AlbumDownloadButton v-if="albumPolicy.canDownloadAlbum" />
-
-          <template v-if="albumPolicy.canEditAlbum">
-            <UButton icon="i-lucide-copy" color="neutral" variant="outline" @click="copyLink">
-              {{ copiedPublicLink ? 'Link copied' : 'Copy link' }}
-            </UButton>
-
-            <UButton
-              icon="i-lucide-eye-off"
-              color="neutral"
-              variant="ghost"
-              :loading="isUpdatingAlbumVisibility"
-              @click="hideAlbum"
-            >
-              Make private
-            </UButton>
-          </template>
-        </div>
-      </template>
-
-      <template v-else>
-        <div class="flex items-center gap-2">
-          <AlbumDownloadButton v-if="albumPolicy.canDownloadAlbum" />
-
-          <UButton
-            v-if="albumPolicy.canEditAlbum"
-            icon="i-lucide-link"
-            color="primary"
-            :loading="isUpdatingAlbumVisibility"
-            @click="publishAlbum"
-          >
-            Create link
-          </UButton>
-        </div>
-      </template>
-    </template>
-  </AlbumHeader>
+  <AlbumHeader :album="album" :actions="actions" />
 </template>
