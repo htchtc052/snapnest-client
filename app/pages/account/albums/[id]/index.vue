@@ -29,8 +29,6 @@ if (albumError.value) {
     })
   }
 
-  console.error('Album load error', albumError.value)
-
   throw createError({
     statusCode: ApiHttpStatus.InternalServerError,
     statusMessage: 'Album load failed',
