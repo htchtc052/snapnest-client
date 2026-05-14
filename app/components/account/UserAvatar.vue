@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { User } from '~/types/user.model'
+import type { User } from '~/entities/user'
 import { getUserInitials } from '~/utils/getUserInitials'
 
 const { user } = useSanctumAuth<User>()

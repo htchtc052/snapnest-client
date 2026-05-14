@@ -1,5 +1,5 @@
 import type { ProfileInfoDto } from '~/entities/user/model'
-import type { User } from '~/types/user.model'
+import type { User } from '~/entities/user'
 
 export function useProfileInfoUpdateRequest() {
   const client = useSanctumClient()

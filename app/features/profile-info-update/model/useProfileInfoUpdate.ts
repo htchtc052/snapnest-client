@@ -1,5 +1,5 @@
 import { useOpenModal } from '~/shared/modal'
-import type { User } from '~/types/user.model'
+import type { User } from '~/entities/user'
 import type { ProfileInfoUpdateModalResult } from '../contract/profile-info-update.contract'
 import ProfileInfoUpdateModal from '../ui/ProfileInfoUpdateModal.vue'
 

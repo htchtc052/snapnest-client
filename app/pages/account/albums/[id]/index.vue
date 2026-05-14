@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from '#imports'
-import type { User } from '~/types/user.model'
+import type { User } from '~/entities/user'
 import {
   useAccountAlbum,
 } from '~/entities/album'

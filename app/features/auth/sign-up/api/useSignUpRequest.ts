@@ -1,4 +1,4 @@
-import type { User } from '~/types/user.model'
+import type { User } from '~/entities/user'
 import type { SignUpDto } from '../contract/sign-up.contract'
 
 export function useSignUpRequest() {

@@ -3,7 +3,7 @@ import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, reactive, ref } from 'vue'
 import { profileInfoSchema, type ProfileInfoDto } from '~/entities/user/model'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
-import type { User } from '~/types/user.model'
+import type { User } from '~/entities/user'
 import { useProfileInfoUpdateRequest } from '../api/useProfileInfoUpdateRequest'
 import type { ProfileInfoUpdateModalResult } from '../contract/profile-info-update.contract'
 

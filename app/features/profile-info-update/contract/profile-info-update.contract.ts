@@ -1,4 +1,4 @@
-import type { User } from '~/types/user.model'
+import type { User } from '~/entities/user'
 
 export type ProfileInfoUpdateModalResult =
   | { action: 'cancel' }

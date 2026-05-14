@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import type { DropdownMenuItem } from '@nuxt/ui'
 import Logo from '~/components/shell/Logo.vue'
 import UserAvatar from '~/components/account/UserAvatar.vue'
-import type { User } from '~/types/user.model'
+import type { User } from '~/entities/user'
 
 const { user, logout } = useSanctumAuth<User>()
 const isLoggingOut = ref(false)

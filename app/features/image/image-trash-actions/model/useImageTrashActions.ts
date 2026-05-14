@@ -1,6 +1,6 @@
 import { useOpenModal } from '~/shared/modal'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
-import type { User } from '~/types/user.model'
+import type { User } from '~/entities/user'
 import { useImageTrashActionRequest } from '../api/useImageTrashActionRequest'
 import { ImageTrashActionType, type ImageTrashActionModalResult } from '../contract/image-trash-actions.contract'
 import ImageDeleteModal from '../ui/ImageDeleteModal.vue'
