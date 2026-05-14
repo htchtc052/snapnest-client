@@ -1,17 +1,19 @@
-export type AlbumAccessContext = {
+import type { Album } from './album.model'
+
+export type AlbumPolicyActor = {
+  id: number
+} | null | undefined
+
+export type AlbumPolicy = {
   isOwner: boolean
+  canDownloadAlbum: boolean
 }
 
-export type AlbumHeaderPolicy = {
-  canViewOwnerName: boolean
-  canViewCreatedAt: boolean
-  canViewImagesCount: boolean
-}
+export function getAlbumPolicy(actor: AlbumPolicyActor, album: Album): AlbumPolicy {
+  const isOwner = actor?.id === album.ownerId
 
-export function getAlbumHeaderPolicy(context: AlbumAccessContext): AlbumHeaderPolicy {
   return {
-    canViewOwnerName: context.isOwner,
-    canViewCreatedAt: context.isOwner,
-    canViewImagesCount: true,
+    isOwner,
+    canDownloadAlbum: isOwner,
   }
 }

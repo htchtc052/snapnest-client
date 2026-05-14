@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from '#imports'
+import type { User } from '~/types/user.model'
+import { AlbumDownloadButton } from '~/features/album/download-album'
 import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
 import {
   AlbumHeader,
+  getAlbumPolicy,
   useAccountAlbum,
   type Album,
 } from '~/entities/album'
@@ -15,6 +18,7 @@ definePageMeta({
 
 const route = useRoute()
 const albumId = computed(() => Number(route.params.id))
+const { user } = useSanctumAuth<User>()
 
 const { data: album, error: albumError } = await useAccountAlbum(albumId.value)
 
@@ -45,6 +49,12 @@ function applyUpdatedAlbum(updatedAlbum: Album) {
     isOwner: true,
   }
 }
+
+const albumPolicy = computed(() => {
+  if (!album.value) return null
+
+  return getAlbumPolicy(user.value, album.value)
+})
 
 const {
   isUpdatingAlbumVisibility,
@@ -80,10 +90,12 @@ async function copyLink() {
 
 <template>
   <div class="flex h-full min-h-0 flex-col px-4">
-    <AlbumHeader v-if="album" :album="album" :is-owner="album.isOwner">
+    <AlbumHeader v-if="album" :album="album">
       <template #actions>
         <template v-if="album?.isPublic">
           <div class="flex items-center gap-2">
+            <AlbumDownloadButton v-if="albumPolicy?.canDownloadAlbum" />
+
             <UButton icon="i-lucide-copy" color="neutral" variant="outline" @click="copyLink">
               {{ copiedPublicLink ? 'Link copied' : 'Copy link' }}
             </UButton>
@@ -101,9 +113,13 @@ async function copyLink() {
         </template>
 
         <template v-else>
-          <UButton icon="i-lucide-link" color="primary" :loading="isUpdatingAlbumVisibility" @click="publishAlbum">
-            Create link
-          </UButton>
+          <div class="flex items-center gap-2">
+            <AlbumDownloadButton v-if="albumPolicy?.canDownloadAlbum" />
+
+            <UButton icon="i-lucide-link" color="primary" :loading="isUpdatingAlbumVisibility" @click="publishAlbum">
+              Create link
+            </UButton>
+          </div>
         </template>
       </template>
     </AlbumHeader>

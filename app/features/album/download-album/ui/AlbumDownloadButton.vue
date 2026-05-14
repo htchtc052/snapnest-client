@@ -1,0 +1,10 @@
+<template>
+  <UButton
+    icon="i-lucide-download"
+    color="neutral"
+    variant="ghost"
+    disabled
+  >
+    Download
+  </UButton>
+</template>

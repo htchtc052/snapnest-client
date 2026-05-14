@@ -7,8 +7,8 @@ export type {
 export { useAccountAlbum } from './useAccountAlbum'
 export { usePublicAlbum } from './usePublicAlbum'
 export {
-  getAlbumHeaderPolicy,
-  type AlbumAccessContext,
-  type AlbumHeaderPolicy,
+  getAlbumPolicy,
+  type AlbumPolicy,
+  type AlbumPolicyActor,
 } from './albumPolicy'
 export { albumInfoSchema, type AlbumInfoDto } from './album-info.contract'
