@@ -6,16 +6,15 @@ import {
   AlbumDetailsCard,
   createAlbumPolicy,
   type Album,
-  type AlbumView,
 } from '~/entities/album'
 
 const props = defineProps<{
-  album: AlbumView
+  album: Album
   actor: User | null | undefined
 }>()
 
 const emit = defineEmits<{
-  'update:album': [album: AlbumView]
+  'update:album': [album: Album]
 }>()
 
 const albumPolicy = computed(() => createAlbumPolicy(props.actor, props.album))

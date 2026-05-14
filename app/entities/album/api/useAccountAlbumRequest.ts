@@ -1,10 +1,10 @@
-import type { AlbumView } from '../model'
+import type { AccountAlbum } from '../model'
 
 export function useAccountAlbumRequest() {
   const client = useSanctumClient()
 
-  function getAccountAlbum(albumId: number): Promise<AlbumView> {
-    return client<AlbumView>(`/api/account/albums/${albumId}`)
+  function getAccountAlbum(albumId: number): Promise<AccountAlbum> {
+    return client<AccountAlbum>(`/api/account/albums/${albumId}`)
   }
 
   return {

@@ -3,7 +3,6 @@ import { computed } from '#imports'
 import type { User } from '~/types/user.model'
 import {
   useAccountAlbum,
-  type Album,
 } from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
 import { AccountAlbumHeader } from '~/widgets/album-details/account-album-header'
@@ -39,14 +38,6 @@ if (albumError.value) {
   })
 }
 
-function applyUpdatedAlbum(updatedAlbum: Album) {
-  album.value = {
-    ...album.value!,
-    ...updatedAlbum,
-    isOwner: true,
-  }
-}
-
 </script>
 
 <template>
@@ -57,6 +48,6 @@ function applyUpdatedAlbum(updatedAlbum: Album) {
       :actor="user"
     />
 
-    <AccountAlbumImagesWidget :album-id="albumId" @album-updated="applyUpdatedAlbum" />
+    <AccountAlbumImagesWidget :album-id="albumId" @album-updated="album = $event" />
   </div>
 </template>

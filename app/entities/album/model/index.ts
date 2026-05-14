@@ -1,7 +1,6 @@
 export type {
   AccountAlbum,
   Album,
-  AlbumView,
   PublicAlbum,
 } from './album.model'
 export { useAccountAlbum } from './useAccountAlbum'

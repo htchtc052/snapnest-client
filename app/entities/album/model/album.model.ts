@@ -15,7 +15,3 @@ export type Album = {
 export type AccountAlbum = Album
 
 export type PublicAlbum = Album
-
-export type AlbumView = Album & {
-  isOwner: boolean
-}
