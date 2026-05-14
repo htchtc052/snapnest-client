@@ -40,25 +40,22 @@ async function deleteAlbum(album: AccountAlbum) {
   removeAlbumById(album.id)
 }
 
-async function renameAlbum(album: AccountAlbum) {
-  const updatedAlbum = await updateAlbumInfo(album)
+function applyAlbumUpdate(updatedAlbum: AccountAlbum | null | undefined) {
   if (!updatedAlbum) return
 
   replaceAlbum(updatedAlbum)
+}
+
+async function renameAlbum(album: AccountAlbum) {
+  applyAlbumUpdate(await updateAlbumInfo(album))
 }
 
 async function publishAlbum(album: AccountAlbum) {
-  const updatedAlbum = await publishAlbumFeature(album)
-  if (!updatedAlbum) return
-
-  replaceAlbum(updatedAlbum)
+  applyAlbumUpdate(await publishAlbumFeature(album))
 }
 
 async function hideAlbum(album: AccountAlbum) {
-  const updatedAlbum = await hideAlbumFeature(album)
-  if (!updatedAlbum) return
-
-  replaceAlbum(updatedAlbum)
+  applyAlbumUpdate(await hideAlbumFeature(album))
 }
 </script>
 
