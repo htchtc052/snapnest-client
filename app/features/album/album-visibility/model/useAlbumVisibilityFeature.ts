@@ -3,11 +3,29 @@ import type { AccountAlbum } from '~/entities/album/model'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumVisibilityRequest } from '../api/useAlbumVisibilityRequest'
 
-type UseAlbumVisibilityFeatureOptions = {
-  onUpdated?: (album: AccountAlbum) => void
+enum AlbumVisibilityAction {
+  Publish = 'publish',
+  Hide = 'hide',
 }
 
-export function useAlbumVisibilityFeature(options: UseAlbumVisibilityFeatureOptions = {}) {
+const actionConfig: Record<AlbumVisibilityAction, {
+  isPublic: boolean
+  successTitle: string
+  copyLink: boolean
+}> = {
+  [AlbumVisibilityAction.Publish]: {
+    isPublic: true,
+    successTitle: 'Public link created and copied.',
+    copyLink: true,
+  },
+  [AlbumVisibilityAction.Hide]: {
+    isPublic: false,
+    successTitle: 'Album is now private.',
+    copyLink: false,
+  },
+}
+
+export function useAlbumVisibilityFeature() {
   const config = useRuntimeConfig()
   const toast = useToast()
   const { copy, copied } = useClipboard()
@@ -37,33 +55,29 @@ export function useAlbumVisibilityFeature(options: UseAlbumVisibilityFeatureOpti
     return result.data
   }
 
-  async function publishAlbum(album: Pick<AccountAlbum, 'id'>) {
-    const updatedAlbum = await setAlbumVisibility(album, true)
+  async function executeVisibilityAction(action: AlbumVisibilityAction, album: Pick<AccountAlbum, 'id'>) {
+    const actionState = actionConfig[action]
+    const updatedAlbum = await setAlbumVisibility(album, actionState.isPublic)
     if (!updatedAlbum) return
 
-    await copy(getPublicAlbumUrl(updatedAlbum.token))
+    if (actionState.copyLink) {
+      await copy(getPublicAlbumUrl(updatedAlbum.token))
+    }
+
     toast.add({
-      title: 'Public link created and copied.',
+      title: actionState.successTitle,
       color: 'success',
     })
-
-    options.onUpdated?.(updatedAlbum)
 
     return updatedAlbum
   }
 
-  async function hideAlbum(album: Pick<AccountAlbum, 'id'>) {
-    const updatedAlbum = await setAlbumVisibility(album, false)
-    if (!updatedAlbum) return
+  function publishAlbum(album: Pick<AccountAlbum, 'id'>) {
+    return executeVisibilityAction(AlbumVisibilityAction.Publish, album)
+  }
 
-    toast.add({
-      title: 'Album is now private.',
-      color: 'success',
-    })
-
-    options.onUpdated?.(updatedAlbum)
-
-    return updatedAlbum
+  function hideAlbum(album: Pick<AccountAlbum, 'id'>) {
+    return executeVisibilityAction(AlbumVisibilityAction.Hide, album)
   }
 
   return {

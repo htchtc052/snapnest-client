@@ -5,6 +5,7 @@ import { useAlbumInfoUpdate } from '~/features/album/album-info-update'
 import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
 import { useCreatePrivateAlbum } from '~/features/album/create-private-album'
 import { useDeleteAlbum } from '~/features/album/delete-album'
+import type { AccountAlbum } from '~/entities/album/model'
 import { useAccountAlbums } from '../model/useAccountAlbums'
 
 const {
@@ -17,25 +18,47 @@ const {
 } = useAccountAlbums()
 
 const { createPrivateAlbum } = useCreatePrivateAlbum()
-const { deleteAlbum } = useDeleteAlbum({
-  onDeleted: removeAlbumById,
-})
-const { updateAlbumInfo } = useAlbumInfoUpdate({
-  onUpdated: replaceAlbum,
-})
+const { deleteAlbum } = useDeleteAlbum()
+const { updateAlbumInfo } = useAlbumInfoUpdate()
 const {
   publishAlbum,
   hideAlbum,
   copyPublicLink,
-} = useAlbumVisibilityFeature({
-  onUpdated: replaceAlbum,
-})
+} = useAlbumVisibilityFeature()
 
 async function createAlbum() {
   const album = await createPrivateAlbum()
   if (!album) return
 
   await navigateTo(`/account/albums/${album.id}`)
+}
+
+async function deleteAlbumFromList(album: AccountAlbum) {
+  const deletedAlbumId = await deleteAlbum(album)
+  if (!deletedAlbumId) return
+
+  removeAlbumById(deletedAlbumId)
+}
+
+async function renameAlbum(album: AccountAlbum) {
+  const updatedAlbum = await updateAlbumInfo(album)
+  if (!updatedAlbum) return
+
+  replaceAlbum(updatedAlbum)
+}
+
+async function publishAlbumFromList(album: AccountAlbum) {
+  const updatedAlbum = await publishAlbum(album)
+  if (!updatedAlbum) return
+
+  replaceAlbum(updatedAlbum)
+}
+
+async function hideAlbumFromList(album: AccountAlbum) {
+  const updatedAlbum = await hideAlbum(album)
+  if (!updatedAlbum) return
+
+  replaceAlbum(updatedAlbum)
 }
 </script>
 
@@ -69,10 +92,10 @@ async function createAlbum() {
           <div class="absolute top-3 right-3 z-10">
             <AlbumActionsMenu
               :album="album"
-              @rename="updateAlbumInfo"
-              @delete="deleteAlbum"
-              @publish="publishAlbum"
-              @hide="hideAlbum"
+              @rename="renameAlbum"
+              @delete="deleteAlbumFromList"
+              @publish="publishAlbumFromList"
+              @hide="hideAlbumFromList"
               @copy-public-link="copyPublicLink"
             />
           </div>
