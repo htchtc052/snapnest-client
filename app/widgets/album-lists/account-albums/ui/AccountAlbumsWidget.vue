@@ -5,7 +5,6 @@ import { useAlbumInfoUpdate } from '~/features/album/album-info-update'
 import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
 import { useCreatePrivateAlbum } from '~/features/album/create-private-album'
 import { useDeleteAlbum } from '~/features/album/delete-album'
-import type { AccountAlbum } from '~/entities/album/model'
 import { useAccountAlbums } from '../model/useAccountAlbums'
 
 const {
@@ -18,44 +17,25 @@ const {
 } = useAccountAlbums()
 
 const { createPrivateAlbum } = useCreatePrivateAlbum()
-const { deleteAlbum: deleteAlbumFeature } = useDeleteAlbum()
-const { updateAlbumInfo } = useAlbumInfoUpdate()
+const { deleteAlbum } = useDeleteAlbum({
+  onDeleted: removeAlbumById,
+})
+const { updateAlbumInfo } = useAlbumInfoUpdate({
+  onUpdated: replaceAlbum,
+})
 const {
-  publishAlbum: publishAlbumFeature,
-  hideAlbum: hideAlbumFeature,
+  publishAlbum,
+  hideAlbum,
   copyPublicLink,
-} = useAlbumVisibilityFeature()
+} = useAlbumVisibilityFeature({
+  onUpdated: replaceAlbum,
+})
 
 async function createAlbum() {
   const album = await createPrivateAlbum()
   if (!album) return
 
   await navigateTo(`/account/albums/${album.id}`)
-}
-
-async function deleteAlbum(album: AccountAlbum) {
-  const isDeleted = await deleteAlbumFeature(album)
-  if (!isDeleted) return
-
-  removeAlbumById(album.id)
-}
-
-function applyAlbumUpdate(updatedAlbum: AccountAlbum | null | undefined) {
-  if (!updatedAlbum) return
-
-  replaceAlbum(updatedAlbum)
-}
-
-async function renameAlbum(album: AccountAlbum) {
-  applyAlbumUpdate(await updateAlbumInfo(album))
-}
-
-async function publishAlbum(album: AccountAlbum) {
-  applyAlbumUpdate(await publishAlbumFeature(album))
-}
-
-async function hideAlbum(album: AccountAlbum) {
-  applyAlbumUpdate(await hideAlbumFeature(album))
 }
 </script>
 
@@ -89,7 +69,7 @@ async function hideAlbum(album: AccountAlbum) {
           <div class="absolute top-3 right-3 z-10">
             <AlbumActionsMenu
               :album="album"
-              @rename="renameAlbum"
+              @rename="updateAlbumInfo"
               @delete="deleteAlbum"
               @publish="publishAlbum"
               @hide="hideAlbum"

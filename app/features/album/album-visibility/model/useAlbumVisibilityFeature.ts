@@ -3,7 +3,11 @@ import type { AccountAlbum } from '~/entities/album/model'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumVisibilityRequest } from '../api/useAlbumVisibilityRequest'
 
-export function useAlbumVisibilityFeature() {
+type UseAlbumVisibilityFeatureOptions = {
+  onUpdated?: (album: AccountAlbum) => void
+}
+
+export function useAlbumVisibilityFeature(options: UseAlbumVisibilityFeatureOptions = {}) {
   const config = useRuntimeConfig()
   const toast = useToast()
   const { copy, copied } = useClipboard()
@@ -43,6 +47,8 @@ export function useAlbumVisibilityFeature() {
       color: 'success',
     })
 
+    options.onUpdated?.(updatedAlbum)
+
     return updatedAlbum
   }
 
@@ -54,6 +60,8 @@ export function useAlbumVisibilityFeature() {
       title: 'Album is now private.',
       color: 'success',
     })
+
+    options.onUpdated?.(updatedAlbum)
 
     return updatedAlbum
   }

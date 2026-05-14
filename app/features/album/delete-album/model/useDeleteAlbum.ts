@@ -5,7 +5,11 @@ import { useAlbumDeleteRequest } from '../api/useAlbumDeleteRequest'
 import type { AlbumDeleteModalResult } from '../contract/delete-album.contract'
 import AlbumDeleteModal from '../ui/AlbumDeleteModal.vue'
 
-export function useDeleteAlbum() {
+type UseDeleteAlbumOptions = {
+  onDeleted?: (albumId: AccountAlbum['id']) => void
+}
+
+export function useDeleteAlbum(options: UseDeleteAlbumOptions = {}) {
   const toast = useToast()
   const openDeleteAlbumModal = useOpenModal<typeof AlbumDeleteModal, AlbumDeleteModalResult>(AlbumDeleteModal)
   const { deleteAlbumRequest } = useAlbumDeleteRequest()
@@ -27,7 +31,9 @@ export function useDeleteAlbum() {
       color: 'success',
     })
 
-    return true
+    options.onDeleted?.(album.id)
+
+    return album.id
   }
 
   return {

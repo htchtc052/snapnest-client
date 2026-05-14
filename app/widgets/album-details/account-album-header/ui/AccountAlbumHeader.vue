@@ -25,31 +25,23 @@ const {
   publishAlbum: publishAlbumFeature,
   hideAlbum: hideAlbumFeature,
   copyPublicLink,
-} = useAlbumVisibilityFeature()
-
-function applyUpdatedAlbum(updatedAlbum: Album) {
-  emit('update:album', {
+} = useAlbumVisibilityFeature({
+  onUpdated: updatedAlbum => emit('update:album', {
     ...props.album,
     ...updatedAlbum,
-  })
-}
+  }),
+})
 
 async function publishAlbum() {
   if (!albumPolicy.value.canEditAlbum) return
 
-  const updatedAlbum = await publishAlbumFeature(props.album)
-  if (!updatedAlbum) return
-
-  applyUpdatedAlbum(updatedAlbum)
+  await publishAlbumFeature(props.album)
 }
 
 async function hideAlbum() {
   if (!albumPolicy.value.canEditAlbum) return
 
-  const updatedAlbum = await hideAlbumFeature(props.album)
-  if (!updatedAlbum) return
-
-  applyUpdatedAlbum(updatedAlbum)
+  await hideAlbumFeature(props.album)
 }
 
 async function copyLink() {
