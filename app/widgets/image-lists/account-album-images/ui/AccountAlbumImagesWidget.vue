@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted } from '#imports'
 import { useWindowSize } from '@vueuse/core'
 import { useAlbumCoverUpdate } from '~/features/album/album-cover-update'
 import { useRemoveImagesFromAlbumFeature } from '~/features/album/remove-images-from-album'
+import type { AccountAlbum } from '~/entities/album/model'
 import {
   ImageSelectionBar,
   SelectableImageCard,
@@ -13,6 +14,10 @@ import { useAccountAlbumImages } from '../model/useAccountAlbumImages'
 
 const props = defineProps<{
   albumId: number
+}>()
+
+const emit = defineEmits<{
+  (event: 'album-updated', album: AccountAlbum): void
 }>()
 
 const {
@@ -69,7 +74,10 @@ async function removeSelectedImages() {
 async function setSelectedImageAsCover() {
   if (imageSelection.state.selectedImageId.value === null) return
 
-  await setAlbumCover(props.albumId, imageSelection.state.selectedImageId.value)
+  const updatedAlbum = await setAlbumCover(props.albumId, imageSelection.state.selectedImageId.value)
+  if (!updatedAlbum) return
+
+  emit('album-updated', updatedAlbum)
 }
 </script>
 

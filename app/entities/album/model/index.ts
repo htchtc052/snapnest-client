@@ -4,4 +4,6 @@ export type {
   AlbumView,
   PublicAlbum,
 } from './album.model'
+export { useAccountAlbum } from './useAccountAlbum'
+export { usePublicAlbum } from './usePublicAlbum'
 export { albumInfoSchema, type AlbumInfoDto } from './album-info.contract'

@@ -2,8 +2,7 @@
 import { computed } from '#imports'
 import {
   AlbumHeader,
-  usePublicAlbumRequest,
-  type PublicAlbum,
+  usePublicAlbum,
 } from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
 import { PublicAlbumImagesWidget } from '~/widgets/image-lists/public-album-images'
@@ -17,12 +16,8 @@ definePageMeta({
 
 const route = useRoute()
 const token = computed(() => route.params.token as string)
-const { getPublicAlbum } = usePublicAlbumRequest()
 
-const { data: album, error: albumError } = await useAsyncData<PublicAlbum>(
-  `public-album:${token.value}`,
-  () => getPublicAlbum(token.value),
-)
+const { data: album, error: albumError } = await usePublicAlbum(token.value)
 
 if (albumError.value) {
   const statusCode = albumError.value.statusCode || albumError.value.status
@@ -59,8 +54,7 @@ if (albumError.value) {
     <AlbumHeader
       v-if="album"
       :album="album"
-      show-cover
-      show-details
+      variant="public"
       class="pb-6"
     />
 

@@ -5,13 +5,12 @@ import type { Album } from '../model'
 
 const props = withDefaults(defineProps<{
   album: Album
-  showCover?: boolean
-  showDetails?: boolean
+  variant?: 'compact' | 'public'
 }>(), {
-  showCover: false,
-  showDetails: false,
+  variant: 'compact',
 })
 
+const showPublicDetails = computed(() => props.variant === 'public')
 const createdAtLabel = computed(() => formatDate(new Date(props.album.createdAt), 'YYYY.MM.DD'))
 const imagesCountLabel = computed(() => {
   return `${props.album.imagesCount} ${props.album.imagesCount === 1 ? 'photo' : 'photos'}`
@@ -20,20 +19,20 @@ const imagesCountLabel = computed(() => {
 
 <template>
   <div class="flex items-start justify-between gap-3 pt-5 pb-4">
-    <div class="min-w-0">
-      <h3 v-if="album.name" class="truncate text-2xl font-semibold text-foreground">
-        {{ album.name }}
-      </h3>
+    <div class="flex min-w-0 items-start gap-4">
+      <img
+        v-if="album.coverPreviewUrl"
+        :src="album.coverPreviewUrl"
+        alt="Album cover"
+        class="h-16 w-16 shrink-0 rounded-lg object-cover"
+      >
 
-      <div v-if="showDetails" class="mt-3 flex items-center gap-4">
-        <img
-          v-if="showCover && album.coverPreviewUrl"
-          :src="album.coverPreviewUrl"
-          alt="Album cover"
-          class="h-16 w-16 shrink-0 rounded-lg object-cover"
-        >
+      <div class="min-w-0">
+        <h3 v-if="album.name" class="truncate text-2xl font-semibold text-foreground">
+          {{ album.name }}
+        </h3>
 
-        <div class="min-w-0 space-y-1">
+        <div v-if="showPublicDetails" class="mt-1 min-w-0 space-y-1">
           <p class="text-sm text-muted">
             By {{ album.ownerName }}
           </p>

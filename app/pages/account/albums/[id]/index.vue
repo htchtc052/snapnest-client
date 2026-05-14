@@ -3,9 +3,8 @@ import { computed } from '#imports'
 import { useAlbumVisibilityFeature } from '~/features/album/album-visibility'
 import {
   AlbumHeader,
-  useAccountAlbumRequest,
+  useAccountAlbum,
   type Album,
-  type AlbumView,
 } from '~/entities/album'
 import { ApiHttpStatus } from '~/shared/api'
 import { AccountAlbumImagesWidget } from '~/widgets/image-lists/account-album-images'
@@ -16,12 +15,8 @@ definePageMeta({
 
 const route = useRoute()
 const albumId = computed(() => Number(route.params.id))
-const { getAccountAlbum } = useAccountAlbumRequest()
 
-const { data: album, error: albumError } = await useAsyncData<AlbumView>(
-  `account-album:${albumId.value}`,
-  () => getAccountAlbum(albumId.value),
-)
+const { data: album, error: albumError } = await useAccountAlbum(albumId.value)
 
 if (albumError.value) {
   const statusCode = albumError.value.statusCode || albumError.value.status
@@ -113,6 +108,6 @@ async function copyLink() {
       </template>
     </AlbumHeader>
 
-    <AccountAlbumImagesWidget :album-id="albumId" />
+    <AccountAlbumImagesWidget :album-id="albumId" @album-updated="applyUpdatedAlbum" />
   </div>
 </template>
