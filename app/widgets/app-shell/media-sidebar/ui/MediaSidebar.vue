@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { computed, ref } from '#imports'
+import { useProfileAvatarUpdate } from '~/features/profile-avatar-update'
 import { useProfileInfoUpdate } from '~/features/profile-info-update'
 import { formatBytes } from '~/shared/format'
 import type { User } from '~/entities/user'
 
+const { updateProfileAvatar } = useProfileAvatarUpdate()
 const { updateProfileInfo } = useProfileInfoUpdate()
 const { user, logout } = useSanctumAuth<User>()
 const isLoggingOut = ref(false)
@@ -21,6 +23,11 @@ const storageUsage = computed(() => `${formatBytes(user.value?.bytesUsed)} / ${f
 const profileMenuItems = computed<DropdownMenuItem[][]>(() => [
   [
     {
+      label: 'Change avatar',
+      icon: 'i-heroicons-camera-20-solid',
+      onSelect: () => openAvatarEditor(),
+    },
+    {
       label: 'Edit info',
       icon: 'i-heroicons-user-circle-20-solid',
       onSelect: () => openProfileEditor(),
@@ -36,6 +43,12 @@ const profileMenuItems = computed<DropdownMenuItem[][]>(() => [
     },
   ],
 ])
+
+async function openAvatarEditor() {
+  if (!user.value) return
+
+  await updateProfileAvatar(user.value)
+}
 
 async function openProfileEditor() {
   if (!user.value) return
@@ -96,11 +109,24 @@ async function handleLogout() {
           color="neutral"
           class="h-auto w-full justify-start rounded-xl p-2 hover:bg-muted"
         >
-          <UAvatar
-            :alt="user.name"
-            :src="user.avatarUrl || undefined"
-            size="lg"
-          />
+          <span class="relative shrink-0">
+            <UAvatar
+              :alt="user.name"
+              :src="user.avatarUrl || undefined"
+              size="lg"
+            />
+            <span
+              role="button"
+              tabindex="0"
+              title="Change avatar"
+              class="absolute -right-1 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-inverted ring-2 ring-elevated"
+              @click.stop.prevent="openAvatarEditor"
+              @keydown.enter.stop.prevent="openAvatarEditor"
+              @keydown.space.stop.prevent="openAvatarEditor"
+            >
+              <UIcon name="i-heroicons-camera-20-solid" class="h-3 w-3" />
+            </span>
+          </span>
           <div class="min-w-0 flex-1 text-left">
             <div class="truncate text-lg font-medium text-default">
               {{ user.name }}
