@@ -4,10 +4,10 @@ import { computed, reactive, ref } from 'vue'
 import { albumInfoSchema, type AccountAlbum, type AlbumInfoDto } from '~/entities/album/model'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumInfoUpdateRequest } from '../api/useAlbumInfoUpdateRequest'
-import type { AlbumInfoUpdateModalResult } from '../contract/album-info-update.contract'
+import type { AlbumInfoUpdateFormResult } from '../contract/album-info-update.contract'
 
 const props = defineProps<{ album: AccountAlbum }>()
-const emit = defineEmits<{ (e: 'close', value: AlbumInfoUpdateModalResult): void }>()
+const emit = defineEmits<{ (e: 'close', value: AlbumInfoUpdateFormResult): void }>()
 
 const initial = computed<AlbumInfoDto>(() => ({
   name: props.album.name ?? '',
@@ -22,7 +22,7 @@ const {
   isLoading: isUpdating,
 } = useApiOperation(updateAlbumInfoRequest)
 
-function closeModal() {
+function cancel() {
   emit('close', { action: 'cancel' })
 }
 
@@ -42,24 +42,18 @@ async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
 </script>
 
 <template>
-  <UModal :close="{ onClick: closeModal }">
-    <template #title>Rename album</template>
+  <UForm ref="form" :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
+    <UFormField name="name" label="Album name">
+      <UInput v-model="state.name" class="w-full" />
+    </UFormField>
 
-    <template #body>
-      <UForm ref="form" :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
-        <UFormField name="name" label="Album name">
-          <UInput v-model="state.name" class="w-full" />
-        </UFormField>
-
-        <div class="flex gap-3 pt-2">
-          <UButton variant="outline" type="button" @click="closeModal">
-            Cancel
-          </UButton>
-          <UButton type="submit" :loading="isUpdating">
-            Save changes
-          </UButton>
-        </div>
-      </UForm>
-    </template>
-  </UModal>
+    <div class="flex gap-3 pt-2">
+      <UButton variant="outline" type="button" @click="cancel">
+        Cancel
+      </UButton>
+      <UButton type="submit" :loading="isUpdating">
+        Save changes
+      </UButton>
+    </div>
+  </UForm>
 </template>

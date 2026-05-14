@@ -4,9 +4,9 @@ import { reactive, ref } from 'vue'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { albumInfoSchema, type AlbumInfoDto } from '~/entities/album/model'
 import { usePrivateAlbumCreateRequest } from '../api/usePrivateAlbumCreateRequest'
-import type { AlbumCreateModalResult } from '../contract/create-private-album.contract'
+import type { AlbumCreateFormResult } from '../contract/create-private-album.contract'
 
-const emit = defineEmits<{ (e: 'close', value: AlbumCreateModalResult): void }>()
+const emit = defineEmits<{ (e: 'close', value: AlbumCreateFormResult): void }>()
 
 const state = reactive<AlbumInfoDto>({
   name: '',
@@ -20,7 +20,7 @@ const {
   isLoading: isCreating,
 } = useApiOperation(createPrivateAlbumRequest)
 
-function closeModal() {
+function cancel() {
   emit('close', { action: 'cancel' })
 }
 
@@ -41,25 +41,19 @@ async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
 </script>
 
 <template>
-  <UModal :close="{ onClick: closeModal }">
-    <template #title>Create album</template>
+  <UForm ref="form" :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
+    <UFormField name="name" label="Album name">
+      <UInput v-model="state.name" class="w-full" />
+    </UFormField>
 
-    <template #body>
-      <UForm ref="form" :state="state" :schema="albumInfoSchema" class="space-y-4" @submit="onSubmit">
-        <UFormField name="name" label="Album name">
-          <UInput v-model="state.name" class="w-full" />
-        </UFormField>
+    <div class="flex gap-3 pt-2">
+      <UButton variant="outline" type="button" @click="cancel">
+        Cancel
+      </UButton>
 
-        <div class="flex gap-3 pt-2">
-          <UButton variant="outline" type="button" @click="closeModal">
-            Cancel
-          </UButton>
-
-          <UButton type="submit" :loading="isCreating">
-            Create
-          </UButton>
-        </div>
-      </UForm>
-    </template>
-  </UModal>
+      <UButton type="submit" :loading="isCreating">
+        Create
+      </UButton>
+    </div>
+  </UForm>
 </template>

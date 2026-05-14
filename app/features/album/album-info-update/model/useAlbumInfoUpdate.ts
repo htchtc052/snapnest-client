@@ -1,13 +1,16 @@
-import { useOpenModal } from '~/shared/modal'
+import { useOpenModalContent } from '~/shared/modal'
 import type { AccountAlbum } from '~/entities/album/model'
-import type { AlbumInfoUpdateModalResult } from '../contract/album-info-update.contract'
-import AlbumInfoUpdateModal from '../ui/AlbumInfoUpdateModal.vue'
+import type { AlbumInfoUpdateFormResult } from '../contract/album-info-update.contract'
+import AlbumInfoUpdateForm from '../ui/AlbumInfoUpdateForm.vue'
 
 export function useAlbumInfoUpdate() {
-  const openUpdateModal = useOpenModal<typeof AlbumInfoUpdateModal, AlbumInfoUpdateModalResult>(AlbumInfoUpdateModal)
+  const openUpdateForm = useOpenModalContent<typeof AlbumInfoUpdateForm, AlbumInfoUpdateFormResult>({
+    component: AlbumInfoUpdateForm,
+    title: 'Rename album',
+  })
 
   async function updateAlbumInfo(album: AccountAlbum) {
-    const modalResult = await openUpdateModal({ album })
+    const modalResult = await openUpdateForm({ album })
 
     if (modalResult.action === 'cancel') return
 

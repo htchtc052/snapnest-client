@@ -1,5 +1,5 @@
 import type { User } from '~/entities/user'
 
-export type ProfileInfoUpdateModalResult =
+export type ProfileInfoUpdateFormResult =
   | { action: 'cancel' }
   | { action: 'confirm'; user: User }

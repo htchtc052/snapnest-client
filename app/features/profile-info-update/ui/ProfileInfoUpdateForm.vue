@@ -5,10 +5,10 @@ import { profileInfoSchema, type ProfileInfoDto } from '~/entities/user/model'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { User } from '~/entities/user'
 import { useProfileInfoUpdateRequest } from '../api/useProfileInfoUpdateRequest'
-import type { ProfileInfoUpdateModalResult } from '../contract/profile-info-update.contract'
+import type { ProfileInfoUpdateFormResult } from '../contract/profile-info-update.contract'
 
 const props = defineProps<{ user: User }>()
-const emit = defineEmits<{ (e: 'close', value: ProfileInfoUpdateModalResult): void }>()
+const emit = defineEmits<{ (e: 'close', value: ProfileInfoUpdateFormResult): void }>()
 
 const initial = computed<ProfileInfoDto>(() => ({
   name: props.user.name ?? '',
@@ -24,7 +24,7 @@ const {
   isLoading: isUpdating,
 } = useApiOperation(updateProfileInfoRequest)
 
-function closeModal() {
+function cancel() {
   emit('close', { action: 'cancel' })
 }
 
@@ -45,25 +45,19 @@ async function onSubmit(e: FormSubmitEvent<ProfileInfoDto>) {
 </script>
 
 <template>
-  <UModal :close="{ onClick: closeModal }">
-    <template #title>Edit account info</template>
+  <UForm ref="form" :state="state" :schema="profileInfoSchema" class="space-y-4" @submit="onSubmit">
+    <UFormField name="name" label="Display name">
+      <UInput v-model="state.name" class="w-full" />
+    </UFormField>
 
-    <template #body>
-      <UForm ref="form" :state="state" :schema="profileInfoSchema" class="space-y-4" @submit="onSubmit">
-        <UFormField name="name" label="Display name">
-          <UInput v-model="state.name" class="w-full" />
-        </UFormField>
+    <div class="flex gap-3 pt-2">
+      <UButton variant="outline" type="button" @click="cancel">
+        Cancel
+      </UButton>
 
-        <div class="flex gap-3 pt-2">
-          <UButton variant="outline" type="button" @click="closeModal">
-            Cancel
-          </UButton>
-
-          <UButton type="submit" :loading="isUpdating">
-            Save changes
-          </UButton>
-        </div>
-      </UForm>
-    </template>
-  </UModal>
+      <UButton type="submit" :loading="isUpdating">
+        Save changes
+      </UButton>
+    </div>
+  </UForm>
 </template>

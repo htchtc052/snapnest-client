@@ -8,6 +8,6 @@ export const imageUpdateSchema = yup.object({
 
 export type ImageUpdateDto = Asserts<typeof imageUpdateSchema>
 
-export type ImageUpdateModalResult =
+export type ImageUpdateFormResult =
   | { action: 'cancel' }
   | { action: 'confirm'; image: Image }

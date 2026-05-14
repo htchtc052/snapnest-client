@@ -1,12 +1,15 @@
-import { useOpenModal } from '~/shared/modal'
-import type { AlbumCreateModalResult } from '../contract/create-private-album.contract'
-import AlbumCreateModal from '../ui/AlbumCreateModal.vue'
+import { useOpenModalContent } from '~/shared/modal'
+import type { AlbumCreateFormResult } from '../contract/create-private-album.contract'
+import AlbumCreateForm from '../ui/AlbumCreateForm.vue'
 
 export function useCreatePrivateAlbum() {
-  const openCreateModal = useOpenModal<typeof AlbumCreateModal, AlbumCreateModalResult>(AlbumCreateModal)
+  const openCreateForm = useOpenModalContent<typeof AlbumCreateForm, AlbumCreateFormResult>({
+    component: AlbumCreateForm,
+    title: 'Create album',
+  })
 
   async function createPrivateAlbum() {
-    const modalResult = await openCreateModal()
+    const modalResult = await openCreateForm()
 
     if (modalResult.action === 'cancel') return
 

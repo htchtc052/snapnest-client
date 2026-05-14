@@ -1,11 +1,14 @@
-import { useOpenModal } from '~/shared/modal'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
+import { useOpenModalContent } from '~/shared/modal'
 import { useImageUpdateRequest } from '../api/useImageUpdateRequest'
-import type { ImageUpdateModalResult } from '../contract/image-update.contract'
-import ImageUpdateModal from '../ui/ImageUpdateModal.vue'
+import type { ImageUpdateFormResult } from '../contract/image-update.contract'
+import ImageUpdateForm from '../ui/ImageUpdateForm.vue'
 
 export function useImageUpdate() {
-  const openImageUpdateModal = useOpenModal<typeof ImageUpdateModal, ImageUpdateModalResult>(ImageUpdateModal)
+  const openImageUpdateForm = useOpenModalContent<typeof ImageUpdateForm, ImageUpdateFormResult>({
+    component: ImageUpdateForm,
+    title: 'Edit image info',
+  })
   const { getImageUpdateTargetRequest } = useImageUpdateRequest()
 
   const {
@@ -16,7 +19,7 @@ export function useImageUpdate() {
     const imageResult = await getImageUpdateTarget(imageId)
     if (imageResult.status !== ApiResultStatus.Success) return
 
-    const modalResult = await openImageUpdateModal({ image: imageResult.data })
+    const modalResult = await openImageUpdateForm({ image: imageResult.data })
     if (modalResult.action === 'cancel') return
 
     return modalResult.image

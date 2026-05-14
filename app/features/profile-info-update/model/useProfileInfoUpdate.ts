@@ -1,17 +1,17 @@
-import { useOpenModal } from '~/shared/modal'
+import { useOpenModalContent } from '~/shared/modal'
 import type { User } from '~/entities/user'
-import type { ProfileInfoUpdateModalResult } from '../contract/profile-info-update.contract'
-import ProfileInfoUpdateModal from '../ui/ProfileInfoUpdateModal.vue'
+import type { ProfileInfoUpdateFormResult } from '../contract/profile-info-update.contract'
+import ProfileInfoUpdateForm from '../ui/ProfileInfoUpdateForm.vue'
 
 export function useProfileInfoUpdate() {
   const { refreshIdentity } = useSanctumAuth<User>()
-  const openProfileInfoUpdateModal = useOpenModal<
-    typeof ProfileInfoUpdateModal,
-    ProfileInfoUpdateModalResult
-  >(ProfileInfoUpdateModal)
+  const openProfileInfoUpdateForm = useOpenModalContent<typeof ProfileInfoUpdateForm, ProfileInfoUpdateFormResult>({
+    component: ProfileInfoUpdateForm,
+    title: 'Edit account info',
+  })
 
   async function updateProfileInfo(user: User) {
-    const modalResult = await openProfileInfoUpdateModal({ user })
+    const modalResult = await openProfileInfoUpdateForm({ user })
 
     if (modalResult.action === 'cancel') return
 
