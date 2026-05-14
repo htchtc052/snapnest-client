@@ -80,7 +80,7 @@ async function copyLink() {
 
 <template>
   <div class="flex h-full min-h-0 flex-col px-4">
-    <AlbumHeader v-if="album" :album="album">
+    <AlbumHeader v-if="album" :album="album" :is-owner="album.isOwner">
       <template #actions>
         <template v-if="album?.isPublic">
           <div class="flex items-center gap-2">

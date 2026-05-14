@@ -54,7 +54,6 @@ if (albumError.value) {
     <AlbumHeader
       v-if="album"
       :album="album"
-      variant="public"
       class="pb-6"
     />
 

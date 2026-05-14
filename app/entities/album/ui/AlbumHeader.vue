@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import { computed } from '#imports'
 import { formatDate } from '@vueuse/core'
-import type { Album } from '../model'
+import { getAlbumHeaderPolicy, type Album } from '../model'
 
 const props = withDefaults(defineProps<{
   album: Album
-  variant?: 'compact' | 'public'
+  isOwner?: boolean
 }>(), {
-  variant: 'compact',
+  isOwner: false,
 })
 
-const showPublicDetails = computed(() => props.variant === 'public')
+const policy = computed(() => getAlbumHeaderPolicy({
+  isOwner: props.isOwner,
+}))
+const hasMeta = computed(() => {
+  return policy.value.canViewOwnerName
+    || policy.value.canViewCreatedAt
+    || policy.value.canViewImagesCount
+})
 const createdAtLabel = computed(() => formatDate(new Date(props.album.createdAt), 'YYYY.MM.DD'))
 const imagesCountLabel = computed(() => {
   return `${props.album.imagesCount} ${props.album.imagesCount === 1 ? 'photo' : 'photos'}`
@@ -32,15 +39,23 @@ const imagesCountLabel = computed(() => {
           {{ album.name }}
         </h3>
 
-        <div v-if="showPublicDetails" class="mt-1 min-w-0 space-y-1">
-          <p class="text-sm text-muted">
+        <div v-if="hasMeta" class="mt-1 min-w-0 space-y-1">
+          <p v-if="policy.canViewOwnerName" class="text-sm text-muted">
             By {{ album.ownerName }}
           </p>
 
           <p class="text-sm text-muted">
-            {{ imagesCountLabel }}
-            <span class="px-1">•</span>
-            {{ createdAtLabel }}
+            <template v-if="policy.canViewImagesCount">
+              {{ imagesCountLabel }}
+            </template>
+
+            <template v-if="policy.canViewImagesCount && policy.canViewCreatedAt">
+              <span class="px-1">•</span>
+            </template>
+
+            <template v-if="policy.canViewCreatedAt">
+              {{ createdAtLabel }}
+            </template>
           </p>
         </div>
       </div>
