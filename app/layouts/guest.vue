@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import FooterNote from '~/components/shell/FooterNote.vue';
-import Logo from '~/components/shell/Logo.vue';
-
+import { BrandLogo, FooterNote } from '~/shared/brand'
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-muted">
     <header class="border-b border-default bg-elevated">
       <UContainer class="h-16 flex items-center justify-center">
-        <Logo />
+        <BrandLogo />
       </UContainer>
     </header>
 

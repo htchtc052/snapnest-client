@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from '#imports'
-import MediaSidebar from '~/components/layouts/MediaSidebar.vue'
+import { MediaSidebar } from '~/widgets/app-shell/media-sidebar'
+
 const isNavOpen = ref(false)
 </script>
 
