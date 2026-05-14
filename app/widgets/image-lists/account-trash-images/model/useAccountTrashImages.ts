@@ -1,4 +1,5 @@
 import { computed, useLazyAsyncData } from '#imports'
+import { removeImagesById as removeImagesByIdFromCollection } from '~/entities/image'
 import {
   useAccountTrashImagesRequest,
   type AccountTrashImagesApiResponse,
@@ -33,16 +34,7 @@ export function useAccountTrashImages() {
   })
 
   function removeImagesById(ids: number[]) {
-    const idsSet = new Set(ids)
-    const images = accountTrashImagesResponse.value.images
-
-    for (let index = images.length - 1; index >= 0; index--) {
-      const image = images[index]
-
-      if (image && idsSet.has(image.id)) {
-        images.splice(index, 1)
-      }
-    }
+    removeImagesByIdFromCollection(accountTrashImagesResponse.value.images, ids)
   }
 
   return {

@@ -1,15 +1,15 @@
 import { computed, useLazyAsyncData } from '#imports'
 import { useApiQuery } from '~/shared/api'
-import type { Image } from '~/entities/image'
+import {
+  appendImages,
+  removeImagesById as removeImagesByIdFromCollection,
+  replaceImageById,
+  type Image,
+} from '~/entities/image'
 import {
   useAccountImagesRequest,
   type AccountImagesApiResponse,
 } from '../api/useAccountImagesRequest'
-import {
-  appendImages as appendFeedImages,
-  removeImagesById as removeFeedImagesById,
-  replaceImage as replaceFeedImage,
-} from './accountImagesFeedMutations'
 
 export function useAccountImages() {
   const { getAccountImages } = useAccountImagesRequest()
@@ -52,18 +52,18 @@ export function useAccountImages() {
     const page = await loadMoreImagesPage(accountImagesFeed.value.nextPage)
     if (!page) return null
 
-    appendFeedImages(accountImagesFeed.value, page.images)
+    appendImages(accountImagesFeed.value.images, page.images)
     accountImagesFeed.value.nextPage = page.nextPage
 
     return page
   }
 
   function removeImagesById(ids: number[]) {
-    removeFeedImagesById(accountImagesFeed.value, ids)
+    removeImagesByIdFromCollection(accountImagesFeed.value.images, ids)
   }
 
   function replaceImage(image: Image) {
-    replaceFeedImage(accountImagesFeed.value, image)
+    replaceImageById(accountImagesFeed.value.images, image)
   }
 
   return {
