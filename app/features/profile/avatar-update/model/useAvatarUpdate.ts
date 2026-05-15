@@ -7,8 +7,6 @@ import { useAvatarUpdateRequest } from '../api/useAvatarUpdateRequest'
 import type { AvatarUpdateDto } from '../contract/avatar-update.contract'
 import AvatarUpdateForm from '../ui/AvatarUpdateForm.vue'
 
-const CLOSE_DELAY_MS = 1200
-
 export function useAvatarUpdate() {
   const openAvatarUpdateForm = useOpenModalContent({
     component: AvatarUpdateForm,
@@ -31,7 +29,7 @@ export function useAvatarUpdateForm(closeForm: () => void) {
   })
   const form = ref<Form<AvatarUpdateDto>>()
   const isUpdated = ref(false)
-  let closeTimer: ReturnType<typeof setTimeout> | null = null
+  let closeTimer: ReturnType<typeof setTimeout> | undefined
 
   const { updateAvatarRequest } = useAvatarUpdateRequest()
   const {
@@ -43,21 +41,13 @@ export function useAvatarUpdateForm(closeForm: () => void) {
   const userName = computed(() => user.value?.name ?? '')
 
   function clearCloseTimer() {
-    if (!closeTimer) return
+    if (closeTimer === undefined) return
 
     clearTimeout(closeTimer)
-    closeTimer = null
+    closeTimer = undefined
   }
 
-  function closeAfterSuccess() {
-    clearCloseTimer()
-    closeTimer = setTimeout(() => {
-      closeTimer = null
-      closeForm()
-    }, CLOSE_DELAY_MS)
-  }
-
-  function handleAvatarUpdate(avatar: File | null | undefined) {
+  async function handleAvatarUpdate(avatar: File | null | undefined) {
     formState.avatar = avatar ?? null
     form.value?.clear()
     isUpdated.value = false
@@ -65,19 +55,16 @@ export function useAvatarUpdateForm(closeForm: () => void) {
 
     if (!avatar || isUpdating.value) return
 
-    void uploadAvatar(avatar)
-  }
-
-  async function uploadAvatar(avatar: File) {
-    form.value?.clear()
-
     const result = await updateAvatar(avatar)
 
     if (result.status === ApiResultStatus.Success) {
       formState.avatar = null
       user.value = result.data
       isUpdated.value = true
-      closeAfterSuccess()
+      closeTimer = setTimeout(() => {
+        closeTimer = undefined
+        closeForm()
+      }, 1200)
 
       return
     }
