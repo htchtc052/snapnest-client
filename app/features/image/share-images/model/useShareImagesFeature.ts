@@ -26,7 +26,7 @@ export function useShareImagesFeature() {
       confirmIcon: 'i-heroicons-link-20-solid',
       confirmColor: 'primary',
     })
-    if (modalResult.action === 'cancel') return
+    if (!modalResult || modalResult.action === 'cancel') return
 
     const result = await executeShareImages(ids)
     if (result.status !== ApiResultStatus.Success) return

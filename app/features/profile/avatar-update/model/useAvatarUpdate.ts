@@ -13,14 +13,14 @@ export function useAvatarUpdate() {
     title: 'Change avatar',
   })
 
-  async function updateAvatar(user: User) {
-    const modalResult = await openAvatarUpdateForm({ user })
+  async function updateAvatar() {
+    const updatedUser = await openAvatarUpdateForm()
 
-    if (modalResult.action === 'cancel') return
+    if (!updatedUser) return
 
     await refreshIdentity()
 
-    return modalResult.user
+    return updatedUser
   }
 
   return {

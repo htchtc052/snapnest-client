@@ -26,7 +26,7 @@ export function useDeleteAlbum() {
       confirmIcon: 'i-heroicons-trash-20-solid',
       confirmColor: 'error',
     })
-    if (modalResult.action === 'cancel') return
+    if (!modalResult || modalResult.action === 'cancel') return
 
     const result = await executeDeleteAlbum(album.id)
     if (result.status !== ApiResultStatus.Success) return

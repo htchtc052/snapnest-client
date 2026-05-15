@@ -13,14 +13,14 @@ export function useInfoUpdate() {
     title: 'Edit account info',
   })
 
-  async function updateInfo(user: User) {
-    const modalResult = await openInfoUpdateForm({ user })
+  async function updateInfo() {
+    const updatedUser = await openInfoUpdateForm()
 
-    if (modalResult.action === 'cancel') return
+    if (!updatedUser) return
 
     await refreshIdentity()
 
-    return modalResult.user
+    return updatedUser
   }
 
   return {

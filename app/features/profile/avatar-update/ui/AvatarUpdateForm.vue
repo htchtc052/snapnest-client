@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { User } from '~/entities/user'
 import { useAvatarUpdateRequest } from '../api/useAvatarUpdateRequest'
@@ -9,8 +9,8 @@ import type {
   AvatarUpdateFormResult,
 } from '../contract/avatar-update.contract'
 
-const props = defineProps<{ user: User }>()
-const emit = defineEmits<{ (e: 'close', value: AvatarUpdateFormResult): void }>()
+const emit = defineEmits<{ (e: 'close', value?: AvatarUpdateFormResult): void }>()
+const { user } = useSanctumAuth<User>()
 
 const formState = reactive<AvatarUpdateDto>({
   avatar: null,
@@ -23,8 +23,11 @@ const {
   isLoading: isUpdating,
 } = useApiOperation(updateAvatarRequest)
 
+const avatarUrl = computed(() => user.value?.avatarUrl ?? undefined)
+const userName = computed(() => user.value?.name ?? '')
+
 function cancel() {
-  emit('close', { action: 'cancel' })
+  emit('close')
 }
 
 function onAvatarUpdate(file?: File | null) {
@@ -48,7 +51,7 @@ async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
   const result = await updateAvatar(e.data.avatar)
 
   if (result.status === ApiResultStatus.Success) {
-    emit('close', { action: 'confirm', user: result.data })
+    emit('close', result.data)
     return
   }
 
@@ -62,8 +65,8 @@ async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
   <UForm ref="form" :state="formState" class="space-y-4" @submit="onSubmit">
     <div class="flex justify-center">
       <UAvatar
-        :src="props.user.avatarUrl ?? undefined"
-        :alt="props.user.name"
+        :src="avatarUrl"
+        :alt="userName"
         size="3xl"
         class="size-24 text-4xl ring-4 ring-default"
       />

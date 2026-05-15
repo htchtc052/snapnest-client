@@ -7,11 +7,11 @@ import type { User } from '~/entities/user'
 import { useInfoUpdateRequest } from '../api/useInfoUpdateRequest'
 import type { InfoUpdateFormResult } from '../contract/info-update.contract'
 
-const props = defineProps<{ user: User }>()
-const emit = defineEmits<{ (e: 'close', value: InfoUpdateFormResult): void }>()
+const emit = defineEmits<{ (e: 'close', value?: InfoUpdateFormResult): void }>()
+const { user } = useSanctumAuth<User>()
 
 const initial = computed<ProfileInfoDto>(() => ({
-  name: props.user.name ?? '',
+  name: user.value?.name ?? '',
 }))
 
 const formState = reactive<ProfileInfoDto>({ ...initial.value })
@@ -25,7 +25,7 @@ const {
 } = useApiOperation(updateInfoRequest)
 
 function cancel() {
-  emit('close', { action: 'cancel' })
+  emit('close')
 }
 
 async function onSubmit(e: FormSubmitEvent<ProfileInfoDto>) {
@@ -34,7 +34,7 @@ async function onSubmit(e: FormSubmitEvent<ProfileInfoDto>) {
   const result = await updateInfo(e.data)
 
   if (result.status === ApiResultStatus.Success) {
-    emit('close', { action: 'confirm', user: result.data })
+    emit('close', result.data)
     return
   }
 

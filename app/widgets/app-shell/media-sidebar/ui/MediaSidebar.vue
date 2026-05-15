@@ -45,15 +45,11 @@ const profileMenuItems = computed<DropdownMenuItem[][]>(() => [
 ])
 
 async function openAvatarEditor() {
-  if (!user.value) return
-
-  await updateAvatar(user.value)
+  await updateAvatar()
 }
 
 async function openProfileEditor() {
-  if (!user.value) return
-
-  await updateInfo(user.value)
+  await updateInfo()
 }
 
 async function handleLogout() {

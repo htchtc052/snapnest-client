@@ -20,7 +20,7 @@ export function useImageUpdate() {
     if (imageResult.status !== ApiResultStatus.Success) return
 
     const modalResult = await openImageUpdateForm({ image: imageResult.data })
-    if (modalResult.action === 'cancel') return
+    if (!modalResult || modalResult.action === 'cancel') return
 
     return modalResult.image
   }

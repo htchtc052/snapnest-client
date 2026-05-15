@@ -35,7 +35,7 @@ export function useImageTrashActions() {
     if (!createConfirmProps) return true
 
     const modalResult = await openConfirm(createConfirmProps(ids))
-    return modalResult.action === 'confirm'
+    return modalResult?.action === 'confirm'
   }
 
   async function executeAction(actionType: ImageTrashActionType, ids: number[], createConfirmProps?: CreateConfirmProps) {

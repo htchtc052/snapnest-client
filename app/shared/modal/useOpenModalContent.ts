@@ -10,7 +10,7 @@ type ModalContentOptions<C extends Component> = {
 export function useOpenModalContent<C extends Component, R = unknown>(options: ModalContentOptions<C>) {
   const overlay = useOverlay()
 
-  return async function open(componentProps?: ComponentProps<C>): Promise<R> {
+  return async function open(componentProps?: ComponentProps<C>): Promise<R | undefined> {
     const modal = overlay.create(ModalContentAdapter)
     const { result } = modal.open({
       component: options.component,
@@ -18,6 +18,6 @@ export function useOpenModalContent<C extends Component, R = unknown>(options: M
       title: options.title,
     })
 
-    return await result as R
+    return await result as R | undefined
   }
 }

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from '#imports'
 import type { Component } from 'vue'
 
 const props = defineProps<{
@@ -9,27 +8,17 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  close: [result: unknown]
+  close: [result?: unknown]
 }>()
 
-function close(result: unknown) {
+function close(result?: unknown) {
   emit('close', result)
 }
-
-const modalTitle = computed(() => {
-  if (props.title) return props.title
-
-  const modalTitle = props.componentProps?.modalTitle
-  if (typeof modalTitle === 'string') return modalTitle
-
-  const contentTitle = props.componentProps?.title
-  return typeof contentTitle === 'string' ? contentTitle : ''
-})
 </script>
 
 <template>
-  <UModal :close="{ onClick: () => close({ action: 'cancel' }) }">
-    <template #title>{{ modalTitle }}</template>
+  <UModal :close="{ onClick: () => close() }">
+    <template v-if="props.title" #title>{{ props.title }}</template>
 
     <template #body>
       <component
