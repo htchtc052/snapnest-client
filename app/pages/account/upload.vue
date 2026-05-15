@@ -123,16 +123,12 @@ async function processNext() {
     const responseStatus = error instanceof FetchError
       ? error.response?.status
       : undefined
-    const responseMessage = error instanceof FetchError && typeof error.data?.message === 'string'
-      ? error.data.message
-      : undefined
 
     if (responseStatus === 403) {
       await refreshIdentity()
     } else {
       toast.add({
         title: 'Upload failed',
-        description: responseMessage,
         color: 'error',
       })
     }
