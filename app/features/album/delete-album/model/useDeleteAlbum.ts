@@ -18,7 +18,7 @@ export function useDeleteAlbum() {
   } = useApiOperation(deleteAlbumRequest)
 
   async function deleteAlbum(album: AccountAlbum) {
-    const modalResult = await openDeleteAlbumConfirm({
+    const isConfirmed = await openDeleteAlbumConfirm({
       description: album.name
         ? `Are you sure you want to delete ${album.name}?`
         : 'Are you sure you want to delete this album?',
@@ -26,7 +26,7 @@ export function useDeleteAlbum() {
       confirmIcon: 'i-heroicons-trash-20-solid',
       confirmColor: 'error',
     })
-    if (!modalResult || modalResult.action === 'cancel') return
+    if (!isConfirmed) return
 
     const result = await executeDeleteAlbum(album.id)
     if (result.status !== ApiResultStatus.Success) return

@@ -8,16 +8,20 @@ const emit = defineEmits<{
 }>()
 
 function cancel() {
-  emit('close', { action: 'cancel' })
+  emit('close', false)
 }
 
 function confirm() {
-  emit('close', { action: 'confirm' })
+  emit('close', true)
 }
 </script>
 
 <template>
   <div class="space-y-4">
+    <h3 v-if="title" class="text-base font-semibold text-highlighted">
+      {{ title }}
+    </h3>
+
     <p class="text-sm text-muted">
       {{ description }}
     </p>

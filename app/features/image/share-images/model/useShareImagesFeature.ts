@@ -20,13 +20,13 @@ export function useShareImagesFeature() {
   } = useApiOperation(shareImagesRequest)
 
   async function shareImages(ids: number[]) {
-    const modalResult = await openShareConfirm({
+    const isConfirmed = await openShareConfirm({
       description: 'A public album will be created. Anyone with the link will be able to view it.',
       confirmLabel: 'Create public album',
       confirmIcon: 'i-heroicons-link-20-solid',
       confirmColor: 'primary',
     })
-    if (!modalResult || modalResult.action === 'cancel') return
+    if (!isConfirmed) return
 
     const result = await executeShareImages(ids)
     if (result.status !== ApiResultStatus.Success) return

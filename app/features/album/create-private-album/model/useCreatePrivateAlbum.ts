@@ -9,11 +9,7 @@ export function useCreatePrivateAlbum() {
   })
 
   async function createPrivateAlbum() {
-    const modalResult = await openCreateForm()
-
-    if (!modalResult || modalResult.action === 'cancel') return
-
-    return modalResult.album
+    return await openCreateForm()
   }
 
   return {

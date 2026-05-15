@@ -10,11 +10,7 @@ export function useAlbumInfoUpdate() {
   })
 
   async function updateAlbumInfo(album: AccountAlbum) {
-    const modalResult = await openUpdateForm({ album })
-
-    if (!modalResult || modalResult.action === 'cancel') return
-
-    return modalResult.album
+    return await openUpdateForm({ album })
   }
 
   return {

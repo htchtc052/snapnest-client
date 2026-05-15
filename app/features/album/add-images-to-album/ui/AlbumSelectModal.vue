@@ -5,7 +5,7 @@ import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumSelectRequest } from '../api/useAlbumSelectRequest'
 import type { AlbumSelectModalResult } from '../contract/add-images-to-album.contract'
 
-const emit = defineEmits<{ (e: 'close', value: AlbumSelectModalResult): void }>()
+const emit = defineEmits<{ (e: 'close', value?: AlbumSelectModalResult): void }>()
 
 const albums = ref<AccountAlbum[]>([])
 const loadError = ref<string | null>(null)
@@ -20,11 +20,11 @@ const {
 const isAlbumsLoading = computed(() => isInitialLoading.value || isLoading.value)
 
 function closeModal() {
-  emit('close', { action: 'cancel' })
+  emit('close')
 }
 
 function selectAlbum(album: AccountAlbum) {
-  emit('close', { action: 'confirm', album })
+  emit('close', album)
 }
 
 async function loadAlbums() {

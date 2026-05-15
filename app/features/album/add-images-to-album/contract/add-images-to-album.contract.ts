@@ -4,6 +4,4 @@ export type AddImagesToAlbumResult = {
   addedIds: number[]
 }
 
-export type AlbumSelectModalResult =
-  | { action: 'cancel' }
-  | { action: 'confirm'; album: AccountAlbum }
+export type AlbumSelectModalResult = AccountAlbum

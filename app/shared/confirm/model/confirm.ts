@@ -1,10 +1,7 @@
-export type ConfirmResult =
-  | { action: 'cancel' }
-  | { action: 'confirm' }
+export type ConfirmResult = boolean
 
 export type ConfirmFormProps = {
   title?: string
-  modalTitle?: string
   description: string
   confirmLabel: string
   confirmIcon?: string

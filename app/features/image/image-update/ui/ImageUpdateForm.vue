@@ -11,7 +11,7 @@ import {
 } from '../contract/image-update.contract'
 
 const props = defineProps<{ image: Image }>()
-const emit = defineEmits<{ (e: 'close', value: ImageUpdateFormResult): void }>()
+const emit = defineEmits<{ (e: 'close', value?: ImageUpdateFormResult): void }>()
 
 const initial = computed<ImageUpdateDto>(() => ({
   name: props.image.name ?? '',
@@ -27,7 +27,7 @@ const {
 } = useApiOperation(updateImageRequest)
 
 function cancel() {
-  emit('close', { action: 'cancel' })
+  emit('close')
 }
 
 async function onSubmit(e: FormSubmitEvent<ImageUpdateDto>) {
@@ -36,7 +36,7 @@ async function onSubmit(e: FormSubmitEvent<ImageUpdateDto>) {
   const result = await updateImage(props.image.id, e.data)
 
   if (result.status === ApiResultStatus.Success) {
-    emit('close', { action: 'confirm', image: result.data })
+    emit('close', result.data)
     return
   }
 

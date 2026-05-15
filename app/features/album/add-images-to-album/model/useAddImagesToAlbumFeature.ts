@@ -41,10 +41,10 @@ export function useAddImagesToAlbumFeature() {
   }
 
   async function addImages(ids: number[]) {
-    const modalResult = await openSelectModal()
-    if (modalResult.action === 'cancel') return
+    const album = await openSelectModal()
+    if (!album) return
 
-    return await addImagesToAlbum(modalResult.album, ids)
+    return await addImagesToAlbum(album, ids)
   }
 
   return {

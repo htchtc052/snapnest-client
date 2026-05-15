@@ -7,7 +7,7 @@ import { useAlbumInfoUpdateRequest } from '../api/useAlbumInfoUpdateRequest'
 import type { AlbumInfoUpdateFormResult } from '../contract/album-info-update.contract'
 
 const props = defineProps<{ album: AccountAlbum }>()
-const emit = defineEmits<{ (e: 'close', value: AlbumInfoUpdateFormResult): void }>()
+const emit = defineEmits<{ (e: 'close', value?: AlbumInfoUpdateFormResult): void }>()
 
 const initial = computed<AlbumInfoDto>(() => ({
   name: props.album.name ?? '',
@@ -23,7 +23,7 @@ const {
 } = useApiOperation(updateAlbumInfoRequest)
 
 function cancel() {
-  emit('close', { action: 'cancel' })
+  emit('close')
 }
 
 async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
@@ -31,7 +31,7 @@ async function onSubmit(e: FormSubmitEvent<AlbumInfoDto>) {
   const result = await updateAlbumInfo(props.album.id, e.data)
 
   if (result.status === ApiResultStatus.Success) {
-    emit('close', { action: 'confirm', album: result.data })
+    emit('close', result.data)
     return
   }
 
