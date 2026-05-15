@@ -1,25 +1,73 @@
 <script setup lang="ts">
-import { useAvatarUpdateForm } from '../model/useAvatarUpdate'
+import type { Form, FormSubmitEvent } from '#ui/types'
+import { reactive, ref } from 'vue'
+import { ApiResultStatus, useApiOperation } from '~/shared/api'
+import type { User } from '~/entities/user'
+import { useAvatarUpdateRequest } from '../api/useAvatarUpdateRequest'
+import {
+  avatarUpdateSchema,
+  type AvatarUpdateDto,
+} from '../contract/avatar-update.contract'
 
 const emit = defineEmits<{ (e: 'close'): void }>()
+const { user } = useSanctumAuth<User>()
 
+const formState = reactive<AvatarUpdateDto>({
+  avatar: null,
+})
+const form = ref<Form<AvatarUpdateDto>>()
+const isUpdated = ref(false)
+
+const { updateAvatarRequest } = useAvatarUpdateRequest()
 const {
-  form,
-  formState,
-  avatarUrl,
-  userName,
-  isUpdating,
-  isUpdated,
-  handleAvatarUpdate,
-} = useAvatarUpdateForm(() => emit('close'))
+  execute: updateAvatar,
+  isLoading: isUpdating,
+} = useApiOperation(updateAvatarRequest)
+
+async function onAvatarChange() {
+  form.value?.clear()
+  isUpdated.value = false
+
+  if (!formState.avatar || isUpdating.value) return
+
+  await form.value?.submit()
+}
+
+async function onSubmit(event: FormSubmitEvent<AvatarUpdateDto>) {
+  form.value?.clear()
+
+  if (!event.data.avatar) return
+
+  const result = await updateAvatar(event.data.avatar)
+
+  if (result.status === ApiResultStatus.Success) {
+    formState.avatar = null
+    user.value = result.data
+    isUpdated.value = true
+    setTimeout(() => emit('close'), 1200)
+
+    return
+  }
+
+  if (result.status === ApiResultStatus.Validation) {
+    isUpdated.value = false
+    form.value?.setErrors(result.errors)
+  }
+}
 </script>
 
 <template>
-  <UForm ref="form" :state="formState" class="space-y-4">
+  <UForm
+    ref="form"
+    :state="formState"
+    :schema="avatarUpdateSchema"
+    class="space-y-4"
+    @submit="onSubmit"
+  >
     <div class="flex justify-center">
       <UAvatar
-        :src="avatarUrl"
-        :alt="userName"
+        :src="user?.avatarUrl || undefined"
+        :alt="user?.name ?? ''"
         size="3xl"
         class="size-28 text-5xl ring-4 ring-default"
       />
@@ -45,7 +93,7 @@ const {
         :file-image="false"
         :disabled="isUpdating"
         class="mx-auto w-full max-w-3xl"
-        @update:model-value="handleAvatarUpdate"
+        @change="onAvatarChange"
       />
     </UFormField>
 
