@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Form, FormSubmitEvent } from '#ui/types'
-import { computed, onBeforeUnmount, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { User } from '~/entities/user'
 import { useAvatarUpdateRequest } from '../api/useAvatarUpdateRequest'
@@ -16,19 +16,12 @@ const formState = reactive<AvatarUpdateDto>({
   avatar: null,
 })
 const form = ref<Form<AvatarUpdateDto>>()
-const previewUrl = ref<string | null>(null)
 
 const { updateAvatarRequest } = useAvatarUpdateRequest()
 const {
   execute: updateAvatar,
   isLoading: isUpdating,
 } = useApiOperation(updateAvatarRequest)
-
-const avatarPreviewUrl = computed(() => previewUrl.value ?? props.user.avatarUrl ?? undefined)
-
-onBeforeUnmount(() => {
-  revokePreviewUrl()
-})
 
 function cancel() {
   emit('close', { action: 'cancel' })
@@ -37,12 +30,6 @@ function cancel() {
 function onAvatarUpdate(file?: File | null) {
   form.value?.clear()
   formState.avatar = file ?? null
-
-  revokePreviewUrl()
-
-  if (!file) return
-
-  previewUrl.value = URL.createObjectURL(file)
 }
 
 async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
@@ -69,20 +56,13 @@ async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
     form.value?.setErrors(result.errors)
   }
 }
-
-function revokePreviewUrl() {
-  if (!previewUrl.value) return
-
-  URL.revokeObjectURL(previewUrl.value)
-  previewUrl.value = null
-}
 </script>
 
 <template>
   <UForm ref="form" :state="formState" class="space-y-4" @submit="onSubmit">
     <div class="flex justify-center">
       <UAvatar
-        :src="avatarPreviewUrl"
+        :src="props.user.avatarUrl ?? undefined"
         :alt="props.user.name"
         size="3xl"
         class="size-24 text-4xl ring-4 ring-default"
