@@ -1,9 +1,9 @@
 import type { User } from '~/entities/user'
 
-export function useProfileAvatarUpdateRequest() {
+export function useAvatarUpdateRequest() {
   const client = useSanctumClient()
 
-  async function updateProfileAvatarRequest(avatar: File): Promise<User> {
+  async function updateAvatarRequest(avatar: File): Promise<User> {
     const body = new FormData()
     body.append('avatar', avatar)
 
@@ -14,6 +14,6 @@ export function useProfileAvatarUpdateRequest() {
   }
 
   return {
-    updateProfileAvatarRequest,
+    updateAvatarRequest,
   }
 }

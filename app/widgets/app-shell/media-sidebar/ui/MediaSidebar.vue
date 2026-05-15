@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { computed, ref } from '#imports'
-import { useProfileAvatarUpdate } from '~/features/profile-avatar-update'
-import { useProfileInfoUpdate } from '~/features/profile-info-update'
+import { useAvatarUpdate } from '~/features/profile/avatar-update'
+import { useInfoUpdate } from '~/features/profile/info-update'
 import { formatBytes } from '~/shared/format'
 import type { User } from '~/entities/user'
 
-const { updateProfileAvatar } = useProfileAvatarUpdate()
-const { updateProfileInfo } = useProfileInfoUpdate()
+const { updateAvatar } = useAvatarUpdate()
+const { updateInfo } = useInfoUpdate()
 const { user, logout } = useSanctumAuth<User>()
 const isLoggingOut = ref(false)
 
@@ -47,13 +47,13 @@ const profileMenuItems = computed<DropdownMenuItem[][]>(() => [
 async function openAvatarEditor() {
   if (!user.value) return
 
-  await updateProfileAvatar(user.value)
+  await updateAvatar(user.value)
 }
 
 async function openProfileEditor() {
   if (!user.value) return
 
-  await updateProfileInfo(user.value)
+  await updateInfo(user.value)
 }
 
 async function handleLogout() {

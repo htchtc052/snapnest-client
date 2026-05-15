@@ -3,29 +3,28 @@ import type { Form, FormSubmitEvent } from '#ui/types'
 import { computed, onBeforeUnmount, reactive, ref } from 'vue'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { User } from '~/entities/user'
-import { useProfileAvatarUpdateRequest } from '../api/useProfileAvatarUpdateRequest'
+import { useAvatarUpdateRequest } from '../api/useAvatarUpdateRequest'
 import type {
-  ProfileAvatarUpdateDto,
-  ProfileAvatarUpdateFormResult,
-} from '../contract/profile-avatar-update.contract'
+  AvatarUpdateDto,
+  AvatarUpdateFormResult,
+} from '../contract/avatar-update.contract'
 
 const props = defineProps<{ user: User }>()
-const emit = defineEmits<{ (e: 'close', value: ProfileAvatarUpdateFormResult): void }>()
+const emit = defineEmits<{ (e: 'close', value: AvatarUpdateFormResult): void }>()
 
-const state = reactive<ProfileAvatarUpdateDto>({
+const formState = reactive<AvatarUpdateDto>({
   avatar: null,
 })
-const form = ref<Form<ProfileAvatarUpdateDto>>()
+const form = ref<Form<AvatarUpdateDto>>()
 const previewUrl = ref<string | null>(null)
 
-const { updateProfileAvatarRequest } = useProfileAvatarUpdateRequest()
+const { updateAvatarRequest } = useAvatarUpdateRequest()
 const {
-  execute: updateProfileAvatar,
+  execute: updateAvatar,
   isLoading: isUpdating,
-} = useApiOperation(updateProfileAvatarRequest)
+} = useApiOperation(updateAvatarRequest)
 
 const avatarPreviewUrl = computed(() => previewUrl.value ?? props.user.avatarUrl ?? undefined)
-const avatarUploadLabel = computed(() => state.avatar?.name ?? 'Choose avatar image')
 
 onBeforeUnmount(() => {
   revokePreviewUrl()
@@ -37,7 +36,7 @@ function cancel() {
 
 function onAvatarUpdate(file?: File | null) {
   form.value?.clear()
-  state.avatar = file ?? null
+  formState.avatar = file ?? null
 
   revokePreviewUrl()
 
@@ -46,7 +45,7 @@ function onAvatarUpdate(file?: File | null) {
   previewUrl.value = URL.createObjectURL(file)
 }
 
-async function onSubmit(e: FormSubmitEvent<ProfileAvatarUpdateDto>) {
+async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
   form.value?.clear()
 
   if (!e.data.avatar) {
@@ -59,7 +58,7 @@ async function onSubmit(e: FormSubmitEvent<ProfileAvatarUpdateDto>) {
     return
   }
 
-  const result = await updateProfileAvatar(e.data.avatar)
+  const result = await updateAvatar(e.data.avatar)
 
   if (result.status === ApiResultStatus.Success) {
     emit('close', { action: 'confirm', user: result.data })
@@ -80,7 +79,7 @@ function revokePreviewUrl() {
 </script>
 
 <template>
-  <UForm ref="form" :state="state" class="space-y-4" @submit="onSubmit">
+  <UForm ref="form" :state="formState" class="space-y-4" @submit="onSubmit">
     <div class="flex justify-center">
       <UAvatar
         :src="avatarPreviewUrl"
@@ -92,10 +91,10 @@ function revokePreviewUrl() {
 
     <UFormField name="avatar" label="Avatar image">
       <UFileUpload
-        :model-value="state.avatar"
+        :model-value="formState.avatar"
         accept="image/*"
         icon="i-heroicons-photo-20-solid"
-        :label="avatarUploadLabel"
+        label="Choose avatar image"
         description="Image file up to 5 MB"
         size="lg"
         :preview="false"

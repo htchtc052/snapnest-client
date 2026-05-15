@@ -1,5 +1,9 @@
 import type { User } from '~/entities/user'
 
-export type ProfileInfoUpdateFormResult =
+export type AvatarUpdateFormResult =
   | { action: 'cancel' }
   | { action: 'confirm'; user: User }
+
+export type AvatarUpdateDto = {
+  avatar: File | null
+}
