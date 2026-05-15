@@ -1,11 +1,12 @@
 import type { Component } from 'vue'
+import { markRaw } from 'vue'
 import type { ComponentProps } from 'vue-component-type-helpers'
 
 export function useOpenModal<C extends Component, R = unknown>(component: C) {
   const overlay = useOverlay()
 
   return async function open(props?: ComponentProps<C>): Promise<R | undefined> {
-    const modal = overlay.create<C>(component)
+    const modal = overlay.create<C>(markRaw(component))
     const { result } = modal.open(props)
 
     return await result as R | undefined

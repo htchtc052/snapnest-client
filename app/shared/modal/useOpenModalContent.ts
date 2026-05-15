@@ -1,4 +1,5 @@
 import type { Component } from 'vue'
+import { markRaw } from 'vue'
 import type { ComponentProps } from 'vue-component-type-helpers'
 import ModalContentAdapter from './ModalContentAdapter.vue'
 
@@ -13,7 +14,7 @@ export function useOpenModalContent<C extends Component, R = unknown>(options: M
   return async function open(componentProps?: ComponentProps<C>): Promise<R | undefined> {
     const modal = overlay.create(ModalContentAdapter)
     const { result } = modal.open({
-      component: options.component,
+      component: markRaw(options.component),
       componentProps,
       title: options.title,
     })

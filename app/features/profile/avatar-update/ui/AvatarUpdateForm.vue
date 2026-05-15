@@ -30,9 +30,8 @@ function cancel() {
   emit('close')
 }
 
-function onAvatarUpdate(file?: File | null) {
+function clearAvatarErrors() {
   form.value?.clear()
-  formState.avatar = file ?? null
 }
 
 async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
@@ -74,15 +73,16 @@ async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
 
     <UFormField name="avatar" label="Avatar image">
       <UFileUpload
-        :model-value="formState.avatar"
+        v-model="formState.avatar"
         accept="image/*"
         icon="i-heroicons-photo-20-solid"
         label="Choose avatar image"
         description="Image file up to 5 MB"
+        layout="list"
         size="lg"
-        :preview="false"
+        :file-image="false"
         class="w-full"
-        @update:model-value="onAvatarUpdate"
+        @change="clearAvatarErrors"
       />
     </UFormField>
 
