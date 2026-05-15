@@ -113,13 +113,13 @@ async function handleLogout() {
             <UAvatar
               :alt="user.name"
               :src="user.avatarUrl || undefined"
-              size="lg"
+              size="xl"
             />
             <span
               role="button"
               tabindex="0"
               title="Change avatar"
-              class="absolute -right-1 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-inverted ring-2 ring-elevated"
+              class="absolute -right-0.5 -bottom-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-inverted ring-2 ring-elevated"
               @click.stop.prevent="openAvatarEditor"
               @keydown.enter.stop.prevent="openAvatarEditor"
               @keydown.space.stop.prevent="openAvatarEditor"
