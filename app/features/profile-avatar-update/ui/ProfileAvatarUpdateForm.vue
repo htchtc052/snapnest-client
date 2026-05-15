@@ -25,6 +25,7 @@ const {
 } = useApiOperation(updateProfileAvatarRequest)
 
 const avatarPreviewUrl = computed(() => previewUrl.value ?? props.user.avatarUrl ?? undefined)
+const avatarUploadLabel = computed(() => state.avatar?.name ?? 'Choose avatar image')
 
 onBeforeUnmount(() => {
   revokePreviewUrl()
@@ -34,18 +35,15 @@ function cancel() {
   emit('close', { action: 'cancel' })
 }
 
-function onAvatarChange(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0] ?? null
-
+function onAvatarUpdate(file?: File | null) {
   form.value?.clear()
-  state.avatar = file
+  state.avatar = file ?? null
 
   revokePreviewUrl()
 
-  if (file) {
-    previewUrl.value = URL.createObjectURL(file)
-  }
+  if (!file) return
+
+  previewUrl.value = URL.createObjectURL(file)
 }
 
 async function onSubmit(e: FormSubmitEvent<ProfileAvatarUpdateDto>) {
@@ -88,15 +86,21 @@ function revokePreviewUrl() {
         :src="avatarPreviewUrl"
         :alt="props.user.name"
         size="3xl"
+        class="size-24 text-4xl ring-4 ring-default"
       />
     </div>
 
     <UFormField name="avatar" label="Avatar image">
-      <UInput
-        type="file"
+      <UFileUpload
+        :model-value="state.avatar"
         accept="image/*"
+        icon="i-heroicons-photo-20-solid"
+        :label="avatarUploadLabel"
+        description="Image file up to 5 MB"
+        size="lg"
+        :preview="false"
         class="w-full"
-        @change="onAvatarChange"
+        @update:model-value="onAvatarUpdate"
       />
     </UFormField>
 
