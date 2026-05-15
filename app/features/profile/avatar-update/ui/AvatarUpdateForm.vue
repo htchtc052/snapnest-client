@@ -34,7 +34,7 @@ watch(() => formState.avatar, (avatar) => {
   void uploadAvatar(avatar)
 })
 
-function cancel() {
+function close() {
   emit('close')
 }
 
@@ -86,8 +86,8 @@ async function uploadAvatar(avatar: File) {
     </UFormField>
 
     <div class="flex gap-3 pt-2">
-      <UButton variant="outline" type="button" :disabled="isUpdating" @click="cancel">
-        Cancel
+      <UButton variant="outline" type="button" :disabled="isUpdating" @click="close">
+        Close
       </UButton>
 
       <UButton v-if="isUpdating" type="button" loading disabled>
