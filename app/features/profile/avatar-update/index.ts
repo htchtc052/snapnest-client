@@ -4,7 +4,6 @@ export {
 
 export {
   type AvatarUpdateDto,
-  type AvatarUpdateFormResult,
 } from './contract/avatar-update.contract'
 
 export {

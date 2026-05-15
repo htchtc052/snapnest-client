@@ -4,18 +4,16 @@ import { computed, reactive, ref, watch } from 'vue'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { User } from '~/entities/user'
 import { useAvatarUpdateRequest } from '../api/useAvatarUpdateRequest'
-import type {
-  AvatarUpdateDto,
-  AvatarUpdateFormResult,
-} from '../contract/avatar-update.contract'
+import type { AvatarUpdateDto } from '../contract/avatar-update.contract'
 
-const emit = defineEmits<{ (e: 'close', value?: AvatarUpdateFormResult): void }>()
-const { user } = useSanctumAuth<User>()
+const emit = defineEmits<{ (e: 'close'): void }>()
+const { user, refreshIdentity } = useSanctumAuth<User>()
 
 const formState = reactive<AvatarUpdateDto>({
   avatar: null,
 })
 const form = ref<Form<AvatarUpdateDto>>()
+const isUpdated = ref(false)
 
 const { updateAvatarRequest } = useAvatarUpdateRequest()
 const {
@@ -29,7 +27,11 @@ const userName = computed(() => user.value?.name ?? '')
 watch(() => formState.avatar, (avatar) => {
   form.value?.clear()
 
-  if (!avatar || isUpdating.value) return
+  if (!avatar) return
+
+  isUpdated.value = false
+
+  if (isUpdating.value) return
 
   void uploadAvatar(avatar)
 })
@@ -38,21 +40,21 @@ function close() {
   emit('close')
 }
 
-function clearAvatarErrors() {
-  form.value?.clear()
-}
-
 async function uploadAvatar(avatar: File) {
   form.value?.clear()
 
   const result = await updateAvatar(avatar)
 
   if (result.status === ApiResultStatus.Success) {
-    emit('close', result.data)
+    formState.avatar = null
+    isUpdated.value = true
+    await refreshIdentity()
+
     return
   }
 
   if (result.status === ApiResultStatus.Validation) {
+    isUpdated.value = false
     form.value?.setErrors(result.errors)
   }
 }
@@ -69,6 +71,14 @@ async function uploadAvatar(avatar: File) {
       />
     </div>
 
+    <UAlert
+      v-if="isUpdated"
+      color="success"
+      variant="soft"
+      title="Avatar updated"
+      description="Your new avatar is now visible in the profile."
+    />
+
     <UFormField name="avatar" label="Avatar image">
       <UFileUpload
         v-model="formState.avatar"
@@ -81,7 +91,6 @@ async function uploadAvatar(avatar: File) {
         :file-image="false"
         :disabled="isUpdating"
         class="w-full"
-        @change="clearAvatarErrors"
       />
     </UFormField>
 
