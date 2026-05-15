@@ -1,5 +1,5 @@
 import type { Form } from '#ui/types'
-import { computed, onBeforeUnmount, reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useOpenModalContent } from '~/shared/modal'
 import type { User } from '~/entities/user'
@@ -29,7 +29,6 @@ export function useAvatarUpdateForm(closeForm: () => void) {
   })
   const form = ref<Form<AvatarUpdateDto>>()
   const isUpdated = ref(false)
-  let closeTimer: ReturnType<typeof setTimeout> | undefined
 
   const { updateAvatarRequest } = useAvatarUpdateRequest()
   const {
@@ -40,18 +39,10 @@ export function useAvatarUpdateForm(closeForm: () => void) {
   const avatarUrl = computed(() => user.value?.avatarUrl ?? undefined)
   const userName = computed(() => user.value?.name ?? '')
 
-  function clearCloseTimer() {
-    if (closeTimer === undefined) return
-
-    clearTimeout(closeTimer)
-    closeTimer = undefined
-  }
-
   async function handleAvatarUpdate(avatar: File | null | undefined) {
     formState.avatar = avatar ?? null
     form.value?.clear()
     isUpdated.value = false
-    clearCloseTimer()
 
     if (!avatar || isUpdating.value) return
 
@@ -61,10 +52,7 @@ export function useAvatarUpdateForm(closeForm: () => void) {
       formState.avatar = null
       user.value = result.data
       isUpdated.value = true
-      closeTimer = setTimeout(() => {
-        closeTimer = undefined
-        closeForm()
-      }, 1200)
+      setTimeout(closeForm, 1200)
 
       return
     }
@@ -74,8 +62,6 @@ export function useAvatarUpdateForm(closeForm: () => void) {
       form.value?.setErrors(result.errors)
     }
   }
-
-  onBeforeUnmount(clearCloseTimer)
 
   return {
     form,
