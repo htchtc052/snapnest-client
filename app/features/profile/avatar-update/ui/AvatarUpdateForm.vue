@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Form, FormSubmitEvent } from '#ui/types'
-import { computed, reactive, ref } from 'vue'
+import type { Form } from '#ui/types'
+import { computed, reactive, ref, watch } from 'vue'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import type { User } from '~/entities/user'
 import { useAvatarUpdateRequest } from '../api/useAvatarUpdateRequest'
@@ -26,6 +26,14 @@ const {
 const avatarUrl = computed(() => user.value?.avatarUrl ?? undefined)
 const userName = computed(() => user.value?.name ?? '')
 
+watch(() => formState.avatar, (avatar) => {
+  form.value?.clear()
+
+  if (!avatar || isUpdating.value) return
+
+  void uploadAvatar(avatar)
+})
+
 function cancel() {
   emit('close')
 }
@@ -34,20 +42,10 @@ function clearAvatarErrors() {
   form.value?.clear()
 }
 
-async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
+async function uploadAvatar(avatar: File) {
   form.value?.clear()
 
-  if (!e.data.avatar) {
-    form.value?.setErrors([
-      {
-        name: 'avatar',
-        message: 'Choose an image',
-      },
-    ])
-    return
-  }
-
-  const result = await updateAvatar(e.data.avatar)
+  const result = await updateAvatar(avatar)
 
   if (result.status === ApiResultStatus.Success) {
     emit('close', result.data)
@@ -61,7 +59,7 @@ async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
 </script>
 
 <template>
-  <UForm ref="form" :state="formState" class="space-y-4" @submit="onSubmit">
+  <UForm ref="form" :state="formState" class="space-y-4">
     <div class="flex justify-center">
       <UAvatar
         :src="avatarUrl"
@@ -81,18 +79,19 @@ async function onSubmit(e: FormSubmitEvent<AvatarUpdateDto>) {
         layout="list"
         size="lg"
         :file-image="false"
+        :disabled="isUpdating"
         class="w-full"
         @change="clearAvatarErrors"
       />
     </UFormField>
 
     <div class="flex gap-3 pt-2">
-      <UButton variant="outline" type="button" @click="cancel">
+      <UButton variant="outline" type="button" :disabled="isUpdating" @click="cancel">
         Cancel
       </UButton>
 
-      <UButton type="submit" :loading="isUpdating">
-        Save avatar
+      <UButton v-if="isUpdating" type="button" loading disabled>
+        Uploading
       </UButton>
     </div>
   </UForm>

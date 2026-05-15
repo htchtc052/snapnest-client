@@ -25,7 +25,10 @@ export function useAccountTrashImages() {
 
   const images = computed(() => accountTrashImagesResponse.value.images)
 
-  const isLoading = computed(() => accountTrashImagesStatus.value === 'pending')
+  const isLoading = computed(() => {
+    return accountTrashImagesStatus.value === 'idle'
+      || accountTrashImagesStatus.value === 'pending'
+  })
   const hasLoadError = computed(() => accountTrashImagesStatus.value === 'error')
   const isEmpty = computed(() => {
     return !isLoading.value

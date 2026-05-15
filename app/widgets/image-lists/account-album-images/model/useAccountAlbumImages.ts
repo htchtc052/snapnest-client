@@ -24,7 +24,10 @@ export function useAccountAlbumImages(albumId: number) {
   )
 
   const images = computed(() => albumImagesResponse.value.images)
-  const isLoading = computed(() => albumImagesStatus.value === 'pending')
+  const isLoading = computed(() => {
+    return albumImagesStatus.value === 'idle'
+      || albumImagesStatus.value === 'pending'
+  })
   const hasLoadError = computed(() => albumImagesStatus.value === 'error')
   const isEmpty = computed(() => {
     return !isLoading.value

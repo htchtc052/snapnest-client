@@ -37,7 +37,10 @@ export function useAccountImages() {
   } = useApiQuery((page: number) => getAccountImages(page))
 
   const images = computed(() => accountImagesFeed.value.images)
-  const isLoading = computed(() => accountImagesStatus.value === 'pending')
+  const isLoading = computed(() => {
+    return accountImagesStatus.value === 'idle'
+      || accountImagesStatus.value === 'pending'
+  })
   const hasLoadError = computed(() => accountImagesStatus.value === 'error')
   const hasMore = computed(() => accountImagesFeed.value.nextPage !== null)
   const isEmpty = computed(() => {
