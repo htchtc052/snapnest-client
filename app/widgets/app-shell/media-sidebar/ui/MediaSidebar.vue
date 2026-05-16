@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { computed, ref } from '#imports'
+import { UploadImagesPicker } from '~/features/image/upload-images'
 import { useAvatarUpdate } from '~/features/profile/avatar-update'
 import { useInfoUpdate } from '~/features/profile/info-update'
 import { formatBytes } from '~/shared/format'
@@ -92,6 +93,10 @@ async function handleLogout() {
         <span>{{ item.label }}</span>
       </NuxtLink>
     </nav>
+
+    <div class="mt-4 border-t border-default pt-4">
+      <UploadImagesPicker />
+    </div>
 
     <div class="mt-6 space-y-4">
       <div class="border-t border-default pt-4 text-base text-muted">
