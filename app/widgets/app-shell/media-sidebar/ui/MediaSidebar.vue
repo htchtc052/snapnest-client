@@ -79,6 +79,10 @@ async function handleLogout() {
       </div>
     </NuxtLink>
 
+    <div class="mb-4">
+      <UploadImagesPicker />
+    </div>
+
     <nav class="space-y-2">
       <NuxtLink
         v-for="item in navItems"
@@ -93,10 +97,6 @@ async function handleLogout() {
         <span>{{ item.label }}</span>
       </NuxtLink>
     </nav>
-
-    <div class="mt-4 border-t border-default pt-4">
-      <UploadImagesPicker />
-    </div>
 
     <div class="mt-6 space-y-4">
       <div class="border-t border-default pt-4 text-base text-muted">

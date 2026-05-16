@@ -4,10 +4,12 @@ import { ref, watch } from '#imports'
 const selectedFiles = ref<File[] | null>(null)
 
 watch(selectedFiles, (files) => {
-  const pickedFiles = Array.isArray(files) ? files : []
-  if (pickedFiles.length === 0) return
+  if (!files?.length) {
+    return
+  }
 
-  console.log(pickedFiles)
+  console.log(files)
+
   selectedFiles.value = null
 })
 </script>
