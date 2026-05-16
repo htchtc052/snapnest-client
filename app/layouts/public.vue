@@ -2,8 +2,8 @@
 import { computed, ref } from 'vue'
 import type { DropdownMenuItem } from '@nuxt/ui'
 import { AppLogo } from '~/shared/brand'
-import UserAvatar from '~/components/account/UserAvatar.vue'
 import type { User } from '~/entities/user'
+import { getUserInitials } from '~/utils/getUserInitials'
 
 const { user, logout } = useSanctumAuth<User>()
 const isLoggingOut = ref(false)
@@ -11,6 +11,7 @@ const isLoggingOut = ref(false)
 const headerClass = computed(() =>
   user.value ? 'h-16 flex items-center justify-between' : 'h-16 flex items-center justify-center'
 )
+const userInitials = computed(() => user.value ? getUserInitials(user.value.name) : '')
 
 const userMenuItems = computed<DropdownMenuItem[][]>(() => [
   [
@@ -59,14 +60,24 @@ async function handleLogout() {
 
         <UDropdownMenu v-if="user" :items="userMenuItems">
           <UButton variant="ghost" class="flex items-center gap-2">
-            <UserAvatar />
+            <UAvatar
+              :alt="user.name"
+              :src="user.avatarUrl || undefined"
+              :text="userInitials"
+              size="md"
+            />
             <span class="text-sm font-medium text-foreground">{{ user.name }}</span>
             <UIcon name="i-heroicons-chevron-down" class="h-4 w-4 text-muted" />
           </UButton>
 
           <template #content-top>
             <div class="flex items-center gap-3 p-3">
-              <UserAvatar />
+              <UAvatar
+                :alt="user.name"
+                :src="user.avatarUrl || undefined"
+                :text="userInitials"
+                size="md"
+              />
               <div class="min-w-0">
                 <p class="truncate text-sm font-medium">{{ user.name }}</p>
                 <p class="truncate text-xs text-muted">{{ user.email }}</p>
