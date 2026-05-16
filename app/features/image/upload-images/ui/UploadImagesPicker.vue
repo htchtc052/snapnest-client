@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref, watch } from '#imports'
+import { useUploadImagesOverlay } from '../model/useUploadImagesOverlay'
 
 const selectedFiles = ref<File[] | null>(null)
+const { openUploadImagesLayer } = useUploadImagesOverlay()
 
 watch(selectedFiles, (files) => {
-  if (!files?.length) {
-    return
-  }
+  const pickedFiles: File[] = Array.isArray(files) ? files : []
+  if (pickedFiles.length === 0) return
 
-  console.log(files)
+  console.log(pickedFiles)
+  openUploadImagesLayer()
 
   selectedFiles.value = null
 })
