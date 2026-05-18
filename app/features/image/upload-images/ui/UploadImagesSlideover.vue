@@ -12,6 +12,10 @@ const emit = defineEmits<{
     :dismissible="false"
     :handle="false"
     inset
+    :ui="{
+      content: 'left-auto w-full max-w-xl',
+      header: 'flex items-center justify-between gap-3',
+    }"
   >
     <template #header>
       <h2 class="text-lg font-semibold text-highlighted">
