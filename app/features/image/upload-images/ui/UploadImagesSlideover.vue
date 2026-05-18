@@ -13,7 +13,7 @@ const emit = defineEmits<{
     :handle="false"
     inset
     :ui="{
-      content: 'left-auto w-full max-w-xl',
+      content: 'sm:left-auto sm:w-full sm:max-w-xl',
     }"
   >
     <template #header>
