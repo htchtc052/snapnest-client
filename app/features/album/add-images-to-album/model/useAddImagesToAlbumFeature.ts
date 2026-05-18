@@ -1,15 +1,18 @@
-import { useOpenModal } from '~/shared/modal'
+import { useOpenModalContent } from '~/shared/modal'
 import type { AccountAlbum } from '~/entities/album/model'
 import { ApiResultStatus, useApiOperation } from '~/shared/api'
 import { useAlbumImagesAddRequest } from '../api/useAlbumImagesAddRequest'
-import type { AlbumSelectModalResult } from '../contract/add-images-to-album.contract'
-import AlbumSelectModal from '../ui/AlbumSelectModal.vue'
+import type { AlbumSelectResult } from '../contract/add-images-to-album.contract'
+import AlbumSelectContent from '../ui/AlbumSelectContent.vue'
 
 type AlbumToastTarget = Pick<AccountAlbum, 'id' | 'name'>
 
 export function useAddImagesToAlbumFeature() {
   const toast = useToast()
-  const openSelectModal = useOpenModal<typeof AlbumSelectModal, AlbumSelectModalResult>(AlbumSelectModal)
+  const openSelectModal = useOpenModalContent<typeof AlbumSelectContent, AlbumSelectResult>({
+    component: AlbumSelectContent,
+    title: 'Add to album',
+  })
   const { addImagesToAlbumRequest } = useAlbumImagesAddRequest()
 
   const {
