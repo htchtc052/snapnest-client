@@ -6,7 +6,6 @@ import PersistentDrawerContent from './ui/PersistentDrawerContent.vue'
 
 type PersistentDrawerContentOptions<C extends Component> = {
   component: C
-  title?: string
 }
 
 export function useOpenPersistentDrawerContent<C extends Component>(
@@ -18,7 +17,6 @@ export function useOpenPersistentDrawerContent<C extends Component>(
     return drawer.open({
       component: markRaw(options.component),
       componentProps,
-      title: options.title,
     })
   }
 

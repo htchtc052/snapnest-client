@@ -4,7 +4,6 @@ import UploadImagesContent from '../ui/UploadImagesContent.vue'
 export function useUploadImagesOverlay() {
   const uploadImagesOverlay = useOpenPersistentDrawerContent({
     component: UploadImagesContent,
-    title: 'Uploads',
   })
 
   function openUploadImagesLayer() {
