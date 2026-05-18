@@ -1,8 +1,11 @@
-import { usePersistentOverlay } from '~/shared/overlay'
-import UploadImagesDrawer from '../ui/UploadImagesDrawer.vue'
+import { useOpenPersistentDrawerContent } from '~/shared/overlay'
+import UploadImagesContent from '../ui/UploadImagesContent.vue'
 
 export function useUploadImagesOverlay() {
-  const uploadImagesOverlay = usePersistentOverlay(UploadImagesDrawer)
+  const uploadImagesOverlay = useOpenPersistentDrawerContent({
+    component: UploadImagesContent,
+    title: 'Uploads',
+  })
 
   function openUploadImagesLayer() {
     return uploadImagesOverlay.open()

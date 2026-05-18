@@ -1,7 +1,19 @@
 <script setup lang="ts">
+import type { Component } from 'vue'
+
+const props = defineProps<{
+  component: Component
+  componentProps?: Record<string, unknown>
+  title?: string
+}>()
+
 const emit = defineEmits<{
   close: []
 }>()
+
+function close() {
+  emit('close')
+}
 </script>
 
 <template>
@@ -19,7 +31,7 @@ const emit = defineEmits<{
     <template #header>
       <div class="flex w-full items-center justify-between gap-3">
         <h2 class="text-lg font-semibold text-highlighted">
-          Uploads
+          {{ props.title }}
         </h2>
 
         <UButton
@@ -27,9 +39,17 @@ const emit = defineEmits<{
           color="neutral"
           variant="ghost"
           aria-label="Close"
-          @click="emit('close')"
+          @click="close"
         />
       </div>
+    </template>
+
+    <template #body>
+      <component
+        :is="props.component"
+        v-bind="props.componentProps"
+        @close="close"
+      />
     </template>
   </UDrawer>
 </template>
