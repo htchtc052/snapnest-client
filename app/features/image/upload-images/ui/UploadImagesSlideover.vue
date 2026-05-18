@@ -14,21 +14,22 @@ const emit = defineEmits<{
     inset
     :ui="{
       content: 'left-auto w-full max-w-xl',
-      header: 'flex items-center justify-between gap-3',
     }"
   >
     <template #header>
-      <h2 class="text-lg font-semibold text-highlighted">
-        Uploads
-      </h2>
+      <div class="flex w-full items-center justify-between gap-3">
+        <h2 class="text-lg font-semibold text-highlighted">
+          Uploads
+        </h2>
 
-      <UButton
-        icon="i-lucide-x"
-        color="neutral"
-        variant="ghost"
-        aria-label="Close"
-        @click="emit('close')"
-      />
+        <UButton
+          icon="i-lucide-x"
+          color="neutral"
+          variant="ghost"
+          aria-label="Close"
+          @click="emit('close')"
+        />
+      </div>
     </template>
   </UDrawer>
 </template>
